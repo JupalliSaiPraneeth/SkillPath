@@ -1,0 +1,157 @@
+import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import {
+  Lock,
+  Mail,
+  ArrowRight,
+  ShieldAlert,
+  Loader2,
+  Database,
+  ShieldCheck
+} from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
+import Card from '../components/common/Card';
+import Logo from '../components/common/Logo';
+
+export const LoginPage = () => {
+  const { login } = useAuth();
+  const navigate = useNavigate();
+
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setErrorMessage('');
+    setIsSubmitting(true);
+
+    try {
+      const res = await login(email, password);
+      if (!res || !res.success) {
+        setErrorMessage(res?.error || 'Authentication failed. Please check your email and password.');
+        setIsSubmitting(false);
+        return;
+      }
+
+      const id = (email || '').toLowerCase().trim();
+      if (id === 'admin' || id.includes('admin') || id.includes('faculty') || res.user?.role === 'admin') {
+        navigate('/admin');
+      } else {
+        navigate('/dashboard');
+      }
+    } catch (err) {
+      setErrorMessage(err.message || 'Failed to authenticate with Supabase database.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  return (
+    <div className="min-h-[calc(100vh-10rem)] flex items-center justify-center px-4 py-12 font-sans">
+      <div className="w-full max-w-md space-y-5">
+
+        {/* Header Branding */}
+        <div className="text-center flex flex-col items-center">
+          <Logo size="lg" className="mb-4" />
+          <h1 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-slate-100 font-sans tracking-tight">
+            Sign In to SkillPath Finder
+          </h1>
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+            Access your AI & O*NET 30.3 Career Guidance Workspace
+          </p>
+        </div>
+
+        {/* Credentials Form Card */}
+        <Card className="border-slate-200 dark:border-slate-800 shadow-xl" glow>
+
+          {/* Supabase PostgreSQL Badge */}
+          <div className="mb-5 px-3 py-2 rounded-xl bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 flex items-center justify-between">
+            <div className="flex items-center gap-2 text-xs font-bold text-slate-700 dark:text-slate-300">
+              <Database className="w-3.5 h-3.5 text-emerald-500" />
+              <span>Supabase Cloud Database Auth</span>
+            </div>
+            <span className="flex items-center gap-1 text-[10px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 px-2 py-0.5 rounded-full border border-emerald-200 dark:border-emerald-800/40">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+              Live
+            </span>
+          </div>
+
+          {errorMessage && (
+            <div className="mb-5 p-3.5 rounded-2xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 text-xs font-bold text-rose-700 dark:text-rose-300 flex items-start gap-2.5">
+              <ShieldAlert className="w-4 h-4 text-rose-500 shrink-0 mt-0.5" />
+              <span>{errorMessage}</span>
+            </div>
+          )}
+
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+              <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
+                Account Email or Username
+              </label>
+              <div className="relative">
+                <Mail className="w-4 h-4 text-slate-400 dark:text-slate-500 absolute left-3.5 top-3.5 pointer-events-none" />
+                <input
+                  type="text"
+                  required
+                  value={email}
+                  disabled={isSubmitting}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="w-full pl-10 pr-4 py-3 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700/80 rounded-2xl text-xs text-slate-900 dark:text-slate-100 focus:outline-none focus:border-blue-500 shadow-sm font-medium disabled:opacity-50"
+                  placeholder="name@university.edu or admin"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
+                Password
+              </label>
+              <div className="relative">
+                <Lock className="w-4 h-4 text-slate-400 dark:text-slate-500 absolute left-3.5 top-3.5 pointer-events-none" />
+                <input
+                  type="password"
+                  required
+                  value={password}
+                  disabled={isSubmitting}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full pl-10 pr-4 py-3 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700/80 rounded-2xl text-xs text-slate-900 dark:text-slate-100 focus:outline-none focus:border-blue-500 shadow-sm font-medium disabled:opacity-50"
+                  placeholder="••••••••"
+                />
+              </div>
+            </div>
+
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-blue-600 via-indigo-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 text-white font-bold text-xs shadow-glow transition-all flex items-center justify-center gap-2 mt-2 disabled:opacity-60 cursor-pointer"
+            >
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <span>Authenticating with Database...</span>
+                </>
+              ) : (
+                <>
+                  <span>Authenticate & Enter Workspace</span>
+                  <ArrowRight className="w-4 h-4" />
+                </>
+              )}
+            </button>
+          </form>
+
+          <div className="mt-6 pt-5 border-t border-slate-100 dark:border-slate-800 text-center text-xs text-slate-500 dark:text-slate-400">
+            Don't have an account yet?{' '}
+            <Link to="/register" className="text-blue-600 dark:text-blue-400 font-bold hover:underline">
+              Create Engineering Account
+            </Link>
+          </div>
+        </Card>
+
+      </div>
+    </div>
+  );
+};
+
+export default LoginPage;
