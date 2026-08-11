@@ -670,9 +670,9 @@ class StorageService {
   getCurrentUser() {
     try {
       const data = localStorage.getItem(STORAGE_KEYS.CURRENT_USER);
-      return data ? JSON.parse(data) : DEFAULT_USER;
+      return data ? JSON.parse(data) : null;
     } catch (e) {
-      return DEFAULT_USER;
+      return null;
     }
   }
 
