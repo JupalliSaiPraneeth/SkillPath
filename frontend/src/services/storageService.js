@@ -684,6 +684,14 @@ class StorageService {
     }
   }
 
+  clearCurrentUser() {
+    try {
+      localStorage.removeItem(STORAGE_KEYS.CURRENT_USER);
+    } catch (e) {
+      console.error('Failed to clear user from LocalStorage', e);
+    }
+  }
+
   getUserSkills(userId = null) {
     try {
       const activeUser = this.getCurrentUser();

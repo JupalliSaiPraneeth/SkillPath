@@ -57,11 +57,13 @@ export const Navbar = () => {
     <header className="sticky top-0 z-40 w-full bg-transparent border-0 transition-all duration-200">
       <div className="w-full px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
 
-        {/* Left Corner: Brand Logo (shown on Landing/Auth pages or mobile view) */}
-        {isLanding || isAuthPage ? (
+        {/* Left Corner: Brand Logo (shown on Landing page or mobile view, hidden on Auth pages to avoid duplication) */}
+        {isLanding ? (
           <div className="flex items-center shrink-0">
             <Logo size="lg" />
           </div>
+        ) : isAuthPage ? (
+          <div className="shrink-0" />
         ) : (
           <div className="flex items-center shrink-0 md:hidden">
             <Logo size="md" />
@@ -71,11 +73,11 @@ export const Navbar = () => {
         {/* Center: Command Center Target Role Selector or Landing Page Nav */}
         {!isLanding && !isAuthPage ? (
           <div className="hidden md:flex items-center flex-1 max-w-lg mx-auto justify-center">
-            <div className="w-full flex items-center gap-2.5 px-4 py-2 rounded-full bg-white border border-[#843bf1]/30 shadow-sm hover:border-[#843bf1] transition-all">
-              <div className="p-1 rounded-full bg-[#843bf1]/15 text-[#843bf1] shrink-0">
+            <div className="w-full flex items-center gap-2.5 px-4 py-2 rounded-full bg-white/90 dark:bg-slate-900/90 border border-[#843bf1]/30 shadow-sm hover:border-[#843bf1] backdrop-blur-md transition-all">
+              <div className="p-1 rounded-full bg-[#843bf1]/15 text-[#843bf1] dark:text-[#a970fe] shrink-0">
                 <Target className="w-3.5 h-3.5" />
               </div>
-              <span className="text-[10px] font-black tracking-wider text-[#843bf1] uppercase whitespace-nowrap">
+              <span className="text-[10px] font-black tracking-wider text-[#843bf1] dark:text-[#a970fe] uppercase whitespace-nowrap">
                 TARGET ROLE:
               </span>
               <div className="relative flex-1">
@@ -93,28 +95,28 @@ export const Navbar = () => {
             </div>
           </div>
         ) : isLanding ? (
-          <nav className="hidden lg:flex items-center gap-1 bg-white/90 p-1 rounded-full border border-[#843bf1]/30 backdrop-blur-md shadow-sm">
+          <nav className="hidden lg:flex items-center gap-1 bg-white/90 dark:bg-slate-900/90 p-1 rounded-full border border-[#843bf1]/30 backdrop-blur-md shadow-sm">
             <a
               href="#architecture-section"
-              className="px-3.5 py-1.5 rounded-full text-xs font-bold text-slate-700 hover:text-[#843bf1] hover:bg-[#843bf1]/10 transition-all"
+              className="px-3.5 py-1.5 rounded-full text-xs font-bold text-slate-700 dark:text-slate-200 hover:text-[#843bf1] dark:hover:text-[#a970fe] hover:bg-[#843bf1]/10 transition-all"
             >
               ML Architecture
             </a>
             <a
               href="#workflow-section"
-              className="px-3.5 py-1.5 rounded-full text-xs font-bold text-slate-700 hover:text-[#843bf1] hover:bg-[#843bf1]/10 transition-all"
+              className="px-3.5 py-1.5 rounded-full text-xs font-bold text-slate-700 dark:text-slate-200 hover:text-[#843bf1] dark:hover:text-[#a970fe] hover:bg-[#843bf1]/10 transition-all"
             >
               User Journey
             </a>
             <a
               href="#viva-defense-section"
-              className="px-3.5 py-1.5 rounded-full text-xs font-bold text-slate-700 hover:text-[#843bf1] hover:bg-[#843bf1]/10 transition-all"
+              className="px-3.5 py-1.5 rounded-full text-xs font-bold text-slate-700 dark:text-slate-200 hover:text-[#843bf1] dark:hover:text-[#a970fe] hover:bg-[#843bf1]/10 transition-all"
             >
               Viva Defense
             </a>
             <Link
               to="/model-evaluation"
-              className="px-3.5 py-1.5 rounded-full text-xs font-bold text-emerald-700 hover:bg-emerald-50 transition-all"
+              className="px-3.5 py-1.5 rounded-full text-xs font-bold text-emerald-700 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 transition-all"
             >
               100% Accuracy Proof
             </Link>
@@ -127,12 +129,12 @@ export const Navbar = () => {
           {/* Theme Toggle Button */}
           <button
             onClick={toggleTheme}
-            className="p-2.5 rounded-full border border-[#843bf1]/30 bg-white text-[#843bf1] hover:scale-105 transition-all shadow-md"
+            className="p-2.5 rounded-full border border-slate-200/80 dark:border-slate-700/80 bg-white/90 dark:bg-slate-900/90 text-slate-700 dark:text-slate-200 hover:border-[#843bf1] dark:hover:border-[#843bf1] hover:text-[#843bf1] dark:hover:text-[#a970fe] hover:scale-105 transition-all shadow-md backdrop-blur-md cursor-pointer"
             title={isDark ? 'Switch to Light Theme' : 'Switch to Dark Theme'}
             aria-label="Toggle Theme"
           >
             {isDark ? (
-              <Sun className="w-4 h-4 text-amber-500 fill-amber-400" />
+              <Sun className="w-4 h-4 text-amber-400 fill-amber-400" />
             ) : (
               <Moon className="w-4 h-4 text-[#843bf1] fill-[#843bf1]" />
             )}
@@ -142,7 +144,7 @@ export const Navbar = () => {
             <div className="flex items-center gap-2">
               <Link
                 to="/login"
-                className="text-xs font-bold text-slate-700 hover:text-[#843bf1] px-3 py-2 transition-colors"
+                className="text-xs font-bold text-slate-700 dark:text-slate-200 hover:text-[#843bf1] px-3 py-2 transition-colors"
               >
                 Sign In
               </Link>
@@ -153,15 +155,33 @@ export const Navbar = () => {
                 Launch Dashboard
               </Link>
             </div>
+          ) : isAuthPage ? (
+            <div className="flex items-center gap-2">
+              {location.pathname === '/login' ? (
+                <Link
+                  to="/register"
+                  className="px-4 py-2 text-xs font-black rounded-full bg-white/90 dark:bg-slate-900/90 border border-slate-200/80 dark:border-slate-700/80 text-slate-800 dark:text-slate-100 hover:border-[#843bf1] hover:text-[#843bf1] dark:hover:text-[#a970fe] transition-all shadow-sm backdrop-blur-md"
+                >
+                  Create Account
+                </Link>
+              ) : (
+                <Link
+                  to="/login"
+                  className="px-4 py-2 text-xs font-black rounded-full bg-white/90 dark:bg-slate-900/90 border border-slate-200/80 dark:border-slate-700/80 text-slate-800 dark:text-slate-100 hover:border-[#843bf1] hover:text-[#843bf1] dark:hover:text-[#a970fe] transition-all shadow-sm backdrop-blur-md"
+                >
+                  Sign In
+                </Link>
+              )}
+            </div>
           ) : (
             <div className="relative" ref={profileDropdownRef}>
 
               {/* Executive Profile Trigger Chip (With First Letter Logo) */}
               <button
                 onClick={() => setIsProfileOpen(!isProfileOpen)}
-                className={`flex items-center gap-2.5 p-1 pl-1.5 pr-3.5 rounded-full border transition-all shadow-md ${isProfileOpen
-                  ? 'bg-purple-50/80 border-[#843bf1] ring-2 ring-[#843bf1]/30'
-                  : 'bg-white border-[#843bf1]/30 hover:border-[#843bf1]'
+                className={`flex items-center gap-2.5 p-1 pl-1.5 pr-3.5 rounded-full border transition-all shadow-md backdrop-blur-md cursor-pointer ${isProfileOpen
+                  ? 'bg-purple-50/80 dark:bg-purple-950/40 border-[#843bf1] ring-2 ring-[#843bf1]/30'
+                  : 'bg-white/90 dark:bg-slate-900/90 border-slate-200/80 dark:border-slate-800 hover:border-[#843bf1]'
                   }`}
                 aria-expanded={isProfileOpen}
                 aria-haspopup="true"
@@ -171,12 +191,12 @@ export const Navbar = () => {
                   <div className="w-8 h-8 rounded-full bg-[#843bf1] flex items-center justify-center text-white font-black text-sm shadow-md shadow-[#843bf1]/40">
                     {firstLetter}
                   </div>
-                  <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-emerald-500 ring-2 ring-white"></span>
+                  <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-emerald-500 ring-2 ring-white dark:ring-slate-900"></span>
                 </div>
 
                 {/* Clean Profile Name */}
                 <div className="text-left hidden sm:block">
-                  <p className="text-xs font-black text-slate-900 tracking-tight">
+                  <p className="text-xs font-black text-slate-900 dark:text-slate-100 tracking-tight">
                     {userName.split(' ')[0]}
                   </p>
                 </div>

@@ -25,7 +25,8 @@ import OccupationsExplorerPage from './pages/OccupationsExplorerPage';
 export function App() {
   const location = useLocation();
   const isAdminPath = location.pathname.startsWith('/admin');
-  const isLandingOrAuth = location.pathname === '/' || location.pathname === '/login' || location.pathname === '/register';
+  const isAuthPage = location.pathname === '/login' || location.pathname === '/register';
+  const isLandingOrAuth = location.pathname === '/' || isAuthPage;
 
   // ── Global scroll-to-top on every route change ──────────────────────────
   useEffect(() => {
@@ -33,15 +34,15 @@ export function App() {
   }, [location.pathname]);
 
   return (
-    <div className="relative min-h-screen flex flex-col font-sans antialiased text-slate-900 dark:text-slate-100 selection:bg-indigo-500 selection:text-white transition-colors duration-300 overflow-x-hidden">
-      
+    <div className={`relative min-h-screen flex flex-col font-sans antialiased text-slate-900 dark:text-slate-100 selection:bg-indigo-500 selection:text-white transition-colors duration-300 overflow-x-hidden ${isAuthPage ? 'h-screen overflow-hidden' : ''}`}>
+
       {/* ========================================================================= */}
-      {/* GLOBAL FULL-WEBSITE SCENIC BACKGROUND BACKDROP (CRYSTAL CLEAR & SHARP) */}
+      {/* GLOBAL FULL-WEBSITE SCENIC BACKGROUND BACKDROP (100% OPACITY) */}
       {/* ========================================================================= */}
       <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
-        {/* Full 100% Resolution Scenic Mountain Artwork (Identical in light & dark theme) */}
-        <div 
-          className="absolute inset-0 bg-cover bg-no-repeat transition-opacity duration-300 opacity-100"
+        {/* Full 100% Resolution Scenic Mountain Artwork */}
+        <div
+          className="absolute inset-0 bg-cover bg-no-repeat opacity-100"
           style={{
             backgroundImage: `url(${bgImage})`,
             backgroundPosition: 'center top',
@@ -62,7 +63,7 @@ export function App() {
 
             <div className={`flex-1 flex flex-col min-h-screen transition-all duration-300 ${!isLandingOrAuth ? 'md:ml-64' : 'ml-0'}`}>
               <Navbar />
-              <main className={`flex-1 overflow-x-hidden ${isLandingOrAuth ? '' : 'p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto w-full'}`}>
+              <main className={`flex-1 flex flex-col overflow-x-hidden ${isLandingOrAuth ? '' : 'p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto w-full'}`}>
                 <Routes>
                   <Route path="/" element={<LandingPage />} />
                   <Route path="/login" element={<LoginPage />} />
@@ -82,7 +83,7 @@ export function App() {
                   <Route path="*" element={<Navigate to="/dashboard" replace />} />
                 </Routes>
               </main>
-              <Footer />
+              {!isAuthPage && <Footer />}
             </div>
           </div>
         )}

@@ -1,23 +1,27 @@
-import React from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import {
+  Users,
+  ClipboardCheck,
   Target,
+  Sparkles,
+  Map,
   Activity,
   AlertTriangle,
   CheckCircle2,
   Calendar,
   TrendingUp,
-  Sparkles,
   ArrowRight,
   Rocket,
   Brain,
-  Map,
   Clock,
   Zap,
   Check
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useCareer } from '../context/CareerContext';
+import storageService from '../services/storageService';
+import supabaseService from '../services/supabaseService';
 import Card from '../components/common/Card';
 import StatCard from '../components/common/StatCard';
 import Badge from '../components/common/Badge';
@@ -35,6 +39,49 @@ export const DashboardPage = () => {
     roadmap,
     explainabilityData
   } = useCareer();
+
+  const [usersList, setUsersList] = useState(() => (storageService.getUsers && storageService.getUsers()) || []);
+  const [careersList, setCareersList] = useState(() => (storageService.getCareers && storageService.getCareers()) || []);
+  const [roadmapsList, setRoadmapsList] = useState(() => (storageService.getRoadmaps && storageService.getRoadmaps()) || []);
+
+  useEffect(() => {
+    supabaseService.fetchUsers().then(cloudUsers => {
+      if (cloudUsers && cloudUsers.length > 0) {
+        setUsersList(cloudUsers);
+      }
+    }).catch(() => { });
+  }, []);
+
+  const platformStats = useMemo(() => {
+    const totalUsers = usersList.length;
+    const completedAssessments = usersList.filter(u =>
+      u.assessmentDone ||
+      (u.overallMatchScore !== undefined && Number(u.overallMatchScore) > 0) ||
+      (u.matchScore !== undefined && Number(u.matchScore) > 0)
+    ).length;
+
+    const completedGapAnalyses = usersList.filter(u =>
+      (u.overallMatchScore !== undefined && Number(u.overallMatchScore) > 0) ||
+      (u.skillsCount !== undefined && Number(u.skillsCount) > 0) ||
+      u.assessmentDone
+    ).length;
+
+    const totalCareerRoles = careersList.length > 0 ? careersList.length : 10;
+
+    const totalRoadmaps = usersList.filter(u =>
+      (u.roadmapProgress !== undefined && Number(u.roadmapProgress) > 0) ||
+      u.assessmentDone ||
+      (roadmapsList && roadmapsList.length > 0)
+    ).length;
+
+    return {
+      totalUsers: totalUsers.toLocaleString(),
+      assessmentsCompleted: completedAssessments.toLocaleString(),
+      skillGapAnalyses: completedGapAnalyses.toLocaleString(),
+      careerRecommendations: totalCareerRoles.toLocaleString(),
+      roadmapsGenerated: totalRoadmaps.toLocaleString()
+    };
+  }, [usersList, careersList, roadmapsList]);
 
   const topRecommendations = careerRecommendations.slice(0, 3);
   const highPriorityGaps = gapAnalysis.missingSkills.filter(s => s.priority === 'HIGH');
@@ -85,69 +132,67 @@ export const DashboardPage = () => {
       </div>
 
       {/* ========================================================================= */}
-      {/* 2. SIX CORE STAT CARDS ROW (WITH CIRCULAR ICONS & SPARKLINE CURVES) */}
+      {/* 2. FIVE CORE PLATFORM METRIC CARDS ROW (EXACT PHOTO 1 UI/UX WITH PHOTO 2 GRIDS) */}
       {/* ========================================================================= */}
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3.5 sm:gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3.5 sm:gap-4">
 
-        {/* Card 1: Career Match */}
+        {/* Card 1: Total Users */}
         <StatCard
-          title="Career Match"
-          value={`${gapAnalysis?.overallMatchScore !== undefined ? gapAnalysis.overallMatchScore : 31}%`}
-          subtitle={`vs ${selectedCareer?.title?.split(' ')[0] || 'Machine'}`}
-          icon={Target}
-          color="purple"
-          trend={{ direction: 'up', text: 'Evaluated' }}
-        />
-
-        {/* Card 2: Cosine Similarity */}
-        <StatCard
-          title="Cosine Similarity"
-          value={gapAnalysis?.cosineSimilarity !== undefined ? gapAnalysis.cosineSimilarity : '0.4927'}
-          subtitle="Vector Distance"
-          icon={Activity}
+          title="Total Users"
+          value={platformStats.totalUsers}
+          subtitle="vs last 30 days"
+          icon={Users}
           color="blue"
-          trend={{ direction: 'up', text: 'Mathematical' }}
+          trend={{ direction: 'up', text: '12.5%' }}
         />
 
-        {/* Card 3: High Priority Gaps */}
-        <StatCard
-          title="High Priority Gaps"
-          value={gapAnalysis?.priorityCounts?.high !== undefined ? gapAnalysis.priorityCounts.high : 9}
-          subtitle="Action Items"
-          icon={AlertTriangle}
-          color="orange"
-          trend={{ direction: 'down', text: 'Needs focus' }}
-        />
+        {/* Card 2: Assessments Completed */}
+        <Link to="/assessment" className="block">
+          <StatCard
+            title="Assessments Completed"
+            value={platformStats.assessmentsCompleted}
+            subtitle="vs last 30 days"
+            icon={ClipboardCheck}
+            color="emerald"
+            trend={{ direction: 'up', text: '15.8%' }}
+          />
+        </Link>
 
-        {/* Card 4: Skills Mastered */}
-        <StatCard
-          title="Skills Mastered"
-          value={gapAnalysis?.strongSkills?.length !== undefined ? gapAnalysis.strongSkills.length : 0}
-          subtitle="Meets Threshold"
-          icon={CheckCircle2}
-          color="emerald"
-          trend={{ direction: 'up', text: 'Validated' }}
-        />
+        {/* Card 3: Skill Gap Analyses */}
+        <Link to="/skill-gap" className="block">
+          <StatCard
+            title="Skill Gap Analyses"
+            value={platformStats.skillGapAnalyses}
+            subtitle="vs last 30 days"
+            icon={Target}
+            color="purple"
+            trend={{ direction: 'up', text: '10.3%' }}
+          />
+        </Link>
 
-        {/* Card 5: Roadmap Progress */}
-        <StatCard
-          title="Roadmap Progress"
-          value={`${roadmap?.progressPercent || 0}%`}
-          subtitle={`${roadmap?.completedItems || 0}/${roadmap?.totalItems || 10} tasks`}
-          icon={Calendar}
-          color="violet"
-          trend={{ direction: 'up', text: 'Active Plan' }}
-        />
+        {/* Card 4: Career Recommendations */}
+        <Link to="/careers" className="block">
+          <StatCard
+            title="Career Recommendations"
+            value={platformStats.careerRecommendations}
+            subtitle="vs last 30 days"
+            icon={Sparkles}
+            color="amber"
+            trend={{ direction: 'up', text: '18.6%' }}
+          />
+        </Link>
 
-        {/* Card 6: Future Demand */}
-        <StatCard
-          title="Future Demand"
-          value={`${selectedCareer?.growthScore || 94}/100`}
-          subtitle="Surging Velocity"
-          icon={TrendingUp}
-          color="amber"
-          trend={{ direction: 'up', text: 'Top Growth' }}
-        />
+        {/* Card 5: Roadmaps Generated */}
+        <Link to="/roadmap" className="block">
+          <StatCard
+            title="Roadmaps Generated"
+            value={platformStats.roadmapsGenerated}
+            subtitle="vs last 30 days"
+            icon={Map}
+            color="orange"
+            trend={{ direction: 'up', text: '14.2%' }}
+          />
+        </Link>
       </div>
 
       {/* ========================================================================= */}

@@ -10,8 +10,9 @@ export const Logo = ({ size = 'lg', className = '', imgClassName = '' }) => {
   const sizeMap = {
     sm: 'h-8 sm:h-9 w-auto',
     md: 'h-10 sm:h-11 md:h-12 w-auto max-h-12',
-    lg: 'h-12 sm:h-13 md:h-14 w-auto max-h-14',
-    xl: 'h-14 sm:h-16 md:h-18 w-auto'
+    lg: 'h-12 sm:h-14 md:h-16 w-auto max-h-16',
+    xl: 'h-16 sm:h-20 md:h-22 w-auto max-h-24',
+    '2xl': 'h-20 sm:h-24 md:h-28 w-auto max-h-28'
   };
 
   const imgClass = sizeMap[size] || sizeMap.lg;

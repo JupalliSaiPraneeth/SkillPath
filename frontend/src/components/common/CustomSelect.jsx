@@ -147,7 +147,7 @@ const CustomSelect = ({
   const normalised      = normaliseOptions(options);
   const selected        = normalised.find((o) => o.value === String(value ?? ''));
   const isSmall         = size === 'sm';
-  const triggerPad      = isSmall ? 'px-2.5 py-1.5' : 'px-3.5 py-3';
+  const triggerPad      = isSmall ? 'px-2.5 py-1.5' : 'px-3.5 py-2.5';
   const textSize        = isSmall ? 'text-[11px]'   : 'text-xs';
 
   useEffect(() => {
