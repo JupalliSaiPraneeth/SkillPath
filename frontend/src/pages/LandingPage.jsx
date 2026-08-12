@@ -254,36 +254,6 @@ export const LandingPage = () => {
           <span className="font-bold text-slate-900 dark:text-white">SHAP & LIME Explainable AI</span>.
         </p>
 
-        {/* Primary Call-to-Actions */}
-        <div className="mt-7 sm:mt-8 flex flex-wrap items-center justify-center gap-3.5 sm:gap-4">
-          <Link
-            to="/dashboard"
-            id="hero-explore-dashboard-btn"
-            className="flex items-center gap-2.5 px-7 py-3.5 rounded-2xl bg-gradient-to-r from-blue-600 via-indigo-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 text-white font-black text-sm sm:text-base shadow-lg shadow-blue-500/25 hover:shadow-xl hover:shadow-blue-500/35 transition-all transform hover:-translate-y-0.5"
-          >
-            <span>Explore Live Dashboard</span>
-            <ArrowRight className="w-5 h-5" />
-          </Link>
-
-          <Link
-            to="/assessment"
-            id="hero-take-assessment-btn"
-            className="flex items-center gap-2 px-6 py-3.5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-750 text-slate-800 dark:text-slate-100 font-black text-sm sm:text-base hover:border-blue-500/60 dark:hover:border-blue-400/50 hover:bg-slate-50 dark:hover:bg-slate-850 shadow-md transition-all transform hover:-translate-y-0.5"
-          >
-            <Target className="w-5 h-5 text-blue-600 dark:text-cyan-400" />
-            <span>Take Skill Assessment</span>
-          </Link>
-
-          <Link
-            to="/model-evaluation"
-            id="hero-viva-metrics-btn"
-            className="flex items-center gap-2 px-5 py-3.5 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-300 dark:border-emerald-500/40 text-emerald-700 dark:text-emerald-300 font-black text-sm sm:text-base hover:bg-emerald-100 dark:hover:bg-emerald-900/50 shadow-sm transition-all transform hover:-translate-y-0.5"
-          >
-            <CheckCircle2 className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
-            <span>Viva Defense Metrics (100% Acc)</span>
-          </Link>
-        </div>
-
         {/* Algorithm Compliance Badges */}
         <div className="mt-5 flex flex-wrap items-center justify-center gap-3 text-xs font-semibold text-slate-500 dark:text-slate-400">
           <span className="flex items-center gap-1.5 bg-slate-100/90 dark:bg-slate-900/80 px-3 py-1 rounded-full border border-slate-200 dark:border-slate-800">
@@ -452,7 +422,7 @@ export const LandingPage = () => {
 
                 <div className="pt-2 flex items-center justify-end">
                   <Link
-                    to="/skill-gap"
+                    to="/login"
                     className="inline-flex items-center gap-1 text-xs font-bold text-blue-600 dark:text-cyan-400 hover:underline"
                   >
                     <span>Launch Full Vector Gap Engine</span>
@@ -592,7 +562,7 @@ export const LandingPage = () => {
                 {/* Direct Action Link */}
                 <div className="pt-4 border-t border-slate-100 dark:border-slate-800/80">
                   <Link
-                    to={mod.link}
+                    to="/login"
                     className="flex items-center justify-between text-xs font-black text-blue-600 dark:text-cyan-400 group-hover:text-blue-700 dark:group-hover:text-cyan-300 transition-colors"
                   >
                     <span>Launch {mod.title.split(' ')[0]} Module</span>
@@ -653,7 +623,7 @@ export const LandingPage = () => {
 
           <div className="mt-12 text-center">
             <Link
-              to="/dashboard"
+              to="/login"
               id="workflow-start-demo-btn"
               className="inline-flex items-center gap-2.5 px-8 py-3.5 rounded-2xl bg-blue-600 hover:bg-blue-500 text-white font-black text-sm shadow-lg shadow-blue-500/25 transition-all transform hover:-translate-y-0.5"
             >
@@ -711,7 +681,7 @@ export const LandingPage = () => {
 
         <div className="mt-8 text-center">
           <Link
-            to="/model-evaluation"
+            to="/login"
             className="inline-flex items-center gap-2 px-6 py-3 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-500/30 text-emerald-700 dark:text-emerald-300 text-xs font-bold hover:bg-emerald-100 dark:hover:bg-emerald-900/50 transition-all"
           >
             <CheckSquare className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
@@ -746,14 +716,14 @@ export const LandingPage = () => {
 
           <div className="relative z-10 flex flex-wrap items-center justify-center gap-3 shrink-0">
             <Link
-              to="/assessment"
+              to="/login"
               id="cta-bottom-assessment-btn"
               className="px-7 py-3.5 rounded-2xl bg-white text-blue-600 hover:bg-blue-50 font-black text-xs sm:text-sm shadow-xl transition-all transform hover:-translate-y-0.5"
             >
               Start Skill Assessment
             </Link>
             <Link
-              to="/dashboard"
+              to="/login"
               id="cta-bottom-dashboard-btn"
               className="px-6 py-3.5 rounded-2xl bg-blue-700/60 hover:bg-blue-700 text-white border border-white/20 font-bold text-xs sm:text-sm backdrop-blur-md transition-all"
             >

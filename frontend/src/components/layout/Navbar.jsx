@@ -149,7 +149,7 @@ export const Navbar = () => {
                 Sign In
               </Link>
               <Link
-                to="/dashboard"
+                to="/login"
                 className="px-4 py-2 text-xs font-black rounded-full bg-[#843bf1] hover:bg-[#722ada] text-white shadow-md shadow-[#843bf1]/30 transition-all transform hover:scale-105"
               >
                 Launch Dashboard

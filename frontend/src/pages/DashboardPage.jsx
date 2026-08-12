@@ -31,7 +31,8 @@ import GapBarChart from '../components/charts/GapBarChart';
 import bgImage from '../assets/bgimage.png';
 
 export const DashboardPage = () => {
-  const { currentUser } = useAuth();
+  const { currentUser, isAdmin } = useAuth();
+  const userIsAdmin = isAdmin || currentUser?.role === 'admin';
   const {
     selectedCareer,
     gapAnalysis,
@@ -84,25 +85,94 @@ export const DashboardPage = () => {
   }, [usersList, careersList, roadmapsList]);
 
   const topRecommendations = careerRecommendations.slice(0, 3);
-  const highPriorityGaps = gapAnalysis.missingSkills.filter(s => s.priority === 'HIGH');
-  const criticalGapsCount = highPriorityGaps.length || 9;
-  const matchPct = gapAnalysis.overallMatch || 31;
-  const cosineSim = (gapAnalysis.cosineScore || 0.4927).toFixed(4);
-  const masteredCount = (gapAnalysis.currentSkills || []).length || 0;
 
-  // Top skill gaps for summary card
-  const topSkillGapsList = [
-    { rank: 1, name: 'Machine Learning Fundamentals', badge: 'High', badgeColor: 'bg-rose-50 dark:bg-rose-950/60 text-rose-600 dark:text-rose-400 border border-rose-200 dark:border-rose-800', barColor: 'bg-rose-500', pct: 85, rankColor: 'bg-indigo-600 text-white' },
-    { rank: 2, name: 'Data Modeling & ETL', badge: 'High', badgeColor: 'bg-rose-50 dark:bg-rose-950/60 text-rose-600 dark:text-rose-400 border border-rose-200 dark:border-rose-800', barColor: 'bg-rose-500', pct: 75, rankColor: 'bg-blue-600 text-white' },
-    { rank: 3, name: 'Cloud Computing', badge: 'Medium', badgeColor: 'bg-amber-50 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400 border border-amber-200 dark:border-amber-800', barColor: 'bg-amber-500', pct: 60, rankColor: 'bg-amber-500 text-white' }
-  ];
+  // Exact mathematical calculations from user's active database & evaluated skills
+  const highPriorityGaps = useMemo(() => {
+    return (gapAnalysis?.missingSkills || []).filter(s => s.priority === 'HIGH');
+  }, [gapAnalysis?.missingSkills]);
+
+  const criticalGapsCount = gapAnalysis?.priorityCounts?.high !== undefined
+    ? gapAnalysis.priorityCounts.high
+    : highPriorityGaps.length;
+
+  const matchPct = gapAnalysis?.overallMatchScore !== undefined
+    ? gapAnalysis.overallMatchScore
+    : (currentUser?.overallMatchScore || currentUser?.matchScore || 0);
+
+  const cosineSim = gapAnalysis?.cosineSimilarity !== undefined
+    ? Number(gapAnalysis.cosineSimilarity).toFixed(3)
+    : '0.000';
+
+  const masteredCount = gapAnalysis?.strongSkills !== undefined
+    ? gapAnalysis.strongSkills.length
+    : ((gapAnalysis?.skillCards || []).filter(s => s.isMastered).length);
+
+  const totalRoadmapItems = useMemo(() => {
+    return (roadmap?.phases || []).reduce((acc, p) => acc + (p.items?.length || 0), 0);
+  }, [roadmap]);
+
+  const completedRoadmapItems = useMemo(() => {
+    return (roadmap?.phases || []).reduce((acc, p) => acc + (p.items || []).filter(i => i.isCompleted).length, 0);
+  }, [roadmap]);
+
+  const roadmapProgress = totalRoadmapItems > 0
+    ? Math.round((completedRoadmapItems / totalRoadmapItems) * 100)
+    : (currentUser?.roadmapProgress || 0);
+
+  const futureTrends = useMemo(() => (storageService.getFutureTrends ? storageService.getFutureTrends() : []), []);
+  const futureDemandScore = useMemo(() => {
+    const targetDomainTrends = futureTrends.filter(t =>
+      (selectedCareer?.socDomain && t.socDomain?.includes(selectedCareer.socDomain.split(' ')[0])) ||
+      t.category === (selectedCareer?.category || 'AI & ML')
+    );
+    if (targetDomainTrends.length > 0) {
+      return Math.round(targetDomainTrends.reduce((acc, t) => acc + (t.growthScore || t.predictedDemand || 90), 0) / targetDomainTrends.length);
+    }
+    return futureTrends.length > 0
+      ? Math.round(futureTrends.slice(0, 5).reduce((acc, t) => acc + (t.growthScore || 90), 0) / 5)
+      : 94;
+  }, [futureTrends, selectedCareer]);
+
+  // Dynamic user skill gaps derived from mathematical gap calculation
+  const topSkillGapsList = useMemo(() => {
+    if (gapAnalysis?.missingSkills && gapAnalysis.missingSkills.length > 0) {
+      return gapAnalysis.missingSkills.slice(0, 3).map((skill, index) => ({
+        rank: index + 1,
+        name: skill.skillName,
+        badge: skill.priority === 'HIGH' ? 'High' : (skill.priority === 'MEDIUM' ? 'Medium' : 'Low'),
+        badgeColor: skill.priority === 'HIGH'
+          ? 'bg-rose-50 dark:bg-rose-950/60 text-rose-600 dark:text-rose-400 border border-rose-200 dark:border-rose-800'
+          : (skill.priority === 'MEDIUM'
+            ? 'bg-amber-50 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400 border border-amber-200 dark:border-amber-800'
+            : 'bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 border border-blue-200 dark:border-blue-800'),
+        barColor: skill.priority === 'HIGH' ? 'bg-rose-500' : (skill.priority === 'MEDIUM' ? 'bg-amber-500' : 'bg-blue-500'),
+        pct: skill.gap,
+        rankColor: index === 0 ? 'bg-indigo-600 text-white' : (index === 1 ? 'bg-blue-600 text-white' : 'bg-amber-500 text-white')
+      }));
+    }
+    return [
+      { rank: 1, name: 'Machine Learning Fundamentals', badge: 'High', badgeColor: 'bg-rose-50 dark:bg-rose-950/60 text-rose-600 dark:text-rose-400 border border-rose-200 dark:border-rose-800', barColor: 'bg-rose-500', pct: 85, rankColor: 'bg-indigo-600 text-white' },
+      { rank: 2, name: 'Data Modeling & ETL', badge: 'High', badgeColor: 'bg-rose-50 dark:bg-rose-950/60 text-rose-600 dark:text-rose-400 border border-rose-200 dark:border-rose-800', barColor: 'bg-rose-500', pct: 75, rankColor: 'bg-blue-600 text-white' },
+      { rank: 3, name: 'Cloud Computing', badge: 'Medium', badgeColor: 'bg-amber-50 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400 border border-amber-200 dark:border-amber-800', barColor: 'bg-amber-500', pct: 60, rankColor: 'bg-amber-500 text-white' }
+    ];
+  }, [gapAnalysis?.missingSkills]);
 
   // Future skills in demand
-  const futureSkillsList = [
-    { rank: 1, name: 'Generative AI', badge: 'Very High', rankColor: 'bg-indigo-600 text-white' },
-    { rank: 2, name: 'MLOps', badge: 'High', rankColor: 'bg-blue-600 text-white' },
-    { rank: 3, name: 'Vector Database', badge: 'High', rankColor: 'bg-indigo-600 text-white' }
-  ];
+  const futureSkillsList = useMemo(() => {
+    if (futureTrends && futureTrends.length > 0) {
+      return futureTrends.slice(0, 3).map((trend, idx) => ({
+        rank: idx + 1,
+        name: trend.skill,
+        badge: trend.trend?.includes('Surging') ? 'Very High' : 'High',
+        rankColor: idx === 0 ? 'bg-indigo-600 text-white' : (idx === 1 ? 'bg-blue-600 text-white' : 'bg-indigo-600 text-white')
+      }));
+    }
+    return [
+      { rank: 1, name: 'Generative AI', badge: 'Very High', rankColor: 'bg-indigo-600 text-white' },
+      { rank: 2, name: 'MLOps', badge: 'High', rankColor: 'bg-blue-600 text-white' },
+      { rank: 3, name: 'Vector Database', badge: 'High', rankColor: 'bg-indigo-600 text-white' }
+    ];
+  }, [futureTrends]);
 
   // Recent system activities
   const recentActivitiesList = [
@@ -123,7 +193,7 @@ export const DashboardPage = () => {
             Welcome back,
           </p>
           <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black text-slate-950 dark:text-white tracking-tight leading-tight drop-shadow-[0_2px_4px_rgba(255,255,255,0.7)] dark:drop-shadow-[0_3px_6px_rgba(0,0,0,0.9)]">
-            {currentUser?.name || 'Administrator'}
+            {currentUser?.name || (userIsAdmin ? 'Administrator' : 'Student')}
           </h1>
           <p className="text-sm sm:text-base text-slate-900 dark:text-white font-bold pt-1 drop-shadow-xs dark:drop-shadow-[0_1px_3px_rgba(0,0,0,0.8)]">
             Here's what's happening in your <strong className="text-slate-950 dark:text-white font-black underline decoration-[#843bf1]">Engineering Workspace</strong> today.
@@ -132,68 +202,145 @@ export const DashboardPage = () => {
       </div>
 
       {/* ========================================================================= */}
-      {/* 2. FIVE CORE PLATFORM METRIC CARDS ROW (EXACT PHOTO 1 UI/UX WITH PHOTO 2 GRIDS) */}
+      {/* 2. STAT METRIC CARDS ROW: ADMIN (PHOTO 1) VS USER (PHOTO 2) */}
       {/* ========================================================================= */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3.5 sm:gap-4">
-
-        {/* Card 1: Total Users */}
-        <StatCard
-          title="Total Users"
-          value={platformStats.totalUsers}
-          subtitle="vs last 30 days"
-          icon={Users}
-          color="blue"
-          trend={{ direction: 'up', text: '12.5%' }}
-        />
-
-        {/* Card 2: Assessments Completed */}
-        <Link to="/assessment" className="block">
+      {userIsAdmin ? (
+        /* Admin: 5 Platform Metrics (Photo 1) */
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3.5 sm:gap-4">
+          {/* Card 1: Total Users */}
           <StatCard
-            title="Assessments Completed"
-            value={platformStats.assessmentsCompleted}
+            title="Total Users"
+            value={platformStats.totalUsers}
             subtitle="vs last 30 days"
-            icon={ClipboardCheck}
-            color="emerald"
-            trend={{ direction: 'up', text: '15.8%' }}
+            icon={Users}
+            color="blue"
+            trend={{ direction: 'up', text: '12.5%' }}
           />
-        </Link>
 
-        {/* Card 3: Skill Gap Analyses */}
-        <Link to="/skill-gap" className="block">
-          <StatCard
-            title="Skill Gap Analyses"
-            value={platformStats.skillGapAnalyses}
-            subtitle="vs last 30 days"
-            icon={Target}
-            color="purple"
-            trend={{ direction: 'up', text: '10.3%' }}
-          />
-        </Link>
+          {/* Card 2: Assessments Completed */}
+          <Link to="/assessment" className="block">
+            <StatCard
+              title="Assessments Compl..."
+              value={platformStats.assessmentsCompleted}
+              subtitle="vs last 30 days"
+              icon={ClipboardCheck}
+              color="emerald"
+              trend={{ direction: 'up', text: '15.8%' }}
+            />
+          </Link>
 
-        {/* Card 4: Career Recommendations */}
-        <Link to="/careers" className="block">
-          <StatCard
-            title="Career Recommendations"
-            value={platformStats.careerRecommendations}
-            subtitle="vs last 30 days"
-            icon={Sparkles}
-            color="amber"
-            trend={{ direction: 'up', text: '18.6%' }}
-          />
-        </Link>
+          {/* Card 3: Skill Gap Analyses */}
+          <Link to="/skill-gap" className="block">
+            <StatCard
+              title="Skill Gap Analyses"
+              value={platformStats.skillGapAnalyses}
+              subtitle="vs last 30 days"
+              icon={Target}
+              color="purple"
+              trend={{ direction: 'up', text: '10.3%' }}
+            />
+          </Link>
 
-        {/* Card 5: Roadmaps Generated */}
-        <Link to="/roadmap" className="block">
-          <StatCard
-            title="Roadmaps Generated"
-            value={platformStats.roadmapsGenerated}
-            subtitle="vs last 30 days"
-            icon={Map}
-            color="orange"
-            trend={{ direction: 'up', text: '14.2%' }}
-          />
-        </Link>
-      </div>
+          {/* Card 4: Career Recommendations */}
+          <Link to="/career-roles" className="block">
+            <StatCard
+              title="Career Recommend..."
+              value={platformStats.careerRecommendations}
+              subtitle="vs last 30 days"
+              icon={Sparkles}
+              color="amber"
+              trend={{ direction: 'up', text: '18.6%' }}
+            />
+          </Link>
+
+          {/* Card 5: Roadmaps Generated */}
+          <Link to="/roadmap" className="block">
+            <StatCard
+              title="Roadmaps Generated"
+              value={platformStats.roadmapsGenerated}
+              subtitle="vs last 30 days"
+              icon={Map}
+              color="orange"
+              trend={{ direction: 'up', text: '14.2%' }}
+            />
+          </Link>
+        </div>
+      ) : (
+        /* Regular User: 6 Personalized Career & Skill Metrics (Photo 2) */
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3.5 sm:gap-4">
+          {/* Card 1: Career Match */}
+          <Link to="/career-recommendations" className="block">
+            <StatCard
+              title="Career Match"
+              value={`${matchPct}%`}
+              subtitle={`vs ${selectedCareer?.title ? (selectedCareer.title.length > 8 ? selectedCareer.title.slice(0, 8) + '...' : selectedCareer.title) : 'Mach...'}`}
+              icon={Target}
+              color="purple"
+              trend={{ direction: 'up', text: 'Evaluated' }}
+            />
+          </Link>
+
+          {/* Card 2: Cosine Similarity */}
+          <Link to="/skill-gap" className="block">
+            <StatCard
+              title="Cosine Simila..."
+              value={cosineSim}
+              subtitle="Vect..."
+              icon={Activity}
+              color="blue"
+              trend={{ direction: 'up', text: 'Mathematical' }}
+            />
+          </Link>
+
+          {/* Card 3: High Priority Gaps */}
+          <Link to="/skill-gap" className="block">
+            <StatCard
+              title="High Priority ..."
+              value={criticalGapsCount}
+              subtitle="Actio..."
+              icon={AlertTriangle}
+              color="orange"
+              trend={{ direction: 'down', text: 'Needs focus' }}
+            />
+          </Link>
+
+          {/* Card 4: Skills Mastered */}
+          <Link to="/assessment" className="block">
+            <StatCard
+              title="Skills Mastered"
+              value={masteredCount}
+              subtitle="Meets T..."
+              icon={CheckCircle2}
+              color="emerald"
+              trend={{ direction: 'up', text: 'Validated' }}
+            />
+          </Link>
+
+          {/* Card 5: Roadmap Progress */}
+          <Link to="/roadmap" className="block">
+            <StatCard
+              title="Roadmap Pro..."
+              value={`${roadmapProgress}%`}
+              subtitle={`${completedRoadmapItems}/${totalRoadmapItems || 10} tasks`}
+              icon={Calendar}
+              color="purple"
+              trend={{ direction: 'up', text: roadmapProgress > 0 ? `${roadmapProgress}% Plan` : 'Active Plan' }}
+            />
+          </Link>
+
+          {/* Card 6: Future Demand */}
+          <Link to="/future-skills" className="block">
+            <StatCard
+              title="Future Demand"
+              value={`${futureDemandScore}/100`}
+              subtitle="Surgin..."
+              icon={TrendingUp}
+              color="amber"
+              trend={{ direction: 'up', text: 'Top Growth' }}
+            />
+          </Link>
+        </div>
+      )}
 
       {/* ========================================================================= */}
       {/* 3. MIDDLE VISUAL ANALYTICS: SKILL RADAR + GAP BAR CHART */}
@@ -452,7 +599,7 @@ export const DashboardPage = () => {
                 <Brain className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
                 Why was {selectedCareer?.title} recommended?
               </p>
-              {explainabilityData.narrative}
+              {explainabilityData?.narrative || 'Detailed SHAP & LIME mathematical feature attribution is available.'}
             </div>
 
             <div>

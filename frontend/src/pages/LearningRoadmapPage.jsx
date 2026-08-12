@@ -5,7 +5,6 @@ import {
   CheckCircle2,
   Circle,
   Clock,
-  ExternalLink,
   Code2,
   Award,
   Download,
@@ -158,18 +157,6 @@ export const LearningRoadmapPage = () => {
                           </p>
                         )}
                       </div>
-                    </div>
-
-                    <div className="shrink-0 flex items-center gap-2 self-end md:self-center">
-                      <a
-                        href={item.resourceUrl || 'https://google.com'}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="text-xs font-bold px-3.5 py-2 rounded-xl bg-white dark:bg-slate-800 hover:bg-purple-50 dark:hover:bg-purple-950/40 text-slate-800 dark:text-slate-200 hover:text-[#843bf1] flex items-center gap-1.5 border border-[#843bf1]/30 shadow-xs transition-all"
-                      >
-                        <span>Resource</span>
-                        <ExternalLink className="w-3.5 h-3.5 text-[#843bf1] dark:text-[#a970fe]" />
-                      </a>
                     </div>
                   </div>
                 ))}

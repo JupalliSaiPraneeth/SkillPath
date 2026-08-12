@@ -28,28 +28,32 @@ export function App() {
   const isAuthPage = location.pathname === '/login' || location.pathname === '/register';
   const isLandingOrAuth = location.pathname === '/' || isAuthPage;
 
+  const isLanding = location.pathname === '/';
+
   // ── Global scroll-to-top on every route change ──────────────────────────
   useEffect(() => {
     window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
   }, [location.pathname]);
 
   return (
-    <div className={`relative min-h-screen flex flex-col font-sans antialiased text-slate-900 dark:text-slate-100 selection:bg-indigo-500 selection:text-white transition-colors duration-300 overflow-x-hidden ${isAuthPage ? 'h-screen overflow-hidden' : ''}`}>
+    <div className={`relative min-h-screen flex flex-col font-sans antialiased text-slate-900 dark:text-slate-100 bg-slate-50 dark:bg-[#090d16] selection:bg-indigo-500 selection:text-white transition-colors duration-300 overflow-x-hidden ${isAuthPage ? 'h-screen overflow-hidden' : ''}`}>
 
       {/* ========================================================================= */}
-      {/* GLOBAL FULL-WEBSITE SCENIC BACKGROUND BACKDROP (100% OPACITY) */}
+      {/* GLOBAL FULL-WEBSITE SCENIC BACKGROUND BACKDROP (EXCLUDING LANDING PAGE) */}
       {/* ========================================================================= */}
-      <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
-        {/* Full 100% Resolution Scenic Mountain Artwork */}
-        <div
-          className="absolute inset-0 bg-cover bg-no-repeat opacity-100"
-          style={{
-            backgroundImage: `url(${bgImage})`,
-            backgroundPosition: 'center top',
-            backgroundSize: 'cover'
-          }}
-        />
-      </div>
+      {!isLanding && (
+        <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
+          {/* Full 100% Resolution Scenic Mountain Artwork */}
+          <div
+            className="absolute inset-0 bg-cover bg-no-repeat opacity-100"
+            style={{
+              backgroundImage: `url(${bgImage})`,
+              backgroundPosition: 'center top',
+              backgroundSize: 'cover'
+            }}
+          />
+        </div>
+      )}
 
       {/* Main Content Layer */}
       <div className="relative z-10 flex flex-col min-h-screen">

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   ClipboardCheck,
   Sparkles,
@@ -17,6 +18,7 @@ import SkillRadarChart from '../components/charts/SkillRadarChart';
 import storageService from '../services/storageService';
 
 export const SkillAssessmentPage = () => {
+  const navigate = useNavigate();
   const { skillsList, userSkills, updateSkillLevel, updateBatchSkills, resetSkills, gapAnalysis, selectedCareer } = useCareer();
   const questions = storageService.getQuestions();
 
@@ -45,6 +47,10 @@ export const SkillAssessmentPage = () => {
       storageService.saveUserSkills({});
     }
     setSubmittedQuiz({});
+  };
+
+  const handleDone = () => {
+    navigate('/dashboard');
   };
 
   return (
@@ -173,6 +179,27 @@ export const SkillAssessmentPage = () => {
                   );
                 })}
               </div>
+
+              {/* Bottom Done Action Bar */}
+              <div className="pt-6 border-t border-[#843bf1]/15 dark:border-[#843bf1]/25 flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div>
+                  <p className="text-xs font-bold text-slate-900 dark:text-slate-100">
+                    Finished scoring your skills?
+                  </p>
+                  <p className="text-[11px] text-slate-600 dark:text-slate-400 mt-0.5">
+                    Click Done to finalize your assessment and view your personalized Executive Dashboard.
+                  </p>
+                </div>
+                <button
+                  id="assessment-slider-done-btn"
+                  onClick={handleDone}
+                  className="w-full sm:w-auto flex items-center justify-center gap-2 px-8 py-3.5 rounded-2xl bg-gradient-to-r from-[#843bf1] via-indigo-600 to-blue-600 hover:from-[#722ada] hover:to-blue-500 text-white font-black text-sm sm:text-base shadow-lg shadow-[#843bf1]/30 hover:shadow-xl hover:shadow-[#843bf1]/40 transition-all transform hover:-translate-y-0.5 cursor-pointer shrink-0"
+                >
+                  <CheckCircle2 className="w-5 h-5" />
+                  <span>Done</span>
+                  <ArrowRight className="w-4 h-4 ml-0.5" />
+                </button>
+              </div>
             </div>
           ) : (
             <div className="p-5 sm:p-6 rounded-3xl bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl border border-[#843bf1]/25 dark:border-[#843bf1]/35 shadow-xl space-y-5">
@@ -264,6 +291,27 @@ export const SkillAssessmentPage = () => {
                   </div>
                 ))}
               </div>
+
+              {/* Bottom Done Action Bar */}
+              <div className="pt-6 border-t border-[#843bf1]/15 dark:border-[#843bf1]/25 flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div>
+                  <p className="text-xs font-bold text-slate-900 dark:text-slate-100">
+                    Completed your technical questions?
+                  </p>
+                  <p className="text-[11px] text-slate-600 dark:text-slate-400 mt-0.5">
+                    Click Done to finalize your scores and return to the Executive Dashboard.
+                  </p>
+                </div>
+                <button
+                  id="assessment-quiz-done-btn"
+                  onClick={handleDone}
+                  className="w-full sm:w-auto flex items-center justify-center gap-2 px-8 py-3.5 rounded-2xl bg-gradient-to-r from-[#843bf1] via-indigo-600 to-blue-600 hover:from-[#722ada] hover:to-blue-500 text-white font-black text-sm sm:text-base shadow-lg shadow-[#843bf1]/30 hover:shadow-xl hover:shadow-[#843bf1]/40 transition-all transform hover:-translate-y-0.5 cursor-pointer shrink-0"
+                >
+                  <CheckCircle2 className="w-5 h-5" />
+                  <span>Done</span>
+                  <ArrowRight className="w-4 h-4 ml-0.5" />
+                </button>
+              </div>
             </div>
           )}
         </div>
@@ -298,6 +346,16 @@ export const SkillAssessmentPage = () => {
                 <span className="text-slate-600 dark:text-slate-400 font-bold">Target Career:</span>
                 <span className="font-black text-[#843bf1] dark:text-[#a970fe]">{selectedCareer?.title}</span>
               </div>
+
+              <button
+                id="assessment-radar-done-btn"
+                onClick={handleDone}
+                className="w-full mt-2 flex items-center justify-center gap-2 px-5 py-3.5 rounded-2xl bg-gradient-to-r from-[#843bf1] to-blue-600 hover:from-[#722ada] hover:to-blue-500 text-white font-black text-xs sm:text-sm shadow-md shadow-[#843bf1]/30 hover:shadow-lg transition-all transform hover:-translate-y-0.5 cursor-pointer"
+              >
+                <CheckCircle2 className="w-4 h-4" />
+                <span>Done</span>
+                <ArrowRight className="w-3.5 h-3.5 ml-0.5" />
+              </button>
             </div>
           </div>
         </div>
