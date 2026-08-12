@@ -29,16 +29,9 @@ export const AuthProvider = ({ children }) => {
           role: session.user.user_metadata?.role || 'student'
         };
         storageService.saveCurrentUser(user);
+        storageService.updateUser(user);
         setCurrentUser(user);
         setIsAuthenticated(true);
-      } else if (event === 'SIGNED_OUT') {
-        const savedUser = storageService.getCurrentUser();
-        // If not logged in as custom admin
-        if (savedUser?.role !== 'admin') {
-          storageService.clearCurrentUser();
-          setCurrentUser(null);
-          setIsAuthenticated(false);
-        }
       }
     });
 
@@ -49,18 +42,18 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (emailOrUsername, password) => {
     setLoading(true);
-    const clean = (emailOrUsername || '').toLowerCase().trim();
+    const rawIdentifier = (emailOrUsername || '').trim();
 
-    // 1. Direct Supabase Database Sign In
-    const res = await supabaseService.signIn(clean, password);
+    // 1. Direct Supabase Database Sign In with strict casing
+    const res = await supabaseService.signIn(rawIdentifier, password);
     if (!res || !res.success) {
       setLoading(false);
-      return res || { success: false, error: 'Authentication failed. Please verify your email and password.' };
+      return res || { success: false, error: 'Authentication failed. Please verify your credentials and password.' };
     }
 
     // Save authenticated user session
     storageService.saveCurrentUser(res.user);
-    storageService.addUser(res.user);
+    storageService.updateUser(res.user);
     setCurrentUser(res.user);
     setIsAuthenticated(true);
     setLoading(false);

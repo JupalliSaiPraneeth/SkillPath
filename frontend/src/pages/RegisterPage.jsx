@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
   Lock,
@@ -21,7 +21,7 @@ import CustomSelect from '../components/common/CustomSelect';
 import storageService from '../services/storageService';
 
 export const RegisterPage = () => {
-  const { register } = useAuth();
+  const { register, currentUser, isAuthenticated } = useAuth();
   const navigate = useNavigate();
 
   // Form State
@@ -44,6 +44,17 @@ export const RegisterPage = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+
+  // Auto-redirect if already authenticated
+  useEffect(() => {
+    if (isAuthenticated && currentUser) {
+      if (currentUser.role === 'admin') {
+        navigate('/admin', { replace: true });
+      } else {
+        navigate('/dashboard', { replace: true });
+      }
+    }
+  }, [isAuthenticated, currentUser, navigate]);
 
   // Careers list
   const availableCareers = useMemo(() => {

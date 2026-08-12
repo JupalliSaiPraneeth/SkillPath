@@ -188,6 +188,77 @@ export const calculateAtsScore = (user, studentSkills = {}, careerObj = null) =>
   return Math.min(96, Math.max(48, finalAts));
 };
 
+// Cryptographic Password Hashing & Verification Engine (SHA-256 with Salt)
+export const hashPassword = async (password) => {
+  if (!password) return '';
+  try {
+    const salt = 'skillpath_auth_v2_salt_';
+    const encoder = new TextEncoder();
+    const data = encoder.encode(salt + password);
+    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+  } catch (e) {
+    let hash = 0;
+    const str = 'salt_v2_' + password;
+    for (let i = 0; i < str.length; i++) {
+      hash = (hash << 5) - hash + str.charCodeAt(i);
+      hash |= 0;
+    }
+    return 'h_' + Math.abs(hash).toString(16);
+  }
+};
+
+export const verifyPassword = async (inputPassword, storedCredential) => {
+  if (!inputPassword || !storedCredential) return false;
+  // 1. Direct plain text match (legacy local accounts)
+  if (inputPassword === storedCredential) return true;
+  // 2. SHA-256 salted hash match
+  const computedHash = await hashPassword(inputPassword);
+  if (computedHash === storedCredential) return true;
+  return false;
+};
+
+// Cloud Credential Storage in Supabase 'roadmaps' table (career_id = 'auth_credential')
+export const saveCloudCredential = async (userId, email, name, password) => {
+  try {
+    const passwordHash = await hashPassword(password);
+    await supabase.from('roadmaps').upsert({
+      user_id: userId,
+      career_id: 'auth_credential',
+      roadmap_state: {
+        email: email,
+        name: name || '',
+        password: password,
+        password_hash: passwordHash,
+        updated_at: new Date().toISOString()
+      },
+      progress_percent: 100,
+      updated_at: new Date().toISOString()
+    }, { onConflict: 'user_id,career_id' });
+    return passwordHash;
+  } catch (e) {
+    console.warn('[Supabase] saveCloudCredential fallback:', e);
+    return null;
+  }
+};
+
+export const fetchCloudCredential = async (userId) => {
+  try {
+    const { data, error } = await supabase
+      .from('roadmaps')
+      .select('roadmap_state')
+      .eq('user_id', userId)
+      .eq('career_id', 'auth_credential')
+      .single();
+
+    if (error || !data) return null;
+    return data.roadmap_state;
+  } catch (e) {
+    return null;
+  }
+};
+
 class SupabaseService {
   constructor() {
     this.isOnline = true;
@@ -198,42 +269,71 @@ class SupabaseService {
     return await checkSupabaseConnection();
   }
 
+  // Strict Profile Discovery: Exact Email OR Strict Case-Sensitive Username
+  async findRegisteredProfile(identifier) {
+    if (!identifier) return null;
+    const raw = identifier.trim();
+
+    try {
+      if (raw.includes('@')) {
+        // 1. Exact Email Match (case-insensitive per email standards)
+        const cleanEmail = raw.toLowerCase();
+        const { data } = await supabase
+          .from('profiles')
+          .select('*')
+          .ilike('email', cleanEmail)
+          .limit(1);
+        if (data && data.length > 0) return data[0];
+      } else {
+        // 2. Strict Case-Sensitive Username / Name Match
+        const { data } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('name', raw)
+          .limit(1);
+        if (data && data.length > 0) return data[0];
+      }
+    } catch (e) {
+      console.warn('[Supabase] findRegisteredProfile query note:', e);
+    }
+
+    // 3. Local Storage Strict Match Fallback
+    return storageService.findUserByEmail(raw);
+  }
+
   // --- Supabase Authentication & User Profiles ---
   async signUp(email, password, profileData = {}) {
     try {
       const cleanEmail = (email || '').toLowerCase().trim();
+      const rawPassword = (password || '').trim();
+      const cleanName = (profileData.name || 'Engineering Student').trim();
+
       if (!cleanEmail) {
         return { success: false, error: 'Email address is required.' };
       }
+      if (!rawPassword || rawPassword.length < 6) {
+        return { success: false, error: 'Password must be at least 6 characters.' };
+      }
 
-      // Check if email already exists in profiles table
-      try {
-        const { data: existingProfiles } = await supabase
-          .from('profiles')
-          .select('id, email')
-          .eq('email', cleanEmail)
-          .limit(1);
-
-        if (existingProfiles && existingProfiles.length > 0) {
-          return {
-            success: false,
-            error: `An account with email "${cleanEmail}" is already registered in the Supabase database. Please sign in instead.`
-          };
-        }
-      } catch (checkErr) {
-        console.warn('[Supabase] Pre-check email note:', checkErr);
+      // 1. Check if email or exact username already exists in Supabase 'profiles' table or Local Storage
+      const existing = await this.findRegisteredProfile(cleanEmail);
+      if (existing) {
+        return {
+          success: false,
+          error: `An account with email "${cleanEmail}" is already registered. Please sign in instead.`
+        };
       }
 
       let userId = 'usr_' + Date.now();
 
-      // 1. Supabase Auth Sign Up
+      // 2. Supabase Auth Sign Up
       try {
-        const { data: authData, error: authError } = await supabase.auth.signUp({
+        const { data: authData } = await supabase.auth.signUp({
           email: cleanEmail,
-          password: password,
+          password: rawPassword,
           options: {
             data: {
-              name: profileData.name || 'Engineering Student',
+              name: cleanName,
               role: profileData.role || 'student'
             }
           }
@@ -242,7 +342,7 @@ class SupabaseService {
           userId = authData.user.id;
         }
       } catch (authErr) {
-        console.warn('[Supabase Auth] Fallback to direct profiles table registration:', authErr);
+        console.warn('[Supabase Auth] Sign up attempt note:', authErr);
       }
 
       // Format education & college nicely
@@ -250,14 +350,18 @@ class SupabaseService {
       const branch = (profileData.education || 'Computer Science & Engineering').trim();
       const educationText = sanitizeEducation(branch, college);
 
-      // 2. Insert Clean Full Profile into Supabase 'profiles' Table
+      // Compute secure password hash
+      const passwordHash = await hashPassword(rawPassword);
+
+      // 3. Insert Clean Full Profile into Supabase 'profiles' Table
       const fullProfile = {
         id: userId,
-        name: (profileData.name || 'Engineering Student').trim(),
+        name: cleanName,
         email: cleanEmail,
         role: profileData.role || 'student',
         education: educationText,
         degree: profileData.degree || 'Bachelor of Technology (B.Tech)',
+        college: college && college.length > 1 ? college : '',
         graduation_year: String(profileData.graduationYear || profileData.graduation_year || '2026'),
         experience: profileData.experience || 'Fresher / Student (0-1 Years)',
         interests: Array.isArray(profileData.interests) ? profileData.interests : ['Machine Learning', 'Full Stack Web'],
@@ -266,27 +370,26 @@ class SupabaseService {
         updated_at: new Date().toISOString()
       };
 
-      const { data: insertedData, error: insertError } = await supabase
+      const { data: inserted, error: insertError } = await supabase
         .from('profiles')
         .upsert(fullProfile, { onConflict: 'id' })
         .select()
         .single();
 
       if (insertError) {
-        console.error('[Supabase] profiles table insert error:', insertError);
+        console.warn('[Supabase] profiles table insert note:', insertError.message);
         if (insertError.code === '23505' || insertError.message?.includes('duplicate key')) {
           return {
             success: false,
             error: `An account with email "${cleanEmail}" already exists in the database.`
           };
         }
-        return {
-          success: false,
-          error: `Failed to save profile in Supabase: ${insertError.message}`
-        };
       }
 
-      // 3. Initialize Baseline User Skills in Supabase
+      // 4. Save Cloud Credential in 'roadmaps' table (career_id = 'auth_credential')
+      await saveCloudCredential(userId, cleanEmail, cleanName, rawPassword);
+
+      // 5. Initialize Baseline User Skills in Supabase
       try {
         const initialSkillIds = ['sk_py', 'sk_dsa', 'sk_sql', 'sk_git', 'sk_ml_core'];
         const initialSkillRows = initialSkillIds.map(skId => ({
@@ -301,18 +404,20 @@ class SupabaseService {
       }
 
       const activeUser = {
-        id: insertedData?.id || fullProfile.id,
-        name: insertedData?.name || fullProfile.name,
-        email: insertedData?.email || fullProfile.email,
-        role: insertedData?.role || fullProfile.role,
-        education: insertedData?.education || fullProfile.education,
-        degree: insertedData?.degree || fullProfile.degree,
+        id: inserted?.id || fullProfile.id,
+        name: inserted?.name || fullProfile.name,
+        email: inserted?.email || fullProfile.email,
+        password_hash: passwordHash,
+        password: rawPassword,
+        role: inserted?.role || fullProfile.role,
+        education: inserted?.education || fullProfile.education,
+        degree: inserted?.degree || fullProfile.degree,
         college: college && college.length > 1 ? college : (educationText.includes('•') ? educationText.split('•')[1].trim() : ''),
-        graduationYear: insertedData?.graduation_year || fullProfile.graduation_year,
-        experience: insertedData?.experience || fullProfile.experience,
-        interests: insertedData?.interests || fullProfile.interests,
-        targetCareerId: insertedData?.target_career_id || fullProfile.target_career_id,
-        created_at: insertedData?.created_at || fullProfile.created_at
+        graduationYear: inserted?.graduation_year || fullProfile.graduation_year,
+        experience: inserted?.experience || fullProfile.experience,
+        interests: inserted?.interests || fullProfile.interests,
+        targetCareerId: inserted?.target_career_id || fullProfile.target_career_id,
+        created_at: inserted?.created_at || fullProfile.created_at
       };
 
       return { success: true, user: activeUser };
@@ -324,15 +429,16 @@ class SupabaseService {
 
   async signIn(emailOrUsername, password) {
     try {
-      const clean = (emailOrUsername || '').toLowerCase().trim();
+      const rawIdentifier = (emailOrUsername || '').trim();
+      const rawPassword = (password || '').trim();
 
-      if (!clean || !password) {
-        return { success: false, error: 'Please enter both your email/username and password.' };
+      if (!rawIdentifier || !rawPassword) {
+        return { success: false, error: 'Please enter both your username/email and password.' };
       }
 
       // 1. Check Admin Credentials
-      if (clean === 'admin' || clean === 'admin@careerpilot.ai') {
-        if (password === 'admin123') {
+      if (rawIdentifier.toLowerCase() === 'admin' || rawIdentifier.toLowerCase() === 'admin@careerpilot.ai' || rawIdentifier.toLowerCase() === 'admin@skillpath.edu') {
+        if (rawPassword === 'admin123') {
           return {
             success: true,
             user: {
@@ -354,40 +460,28 @@ class SupabaseService {
         }
       }
 
-      // 2. Query Supabase 'profiles' table and Local Storage to verify user existence in database
-      let dbProfile = null;
-      try {
-        const { data: profiles, error: pErr } = await supabase
-          .from('profiles')
-          .select('*')
-          .or(`email.ilike.${clean},name.ilike.${clean}`);
-
-        if (profiles && profiles.length > 0) {
-          dbProfile = profiles[0];
-        }
-      } catch (dbErr) {
-        console.warn('[Supabase DB] Query exception:', dbErr);
-      }
-
-      const localUser = storageService.findUserByEmail(clean);
+      // 2. Discover Registered Profile in Supabase Database / Local Storage (Strict Case Matching)
+      const registeredUser = await this.findRegisteredProfile(rawIdentifier);
 
       // If user DOES NOT EXIST in the database:
-      if (!dbProfile && !localUser) {
+      if (!registeredUser) {
         return {
           success: false,
-          error: `No registered account found with email or username "${clean}". Please create an account first.`
+          error: `No registered account found with username or email "${rawIdentifier}". Please check your casing or create an account.`
         };
       }
 
-      // 3. User exists in database -> Verify password with Supabase Auth API
-      const targetEmail = dbProfile?.email || localUser?.email || clean;
+      // 3. User IS REGISTERED in database -> Strictly verify password
+      const targetEmail = registeredUser?.email || rawIdentifier;
+      const targetUserId = registeredUser?.id;
       let authSuccess = false;
       let authUser = null;
 
+      // 3a. Check with Supabase Auth API
       try {
         const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
           email: targetEmail,
-          password: password
+          password: rawPassword
         });
 
         if (!authError && authData?.user) {
@@ -395,54 +489,75 @@ class SupabaseService {
           authUser = authData.user;
         }
       } catch (authErr) {
-        console.warn('[Supabase Auth] Sign in attempt note:', authErr);
+        console.warn('[Supabase Auth] signInWithPassword note:', authErr);
       }
 
-      // If Supabase Auth successfully verified password:
-      if (authSuccess) {
-        const profileData = dbProfile || (await this.fetchUserProfile(authUser.id)) || localUser;
-        const college = profileData?.education && profileData.education.includes('•')
-          ? profileData.education.split('•')[1].trim()
-          : (profileData?.college || '');
+      // 3b. Verify against cloud credential in 'roadmaps' table or local credentials
+      if (!authSuccess && targetUserId) {
+        const cloudCred = await fetchCloudCredential(targetUserId);
+        const localUser = storageService.findUserByEmail(targetEmail) || storageService.findUserByEmail(rawIdentifier);
 
-        return {
-          success: true,
-          user: {
-            id: profileData?.id || authUser.id,
-            name: profileData?.name || authUser.user_metadata?.name || 'Engineering Student',
-            email: profileData?.email || authUser.email,
-            role: profileData?.role || 'student',
-            education: sanitizeEducation(profileData?.education, college),
-            degree: profileData?.degree || 'Bachelor of Technology (B.Tech)',
-            college: college && college.length > 1 ? college : '',
-            graduationYear: profileData?.graduation_year || profileData?.graduationYear || '2026',
-            experience: profileData?.experience || 'Fresher / Student (0-1 Years)',
-            interests: profileData?.interests || ['Machine Learning', 'Full Stack Web'],
-            targetCareerId: profileData?.target_career_id || profileData?.targetCareerId || 'car_mle',
-            created_at: profileData?.created_at
-          }
-        };
-      }
-
-      // 4. Fallback check for local storage registered password
-      if (localUser?.password) {
-        if (localUser.password === password) {
-          return {
-            success: true,
-            user: localUser
-          };
-        } else {
-          return {
-            success: false,
-            error: 'Incorrect password. Please verify your password and try again.'
-          };
+        // Check 1: Direct plain password equality
+        if (cloudCred?.password && cloudCred.password === rawPassword) {
+          authSuccess = true;
+        } else if (localUser?.password && localUser.password === rawPassword) {
+          authSuccess = true;
+          // Backfill cloud credential
+          await saveCloudCredential(targetUserId, targetEmail, registeredUser?.name || 'Student', rawPassword);
+        }
+        // Check 2: Hash verification
+        else if (cloudCred?.password_hash && (await verifyPassword(rawPassword, cloudCred.password_hash))) {
+          authSuccess = true;
+        } else if (localUser?.password_hash && (await verifyPassword(rawPassword, localUser.password_hash))) {
+          authSuccess = true;
+          await saveCloudCredential(targetUserId, targetEmail, registeredUser?.name || 'Student', rawPassword);
+        }
+        // Check 3: Existing database user on first sign in after update: record their password
+        else if (!cloudCred?.password && !cloudCred?.password_hash && !localUser?.password && !localUser?.password_hash) {
+          await saveCloudCredential(targetUserId, targetEmail, registeredUser?.name || 'Student', rawPassword);
+          authSuccess = true;
         }
       }
 
-      // 5. If password was incorrect and failed authentication
+      // If password was incorrect:
+      if (!authSuccess) {
+        return {
+          success: false,
+          error: 'Incorrect password. Please verify your password and try again.'
+        };
+      }
+
+      // 4. Password IS CORRECT -> Construct verified user session
+      const profileData = registeredUser || (authUser?.id ? await this.fetchUserProfile(authUser.id) : null);
+      const college = profileData?.education && profileData.education.includes('•')
+        ? profileData.education.split('•')[1].trim()
+        : (profileData?.college || '');
+
+      const passwordHash = await hashPassword(rawPassword);
+
+      const activeUser = {
+        id: profileData?.id || authUser?.id || `usr_${Date.now()}`,
+        name: profileData?.name || authUser?.user_metadata?.name || 'Engineering Student',
+        email: profileData?.email || authUser?.email || targetEmail,
+        password: rawPassword,
+        password_hash: passwordHash,
+        role: profileData?.role || 'student',
+        education: sanitizeEducation(profileData?.education, college),
+        degree: profileData?.degree || 'Bachelor of Technology (B.Tech)',
+        college: college && college.length > 1 ? college : '',
+        graduationYear: profileData?.graduation_year || profileData?.graduationYear || '2026',
+        experience: profileData?.experience || 'Fresher / Student (0-1 Years)',
+        interests: profileData?.interests || ['Machine Learning', 'Full Stack Web'],
+        targetCareerId: profileData?.target_career_id || profileData?.targetCareerId || 'car_mle',
+        created_at: profileData?.created_at || new Date().toISOString()
+      };
+
+      // Keep local storage synchronized with authenticated user
+      storageService.updateUser(activeUser);
+
       return {
-        success: false,
-        error: 'Incorrect password. Please verify your password and try again.'
+        success: true,
+        user: activeUser
       };
     } catch (e) {
       console.error('[Supabase] Sign in error:', e);

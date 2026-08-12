@@ -1,24 +1,38 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
   Lock,
   Mail,
   ArrowRight,
   ShieldAlert,
-  Loader2
+  Loader2,
+  Eye,
+  EyeOff
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import Card from '../components/common/Card';
 import Logo from '../components/common/Logo';
 
 export const LoginPage = () => {
-  const { login } = useAuth();
+  const { login, currentUser, isAuthenticated } = useAuth();
   const navigate = useNavigate();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+
+  // Auto-redirect if already authenticated
+  useEffect(() => {
+    if (isAuthenticated && currentUser) {
+      if (currentUser.role === 'admin') {
+        navigate('/admin', { replace: true });
+      } else {
+        navigate('/dashboard', { replace: true });
+      }
+    }
+  }, [isAuthenticated, currentUser, navigate]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -35,9 +49,9 @@ export const LoginPage = () => {
 
       const id = (email || '').toLowerCase().trim();
       if (id === 'admin' || id.includes('admin') || id.includes('faculty') || res.user?.role === 'admin') {
-        navigate('/admin');
+        navigate('/admin', { replace: true });
       } else {
-        navigate('/dashboard');
+        navigate('/dashboard', { replace: true });
       }
     } catch (err) {
       setErrorMessage(err.message || 'Failed to authenticate with database.');
@@ -99,14 +113,22 @@ export const LoginPage = () => {
               <div className="relative">
                 <Lock className="w-4 h-4 text-slate-400 dark:text-slate-500 absolute left-3.5 top-3.5 pointer-events-none" />
                 <input
-                  type="password"
+                  type={showPassword ? 'text' : 'password'}
                   required
                   value={password}
                   disabled={isSubmitting}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full pl-10 pr-4 py-3 bg-white/95 dark:bg-slate-900 border border-slate-300/90 dark:border-slate-700 rounded-2xl text-xs text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-[#843bf1] focus:border-transparent shadow-sm font-medium disabled:opacity-50 transition-all"
+                  className="w-full pl-10 pr-10 py-3 bg-white/95 dark:bg-slate-900 border border-slate-300/90 dark:border-slate-700 rounded-2xl text-xs text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-[#843bf1] focus:border-transparent shadow-sm font-medium disabled:opacity-50 transition-all"
                   placeholder="••••••••"
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3.5 top-3.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 cursor-pointer"
+                  tabIndex={-1}
+                >
+                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
               </div>
             </div>
 

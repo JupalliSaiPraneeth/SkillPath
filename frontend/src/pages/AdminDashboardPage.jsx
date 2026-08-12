@@ -1386,7 +1386,7 @@ export const AdminDashboardPage = () => {
                   <div className="overflow-x-auto">
                     <table className="w-full text-left text-xs">
                       <thead>
-                        <tr className="text-[10px] uppercase tracking-wider text-slate-400 border-b border-slate-100 dark:border-slate-800">
+                        <tr className="text-[11px] uppercase font-bold tracking-wider text-slate-600 dark:text-slate-300 border-b border-slate-100 dark:border-slate-800">
                           <th className="pb-2 font-bold">Student</th>
                           <th className="pb-2 font-bold">Target Career</th>
                           <th className="pb-2 font-bold">Match</th>
@@ -1559,15 +1559,15 @@ export const AdminDashboardPage = () => {
               {/* Users Table */}
               <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm">
                 <table className="w-full text-left text-xs">
-                  <thead className="bg-slate-50 dark:bg-slate-800/50 text-[10px] uppercase font-bold text-slate-400 border-b border-slate-200 dark:border-slate-800">
+                  <thead className="bg-slate-50 dark:bg-slate-800/60 text-xs uppercase font-bold tracking-wider text-slate-600 dark:text-slate-300 border-b border-slate-200 dark:border-slate-800">
                     <tr>
-                      <th className="p-4">Student</th>
-                      <th className="p-4">Degree & Year</th>
-                      <th className="p-4">Target Career</th>
-                      <th className="p-4">Cosine Match</th>
-                      <th className="p-4">ATS Score</th>
-                      <th className="p-4">Roadmap</th>
-                      <th className="p-4 text-right">Actions</th>
+                      <th className="py-3.5 px-4 font-bold text-slate-700 dark:text-slate-200">Student</th>
+                      <th className="py-3.5 px-4 font-bold text-slate-700 dark:text-slate-200">Degree & Year</th>
+                      <th className="py-3.5 px-4 font-bold text-slate-700 dark:text-slate-200">Target Career</th>
+                      <th className="py-3.5 px-4 font-bold text-slate-700 dark:text-slate-200">Cosine Match</th>
+                      <th className="py-3.5 px-4 font-bold text-slate-700 dark:text-slate-200">ATS Score</th>
+                      <th className="py-3.5 px-4 font-bold text-slate-700 dark:text-slate-200">Roadmap</th>
+                      <th className="py-3.5 px-4 font-bold text-slate-700 dark:text-slate-200 text-right">Actions</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
@@ -2573,15 +2573,15 @@ export const AdminDashboardPage = () => {
               <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-x-auto">
                 <table className="w-full text-left text-xs">
                   <thead>
-                    <tr className="text-[10px] uppercase font-bold text-slate-400 border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/30">
-                      <th className="py-3 px-4">Skill & Competency</th>
-                      <th className="py-3 px-4">Category</th>
-                      <th className="py-3 px-4">Current Demand (2026)</th>
-                      <th className="py-3 px-4">Growth Velocity</th>
-                      <th className="py-3 px-4">2028-2030 Forecast</th>
-                      <th className="py-3 px-4">Trajectory</th>
-                      <th className="py-3 px-4">Strategic Priority</th>
-                      <th className="py-3 px-4 text-right">Action</th>
+                    <tr className="text-xs uppercase font-bold tracking-wider text-slate-600 dark:text-slate-300 border-b border-slate-200 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-800/50">
+                      <th className="py-3 px-4 font-bold text-slate-700 dark:text-slate-200">Skill & Competency</th>
+                      <th className="py-3 px-4 font-bold text-slate-700 dark:text-slate-200">Category</th>
+                      <th className="py-3 px-4 font-bold text-slate-700 dark:text-slate-200">Current Demand (2026)</th>
+                      <th className="py-3 px-4 font-bold text-slate-700 dark:text-slate-200">Growth Velocity</th>
+                      <th className="py-3 px-4 font-bold text-slate-700 dark:text-slate-200">2028-2030 Forecast</th>
+                      <th className="py-3 px-4 font-bold text-slate-700 dark:text-slate-200">Trajectory</th>
+                      <th className="py-3 px-4 font-bold text-slate-700 dark:text-slate-200">Strategic Priority</th>
+                      <th className="py-3 px-4 font-bold text-slate-700 dark:text-slate-200 text-right">Action</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60 font-medium">
@@ -2734,14 +2734,14 @@ export const AdminDashboardPage = () => {
               <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-x-auto">
                 <table className="w-full text-left text-xs">
                   <thead>
-                    <tr className="text-[10px] uppercase font-bold text-slate-400 border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/30">
-                      <th className="py-3 px-4">Timestamp</th>
-                      <th className="py-3 px-4">Category</th>
-                      <th className="py-3 px-4">Event Operation</th>
-                      <th className="py-3 px-4">Actor / Origin</th>
-                      <th className="py-3 px-4">Transaction Details</th>
-                      <th className="py-3 px-4">Latency</th>
-                      <th className="py-3 px-4 text-right">Status</th>
+                    <tr className="text-xs uppercase font-bold tracking-wider text-slate-600 dark:text-slate-300 border-b border-slate-200 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-800/50">
+                      <th className="py-3 px-4 font-bold text-slate-700 dark:text-slate-200">Timestamp</th>
+                      <th className="py-3 px-4 font-bold text-slate-700 dark:text-slate-200">Category</th>
+                      <th className="py-3 px-4 font-bold text-slate-700 dark:text-slate-200">Event Operation</th>
+                      <th className="py-3 px-4 font-bold text-slate-700 dark:text-slate-200">Actor / Origin</th>
+                      <th className="py-3 px-4 font-bold text-slate-700 dark:text-slate-200">Transaction Details</th>
+                      <th className="py-3 px-4 font-bold text-slate-700 dark:text-slate-200">Latency</th>
+                      <th className="py-3 px-4 font-bold text-slate-700 dark:text-slate-200 text-right">Status</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60 font-medium">
@@ -2905,12 +2905,12 @@ export const AdminDashboardPage = () => {
                 <div className="overflow-x-auto">
                   <table className="w-full text-left text-xs">
                     <thead>
-                      <tr className="text-[10px] uppercase font-bold text-slate-400 border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/30">
-                        <th className="py-3 px-4">O*NET-SOC Code</th>
-                        <th className="py-3 px-4">Occupation Title</th>
-                        <th className="py-3 px-4">Job Family</th>
-                        <th className="py-3 px-4">Job Zone / Education</th>
-                        <th className="py-3 px-4 text-right">Action</th>
+                      <tr className="text-xs uppercase font-bold tracking-wider text-slate-600 dark:text-slate-300 border-b border-slate-200 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-800/50">
+                        <th className="py-3 px-4 font-bold text-slate-700 dark:text-slate-200">O*NET-SOC Code</th>
+                        <th className="py-3 px-4 font-bold text-slate-700 dark:text-slate-200">Occupation Title</th>
+                        <th className="py-3 px-4 font-bold text-slate-700 dark:text-slate-200">Job Family</th>
+                        <th className="py-3 px-4 font-bold text-slate-700 dark:text-slate-200">Job Zone / Education</th>
+                        <th className="py-3 px-4 font-bold text-slate-700 dark:text-slate-200 text-right">Action</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60 font-medium">
@@ -3075,13 +3075,13 @@ export const AdminDashboardPage = () => {
                 <div className="overflow-x-auto">
                   <table className="w-full text-left text-xs">
                     <thead>
-                      <tr className="text-[10px] uppercase font-bold text-slate-400 border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/30">
-                        <th className="py-3 px-4">Model Pipeline</th>
-                        <th className="py-3 px-4">Algorithm & Framework</th>
-                        <th className="py-3 px-4">Hyperparameter Configuration</th>
-                        <th className="py-3 px-4">Training Dataset</th>
-                        <th className="py-3 px-4">Primary Metric</th>
-                        <th className="py-3 px-4 text-right">Inference Latency</th>
+                      <tr className="text-xs uppercase font-bold tracking-wider text-slate-600 dark:text-slate-300 border-b border-slate-200 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-800/50">
+                        <th className="py-3 px-4 font-bold text-slate-700 dark:text-slate-200">Model Pipeline</th>
+                        <th className="py-3 px-4 font-bold text-slate-700 dark:text-slate-200">Algorithm & Framework</th>
+                        <th className="py-3 px-4 font-bold text-slate-700 dark:text-slate-200">Hyperparameter Configuration</th>
+                        <th className="py-3 px-4 font-bold text-slate-700 dark:text-slate-200">Training Dataset</th>
+                        <th className="py-3 px-4 font-bold text-slate-700 dark:text-slate-200">Primary Metric</th>
+                        <th className="py-3 px-4 font-bold text-slate-700 dark:text-slate-200 text-right">Inference Latency</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60 font-medium">
@@ -3198,14 +3198,14 @@ export const AdminDashboardPage = () => {
                 <div className="overflow-x-auto">
                   <table className="w-full text-left text-xs">
                     <thead>
-                      <tr className="text-[10px] uppercase font-bold text-slate-400 border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/30">
-                        <th className="py-3 px-4">Target Career Role</th>
-                        <th className="py-3 px-4">Precision</th>
-                        <th className="py-3 px-4">Recall</th>
-                        <th className="py-3 px-4">F1-Score</th>
-                        <th className="py-3 px-4">Test Support</th>
-                        <th className="py-3 px-4">10-Fold CV Mean</th>
-                        <th className="py-3 px-4 text-right">ROC-AUC</th>
+                      <tr className="text-xs uppercase font-bold tracking-wider text-slate-600 dark:text-slate-300 border-b border-slate-200 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-800/50">
+                        <th className="py-3 px-4 font-bold text-slate-700 dark:text-slate-200">Target Career Role</th>
+                        <th className="py-3 px-4 font-bold text-slate-700 dark:text-slate-200">Precision</th>
+                        <th className="py-3 px-4 font-bold text-slate-700 dark:text-slate-200">Recall</th>
+                        <th className="py-3 px-4 font-bold text-slate-700 dark:text-slate-200">F1-Score</th>
+                        <th className="py-3 px-4 font-bold text-slate-700 dark:text-slate-200">Test Support</th>
+                        <th className="py-3 px-4 font-bold text-slate-700 dark:text-slate-200">10-Fold CV Mean</th>
+                        <th className="py-3 px-4 font-bold text-slate-700 dark:text-slate-200 text-right">ROC-AUC</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60 font-medium">
@@ -3245,13 +3245,13 @@ export const AdminDashboardPage = () => {
             /* 7. EXPLAINABLE AI (SHAP & LIME) */
             /* ========================================================================= */
             <div className="space-y-6">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-5 sm:p-6 rounded-3xl bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl border border-slate-200/80 dark:border-slate-800/80 shadow-sm">
                 <div>
                   <h2 className="text-xl font-black text-slate-900 dark:text-slate-100 flex items-center gap-2">
                     <Sparkles className="w-5 h-5 text-amber-500" />
                     <span>Explainable AI (SHAP & LIME Feature Attribution)</span>
                   </h2>
-                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                  <p className="text-xs text-slate-600 dark:text-slate-300 mt-0.5 font-medium">
                     Game-theoretic mathematical transparency via Shapley Additive Explanations (TreeSHAP) and Local Interpretable Model-agnostic Explanations (LIME).
                   </p>
                 </div>
@@ -3264,7 +3264,7 @@ export const AdminDashboardPage = () => {
               </div>
 
               {/* Target Role Selector Tabs */}
-              <div className="bg-white dark:bg-slate-900 p-4 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm space-y-3">
+              <div className="bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl p-4 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm space-y-3">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                   <span className="text-xs font-bold text-slate-700 dark:text-slate-300">
                     Select Target Occupational Model to Inspect:
@@ -3294,43 +3294,43 @@ export const AdminDashboardPage = () => {
 
               {/* 1. Top XAI Mathematical Metric Cards */}
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                <div className="bg-white dark:bg-slate-900 p-5 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm space-y-1">
-                  <span className="text-[10px] uppercase font-bold text-slate-400 block">Baseline Expected Value E[f(x)]</span>
-                  <p className="text-2xl font-black text-slate-700 dark:text-slate-300 font-mono">50.0%</p>
-                  <span className="text-[10px] text-slate-500 font-medium">Prior Mean Probability</span>
+                <div className="bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl p-5 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm space-y-1">
+                  <span className="text-[10px] uppercase font-bold text-slate-500 dark:text-slate-400 block">Baseline Expected Value E[f(x)]</span>
+                  <p className="text-2xl font-black text-slate-800 dark:text-slate-200 font-mono">50.0%</p>
+                  <span className="text-[10px] text-slate-500 dark:text-slate-400 font-medium">Prior Mean Probability</span>
                 </div>
 
-                <div className="bg-white dark:bg-slate-900 p-5 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm space-y-1">
-                  <span className="text-[10px] uppercase font-bold text-slate-400 block">Model Prediction f(x)</span>
+                <div className="bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl p-5 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm space-y-1">
+                  <span className="text-[10px] uppercase font-bold text-slate-500 dark:text-slate-400 block">Model Prediction f(x)</span>
                   <p className="text-2xl font-black text-blue-600 dark:text-blue-400 font-mono">{activeXaiData.outputProbability}%</p>
                   <span className="text-[10px] text-blue-600 dark:text-blue-400 font-bold">{activeXaiData.title}</span>
                 </div>
 
-                <div className="bg-white dark:bg-slate-900 p-5 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm space-y-1">
-                  <span className="text-[10px] uppercase font-bold text-slate-400 block">Net Shapley Push Σ φ_i</span>
+                <div className="bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl p-5 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm space-y-1">
+                  <span className="text-[10px] uppercase font-bold text-slate-500 dark:text-slate-400 block">Net Shapley Push Σ φ_i</span>
                   <p className="text-2xl font-black text-emerald-600 dark:text-emerald-400 font-mono">{activeXaiData.netShapPush}</p>
                   <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold">Efficiency Axiom Verified</span>
                 </div>
 
-                <div className="bg-white dark:bg-slate-900 p-5 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm space-y-1">
-                  <span className="text-[10px] uppercase font-bold text-slate-400 block">LIME Surrogate Fit (R²)</span>
+                <div className="bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl p-5 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm space-y-1">
+                  <span className="text-[10px] uppercase font-bold text-slate-500 dark:text-slate-400 block">LIME Surrogate Fit (R²)</span>
                   <p className="text-2xl font-black text-purple-600 dark:text-purple-400 font-mono">{activeXaiData.surrogateR2}</p>
                   <span className="text-[10px] text-purple-600 dark:text-purple-400 font-bold">High Local Fidelity</span>
                 </div>
               </div>
 
               {/* 2. Narrative Callout Box */}
-              <div className="p-5 rounded-3xl bg-gradient-to-r from-amber-500/10 via-amber-500/5 to-transparent border border-amber-300 dark:border-amber-500/30 space-y-2">
+              <div className="p-5 rounded-3xl bg-amber-50/95 dark:bg-slate-900/95 backdrop-blur-xl border border-amber-300/80 dark:border-amber-500/40 shadow-sm space-y-2.5">
                 <div className="flex items-center gap-2">
                   <Sparkles className="w-4 h-4 text-amber-600 dark:text-amber-400" />
-                  <h4 className="font-bold text-xs text-slate-900 dark:text-slate-100">
+                  <h4 className="font-bold text-xs text-slate-900 dark:text-white">
                     Why was {activeXaiData.title} recommended with {activeXaiData.outputProbability}% confidence?
                   </h4>
                 </div>
-                <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+                <p className="text-xs text-slate-700 dark:text-slate-300 leading-relaxed font-medium">
                   {activeXaiData.narrative}
                 </p>
-                <div className="flex flex-wrap items-center gap-4 text-[11px] pt-1 text-slate-500 border-t border-amber-200/50 dark:border-amber-900/30">
+                <div className="flex flex-wrap items-center gap-4 text-[11px] pt-2 text-slate-600 dark:text-slate-400 border-t border-amber-200 dark:border-slate-800">
                   <span>Top Positive Driver: <strong className="text-emerald-600 dark:text-emerald-400 font-bold">{activeXaiData.topDriver}</strong></span>
                   <span>•</span>
                   <span>Primary Skill Gap: <strong className="text-rose-600 dark:text-rose-400 font-bold">{activeXaiData.topGap}</strong></span>
@@ -3412,13 +3412,13 @@ export const AdminDashboardPage = () => {
                 <div className="overflow-x-auto">
                   <table className="w-full text-left text-xs">
                     <thead>
-                      <tr className="text-[10px] uppercase font-bold text-slate-400 border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/30">
-                        <th className="py-3 px-4">Feature Competency</th>
-                        <th className="py-3 px-4">Type</th>
-                        <th className="py-3 px-4">Student Level</th>
-                        <th className="py-3 px-4">Required Level</th>
-                        <th className="py-3 px-4">SHAP Attribution (φ_i)</th>
-                        <th className="py-3 px-4 text-right">Impact Direction</th>
+                      <tr className="text-xs uppercase font-bold tracking-wider text-slate-600 dark:text-slate-300 border-b border-slate-200 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-800/50">
+                        <th className="py-3 px-4 font-bold text-slate-700 dark:text-slate-200">Feature Competency</th>
+                        <th className="py-3 px-4 font-bold text-slate-700 dark:text-slate-200">Type</th>
+                        <th className="py-3 px-4 font-bold text-slate-700 dark:text-slate-200">Student Level</th>
+                        <th className="py-3 px-4 font-bold text-slate-700 dark:text-slate-200">Required Level</th>
+                        <th className="py-3 px-4 font-bold text-slate-700 dark:text-slate-200">SHAP Attribution (φ_i)</th>
+                        <th className="py-3 px-4 font-bold text-slate-700 dark:text-slate-200 text-right">Impact Direction</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60 font-medium">
@@ -3565,13 +3565,13 @@ export const AdminDashboardPage = () => {
                 </div>
                 <table className="w-full text-left text-xs">
                   <thead>
-                    <tr className="text-[10px] uppercase font-bold text-slate-400 border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/30">
-                      <th className="py-3 px-4">Endpoint Route</th>
-                      <th className="py-3 px-4">Method</th>
-                      <th className="py-3 px-4">Avg Latency</th>
-                      <th className="py-3 px-4">Success Rate</th>
-                      <th className="py-3 px-4">Cache Policy</th>
-                      <th className="py-3 px-4">Health</th>
+                    <tr className="text-xs uppercase font-bold tracking-wider text-slate-600 dark:text-slate-300 border-b border-slate-200 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-800/50">
+                      <th className="py-3 px-4 font-bold text-slate-700 dark:text-slate-200">Endpoint Route</th>
+                      <th className="py-3 px-4 font-bold text-slate-700 dark:text-slate-200">Method</th>
+                      <th className="py-3 px-4 font-bold text-slate-700 dark:text-slate-200">Avg Latency</th>
+                      <th className="py-3 px-4 font-bold text-slate-700 dark:text-slate-200">Success Rate</th>
+                      <th className="py-3 px-4 font-bold text-slate-700 dark:text-slate-200">Cache Policy</th>
+                      <th className="py-3 px-4 font-bold text-slate-700 dark:text-slate-200">Health</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60 font-medium">

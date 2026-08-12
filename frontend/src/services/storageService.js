@@ -917,23 +917,23 @@ class StorageService {
 
   findUserByEmail(emailOrIdentifier) {
     if (!emailOrIdentifier) return null;
-    const clean = emailOrIdentifier.toLowerCase().trim();
+    const raw = emailOrIdentifier.trim();
     const users = this.getUsers();
 
-    // 1. Direct email match
-    const byEmail = users.find(u => (u.email || '').toLowerCase().trim() === clean);
-    if (byEmail) return byEmail;
+    // 1. If contains '@', match by exact email (case-insensitive for email standard)
+    if (raw.includes('@')) {
+      const cleanEmail = raw.toLowerCase();
+      const byEmail = users.find(u => (u.email || '').toLowerCase().trim() === cleanEmail);
+      if (byEmail) return byEmail;
+    } else {
+      // 2. Strict case-sensitive name / username match
+      const byName = users.find(u => (u.name || '').trim() === raw);
+      if (byName) return byName;
 
-    // 2. Direct ID match
-    const byId = users.find(u => (u.id || '').toLowerCase().trim() === clean);
-    if (byId) return byId;
-
-    // 3. Username / Email prefix match
-    const byPrefix = users.find(u => {
-      const prefix = (u.email || '').split('@')[0].toLowerCase().trim();
-      return prefix === clean;
-    });
-    if (byPrefix) return byPrefix;
+      // 3. Direct ID match
+      const byId = users.find(u => (u.id || '').trim() === raw);
+      if (byId) return byId;
+    }
 
     return null;
   }
@@ -955,9 +955,13 @@ class StorageService {
   }
 
   updateUser(updatedUser) {
+    if (!updatedUser) return [];
     try {
       const users = this.getUsers();
-      const index = users.findIndex(u => u.id === updatedUser.id);
+      const index = users.findIndex(u =>
+        (updatedUser.id && u.id === updatedUser.id) ||
+        (updatedUser.email && (u.email || '').toLowerCase().trim() === (updatedUser.email || '').toLowerCase().trim())
+      );
       if (index !== -1) {
         users[index] = { ...users[index], ...updatedUser };
       } else {
