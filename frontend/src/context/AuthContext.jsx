@@ -93,7 +93,10 @@ export const AuthProvider = ({ children }) => {
       return res || { success: false, error: 'Registration failed. Please check your details.' };
     }
 
-    const newUser = res.user;
+    const newUser = {
+      ...res.user,
+      password: formData.password
+    };
 
     // Save to session and initialize baseline
     storageService.addUser(newUser);

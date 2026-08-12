@@ -87,8 +87,8 @@ export const Sidebar = () => {
 
                     <div className="flex items-center gap-2.5 min-w-0">
                       <div className={`w-6 h-6 rounded-lg flex items-center justify-center transition-all shrink-0 ${isActive
-                          ? 'bg-white/20 text-white shadow-inner'
-                          : 'bg-[#843bf1]/10 dark:bg-[#843bf1]/20 text-[#843bf1] dark:text-[#a970fe] group-hover:bg-[#843bf1] group-hover:text-white group-hover:scale-110'
+                        ? 'bg-white/20 text-white shadow-inner'
+                        : 'bg-[#843bf1]/10 dark:bg-[#843bf1]/20 text-[#843bf1] dark:text-[#a970fe] group-hover:bg-[#843bf1] group-hover:text-white group-hover:scale-110'
                         }`}>
                         <Icon className={`w-3.5 h-3.5 ${isActive ? 'text-white drop-shadow-[0_0_6px_rgba(255,255,255,0.8)]' : ''}`} />
                       </div>
@@ -97,10 +97,10 @@ export const Sidebar = () => {
 
                     {item.badge && (
                       <span className={`text-[9px] font-black px-1.5 py-0.5 rounded-md border shrink-0 transition-all ${isActive
-                          ? 'bg-white/25 text-white border-white/40 backdrop-blur-xs'
-                          : item.badgeType === 'warning'
-                            ? 'bg-amber-100 dark:bg-amber-950/70 text-amber-800 dark:text-amber-300 border-amber-300 dark:border-amber-600/40 shadow-xs'
-                            : 'bg-[#843bf1]/15 dark:bg-[#843bf1]/25 text-[#843bf1] dark:text-purple-200 border border-[#843bf1]/30 dark:border-[#843bf1]/40 shadow-xs'
+                        ? 'bg-white/25 text-white border-white/40 backdrop-blur-xs'
+                        : item.badgeType === 'warning'
+                          ? 'bg-amber-100 dark:bg-amber-950/70 text-amber-800 dark:text-amber-300 border-amber-300 dark:border-amber-600/40 shadow-xs'
+                          : 'bg-[#843bf1]/15 dark:bg-[#843bf1]/25 text-[#843bf1] dark:text-purple-200 border border-[#843bf1]/30 dark:border-[#843bf1]/40 shadow-xs'
                         }`}>
                         {item.badge}
                       </span>

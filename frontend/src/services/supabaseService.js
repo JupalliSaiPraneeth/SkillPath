@@ -326,6 +326,10 @@ class SupabaseService {
     try {
       const clean = (emailOrUsername || '').toLowerCase().trim();
 
+      if (!clean || !password) {
+        return { success: false, error: 'Please enter both your email/username and password.' };
+      }
+
       // 1. Check Admin Credentials
       if (clean === 'admin' || clean === 'admin@careerpilot.ai') {
         if (password === 'admin123') {
@@ -350,7 +354,8 @@ class SupabaseService {
         }
       }
 
-      // 2. Query Supabase 'profiles' table for matching user
+      // 2. Query Supabase 'profiles' table and Local Storage to verify user existence in database
+      let dbProfile = null;
       try {
         const { data: profiles, error: pErr } = await supabase
           .from('profiles')
@@ -358,57 +363,87 @@ class SupabaseService {
           .or(`email.ilike.${clean},name.ilike.${clean}`);
 
         if (profiles && profiles.length > 0) {
-          const user = profiles[0];
-          const college = user.education && user.education.includes('•')
-            ? user.education.split('•')[1].trim()
-            : (user.college || '');
-
-          return {
-            success: true,
-            user: {
-              id: user.id,
-              name: user.name,
-              email: user.email,
-              role: user.role || 'student',
-              education: sanitizeEducation(user.education, college),
-              degree: user.degree,
-              college: college && college.length > 1 ? college : '',
-              graduationYear: user.graduation_year || user.graduationYear,
-              experience: user.experience,
-              interests: user.interests || [],
-              targetCareerId: user.target_career_id || user.targetCareerId || 'car_mle',
-              created_at: user.created_at
-            }
-          };
+          dbProfile = profiles[0];
         }
       } catch (dbErr) {
         console.warn('[Supabase DB] Query exception:', dbErr);
       }
 
-      // 3. Try Supabase Auth API
+      const localUser = storageService.findUserByEmail(clean);
+
+      // If user DOES NOT EXIST in the database:
+      if (!dbProfile && !localUser) {
+        return {
+          success: false,
+          error: `No registered account found with email or username "${clean}". Please create an account first.`
+        };
+      }
+
+      // 3. User exists in database -> Verify password with Supabase Auth API
+      const targetEmail = dbProfile?.email || localUser?.email || clean;
+      let authSuccess = false;
+      let authUser = null;
+
       try {
         const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
-          email: clean,
+          email: targetEmail,
           password: password
         });
 
-        if (authData?.user) {
-          const profile = await this.fetchUserProfile(authData.user.id);
-          return {
-            success: true,
-            user: profile || {
-              id: authData.user.id,
-              email: authData.user.email,
-              name: authData.user.user_metadata?.name || 'Engineering Student',
-              role: authData.user.user_metadata?.role || 'student'
-            }
-          };
+        if (!authError && authData?.user) {
+          authSuccess = true;
+          authUser = authData.user;
         }
       } catch (authErr) {
-        console.warn('[Supabase Auth] Sign in note:', authErr);
+        console.warn('[Supabase Auth] Sign in attempt note:', authErr);
       }
 
-      return { success: false, error: `No registered account found with email "${clean}". Please create an account first.` };
+      // If Supabase Auth successfully verified password:
+      if (authSuccess) {
+        const profileData = dbProfile || (await this.fetchUserProfile(authUser.id)) || localUser;
+        const college = profileData?.education && profileData.education.includes('•')
+          ? profileData.education.split('•')[1].trim()
+          : (profileData?.college || '');
+
+        return {
+          success: true,
+          user: {
+            id: profileData?.id || authUser.id,
+            name: profileData?.name || authUser.user_metadata?.name || 'Engineering Student',
+            email: profileData?.email || authUser.email,
+            role: profileData?.role || 'student',
+            education: sanitizeEducation(profileData?.education, college),
+            degree: profileData?.degree || 'Bachelor of Technology (B.Tech)',
+            college: college && college.length > 1 ? college : '',
+            graduationYear: profileData?.graduation_year || profileData?.graduationYear || '2026',
+            experience: profileData?.experience || 'Fresher / Student (0-1 Years)',
+            interests: profileData?.interests || ['Machine Learning', 'Full Stack Web'],
+            targetCareerId: profileData?.target_career_id || profileData?.targetCareerId || 'car_mle',
+            created_at: profileData?.created_at
+          }
+        };
+      }
+
+      // 4. Fallback check for local storage registered password
+      if (localUser?.password) {
+        if (localUser.password === password) {
+          return {
+            success: true,
+            user: localUser
+          };
+        } else {
+          return {
+            success: false,
+            error: 'Incorrect password. Please verify your password and try again.'
+          };
+        }
+      }
+
+      // 5. If password was incorrect and failed authentication
+      return {
+        success: false,
+        error: 'Incorrect password. Please verify your password and try again.'
+      };
     } catch (e) {
       console.error('[Supabase] Sign in error:', e);
       return { success: false, error: e.message || 'Authentication error.' };
