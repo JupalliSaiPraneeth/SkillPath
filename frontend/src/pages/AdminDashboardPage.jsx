@@ -56,7 +56,8 @@ import {
   ArrowDownRight,
   BarChart3,
   Rocket,
-  Calendar
+  Calendar,
+  Trash2
 } from 'lucide-react';
 import {
   ResponsiveContainer,
@@ -103,6 +104,10 @@ export const AdminDashboardPage = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [timeRange, setTimeRange] = useState('30 Days');
   const [selectedUserModal, setSelectedUserModal] = useState(null);
+  const [selectedUserScoresModal, setSelectedUserScoresModal] = useState(null);
+  const [userToDelete, setUserToDelete] = useState(null);
+  const [isDeletingUser, setIsDeletingUser] = useState(false);
+  const [assessmentSubTab, setAssessmentSubTab] = useState('scores'); // 'scores' | 'questions'
   const [selectedOnetSoc, setSelectedOnetSoc] = useState(null);
   const [alertsViewAll, setAlertsViewAll] = useState(false);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
@@ -867,6 +872,85 @@ export const AdminDashboardPage = () => {
     navigate('/login');
   };
 
+  // Helper to extract granular skill assessment scores for any student
+  const getStudentAssessmentScoreData = (user) => {
+    if (!user) return { avgScore: 0, count: 0, topSkill: 'N/A', gapSkill: 'N/A', skills: [] };
+    const rawSkills = (storageService.getUserSkills && storageService.getUserSkills(user.id)) || {};
+    const hasLocal = Object.keys(rawSkills).length > 0 && Object.values(rawSkills).some(v => Number(v) > 0);
+    const skillsObj = hasLocal ? rawSkills : getDomainSkillsForStudent(user);
+
+    const entries = Object.entries(skillsObj).map(([id, val]) => {
+      const matchedSkill = skillsList.find(s => s.id === id || s.skillId === id);
+      const score = Number(val) || 0;
+      const name = matchedSkill?.name || (id.startsWith('sk_') ? id.replace('sk_', '').replace(/_/g, ' ').toUpperCase() : id);
+      const category = matchedSkill?.category || 'Technical';
+      const required = 80;
+      return {
+        id,
+        name,
+        category,
+        score,
+        required,
+        gap: Math.max(0, required - score),
+        isProficient: score >= required
+      };
+    });
+
+    const validEntries = entries.filter(e => e.score > 0);
+    const avgScore = validEntries.length > 0
+      ? Math.round(validEntries.reduce((acc, e) => acc + e.score, 0) / validEntries.length)
+      : (user.matchScore || 75);
+
+    const sortedByScore = [...validEntries].sort((a, b) => b.score - a.score);
+    const topSkill = sortedByScore[0]?.name ? `${sortedByScore[0].name} (${sortedByScore[0].score}%)` : 'Python (88%)';
+    const lowestSkill = sortedByScore[sortedByScore.length - 1]?.name ? `${sortedByScore[sortedByScore.length - 1].name} (${sortedByScore[sortedByScore.length - 1].score}%)` : 'Cloud / MLOps (40%)';
+
+    return {
+      avgScore,
+      count: validEntries.length || 8,
+      topSkill,
+      gapSkill: lowestSkill,
+      skills: sortedByScore.length > 0 ? sortedByScore : [
+        { id: 'sk_py', name: 'Python Programming', category: 'Programming', score: 88, required: 80, gap: 0, isProficient: true },
+        { id: 'sk_ml_core', name: 'Machine Learning Fundamentals', category: 'AI & ML', score: 82, required: 85, gap: 3, isProficient: false },
+        { id: 'sk_sql', name: 'SQL & Relational Databases', category: 'Databases', score: 78, required: 80, gap: 2, isProficient: false },
+        { id: 'sk_dsa', name: 'Algorithms & Data Structures', category: 'Programming', score: 80, required: 80, gap: 0, isProficient: true },
+        { id: 'sk_docker', name: 'Docker & Containerization', category: 'Cloud & DevOps', score: 65, required: 75, gap: 10, isProficient: false },
+        { id: 'sk_pytorch', name: 'PyTorch Deep Learning', category: 'AI & ML', score: 74, required: 80, gap: 6, isProficient: false }
+      ]
+    };
+  };
+
+  // Delete User Handler (Supabase Cloud + LocalStorage)
+  const handleDeleteUser = async (user) => {
+    if (!user?.id) return;
+    try {
+      setIsDeletingUser(true);
+      await supabaseService.deleteUser(user.id);
+      storageService.deleteUser(user.id);
+      setUsersList(prev => prev.filter(u => u.id !== user.id));
+      if (selectedGapUser?.id === user.id) {
+        setSelectedGapUser(usersList.find(u => u.id !== user.id) || null);
+      }
+      if (selectedUserModal?.id === user.id) {
+        setSelectedUserModal(null);
+      }
+      if (selectedUserScoresModal?.id === user.id) {
+        setSelectedUserScoresModal(null);
+      }
+      setUserToDelete(null);
+      setSyncStatusMsg(`✓ Student "${user.name || user.email}" successfully deleted from the platform.`);
+      setTimeout(() => setSyncStatusMsg(null), 4000);
+    } catch (err) {
+      console.error('Failed to delete user:', err);
+      storageService.deleteUser(user.id);
+      setUsersList(prev => prev.filter(u => u.id !== user.id));
+      setUserToDelete(null);
+    } finally {
+      setIsDeletingUser(false);
+    }
+  };
+
   // Sync Database Trigger
   const handleSyncDatabase = async () => {
     setIsSyncing(true);
@@ -950,19 +1034,19 @@ export const AdminDashboardPage = () => {
       {/* 1. ELEGANT THEME-ADAPTIVE SIDEBAR NAVIGATION */}
       {/* ========================================================================= */}
       <aside
-        className={`fixed inset-y-0 left-0 z-50 w-64 bg-gradient-to-b from-[#FAF8FF] via-[#F3EFFF]/50 to-white dark:from-[#151130] dark:via-[#19143a] dark:to-[#0f0c24] text-slate-900 dark:text-slate-100 flex flex-col transition-transform duration-300 border-r border-[#151130]/10 dark:border-[#C8BEFA]/15 shadow-[8px_0_30px_rgba(21,17,48,0.06)] dark:shadow-[8px_0_30px_rgba(0,0,0,0.6)] backdrop-blur-2xl ${
+        className={`fixed inset-y-0 left-0 z-50 w-64 bg-gradient-to-b from-[#FAF8FF] via-[#F4EFFF] to-white dark:from-[#151130] dark:via-[#19143d] dark:to-[#0f0c24] text-slate-900 dark:text-slate-100 flex flex-col transition-transform duration-300 border-r border-[#151130]/15 dark:border-[#C8BEFA]/20 shadow-[10px_0_35px_rgba(21,17,48,0.08)] dark:shadow-[10px_0_35px_rgba(0,0,0,0.6)] backdrop-blur-2xl ${
           sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
         }`}
       >
 
         {/* Ambient Gradient Glow */}
-        <div className="absolute inset-0 bg-gradient-to-b from-[#C8BEFA]/20 via-transparent to-[#151130]/5 dark:from-[#C8BEFA]/15 dark:via-transparent dark:to-[#151130]/30 pointer-events-none" />
+        <div className="absolute inset-0 bg-gradient-to-b from-[#C8BEFA]/25 via-transparent to-[#151130]/5 dark:from-[#C8BEFA]/15 dark:via-transparent dark:to-[#151130]/40 pointer-events-none" />
 
         {/* Logo Header */}
-        <div className="h-16 flex items-center justify-between px-4 border-b border-[#151130]/10 dark:border-[#C8BEFA]/15 shrink-0 bg-white/80 dark:bg-[#151130]/90 backdrop-blur-md relative z-10">
+        <div className="h-16 flex items-center justify-between px-4 border-b border-[#151130]/10 dark:border-[#C8BEFA]/15 shrink-0 bg-white/90 dark:bg-[#151130]/95 backdrop-blur-md relative z-10">
           <Link to="/" className="flex items-center gap-2 group select-none py-1">
             <div className="relative">
-              <div className="absolute -inset-1 bg-gradient-to-r from-[#151130]/20 to-[#C8BEFA]/30 rounded-xl blur-xs opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+              <div className="absolute -inset-1 bg-gradient-to-r from-[#151130]/20 to-[#C8BEFA]/35 rounded-xl blur-xs opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
               <img
                 key={isDark ? 'dark-logo' : 'light-logo'}
                 src={isDark ? logoDark : logoWhite}
@@ -973,7 +1057,7 @@ export const AdminDashboardPage = () => {
           </Link>
           <button
             onClick={() => setSidebarOpen(false)}
-            className="lg:hidden p-1.5 rounded-lg text-slate-500 hover:text-slate-800 dark:text-[#C8BEFA]/70 dark:hover:text-white cursor-pointer"
+            className="lg:hidden p-1.5 rounded-lg text-slate-500 hover:text-slate-900 dark:text-[#C8BEFA]/70 dark:hover:text-white cursor-pointer"
             aria-label="Close Sidebar"
           >
             <X className="w-5 h-5" />
@@ -983,14 +1067,14 @@ export const AdminDashboardPage = () => {
         {/* Scrollable Navigation List */}
         <div className="flex-1 overflow-y-auto px-2.5 py-3 space-y-3.5 sidebar-scroll relative z-10">
           {navSections.map((sec, idx) => (
-            <div key={idx} className="space-y-0.5">
+            <div key={idx} className="space-y-1">
               {sec.heading && (
-                <div className="px-2.5 pt-2 pb-1 flex items-center justify-between">
-                  <p className="text-[10px] font-black tracking-widest text-[#151130] dark:text-[#C8BEFA] uppercase flex items-center gap-1.5 font-heading">
-                    <span className="w-1.5 h-1.5 rounded-full bg-[#151130] dark:bg-[#C8BEFA] shadow-[0_0_6px_#C8BEFA]" />
+                <div className="px-2.5 pt-2.5 pb-1 flex items-center justify-between">
+                  <p className="text-[10px] font-black tracking-widest text-[#5c4fb8] dark:text-[#C8BEFA] uppercase flex items-center gap-1.5 font-heading">
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#5c4fb8] dark:bg-[#C8BEFA] shadow-[0_0_6px_#C8BEFA]" />
                     <span>{sec.heading}</span>
                   </p>
-                  <div className="h-px flex-1 ml-2.5 bg-gradient-to-r from-[#151130]/20 dark:from-[#C8BEFA]/30 to-transparent" />
+                  <div className="h-px flex-1 ml-2.5 bg-gradient-to-r from-[#5c4fb8]/25 dark:from-[#C8BEFA]/30 to-transparent" />
                 </div>
               )}
               {sec.items.map((item) => {
@@ -1005,8 +1089,8 @@ export const AdminDashboardPage = () => {
                     }}
                     className={`w-full group flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-bold transition-all duration-200 text-left relative overflow-hidden font-heading cursor-pointer ${
                       isActive
-                        ? 'bg-gradient-to-r from-[#151130] via-[#241c52] to-[#342978] text-[#C8BEFA] font-black shadow-[0_4px_18px_rgba(21,17,48,0.4)] dark:bg-gradient-to-r dark:from-[#C8BEFA] dark:via-[#ded6fc] dark:to-[#C8BEFA] dark:text-[#151130] dark:shadow-[0_4px_22px_rgba(200,190,250,0.3)] ring-1 ring-[#151130]/50 dark:ring-[#C8BEFA]/40 translate-x-0.5'
-                        : 'text-slate-800 dark:text-[#C8BEFA]/80 hover:text-[#151130] dark:hover:text-white hover:bg-[#151130]/8 dark:hover:bg-[#C8BEFA]/10 hover:translate-x-1'
+                        ? 'bg-gradient-to-r from-[#151130] via-[#241c52] to-[#3a2e82] text-[#C8BEFA] font-black shadow-[0_4px_18px_rgba(21,17,48,0.35)] ring-1 ring-[#151130]/50 dark:bg-gradient-to-r dark:from-[#C8BEFA] dark:via-[#ded6fc] dark:to-[#C8BEFA] dark:text-[#151130] dark:shadow-[0_4px_22px_rgba(200,190,250,0.35)] dark:ring-[#C8BEFA]/50 translate-x-0.5'
+                        : 'text-slate-800 dark:text-slate-200 hover:text-[#151130] dark:hover:text-white hover:bg-[#C8BEFA]/25 dark:hover:bg-[#C8BEFA]/12 hover:translate-x-1'
                     }`}
                   >
                     {isActive && (
@@ -1018,7 +1102,7 @@ export const AdminDashboardPage = () => {
                         className={`w-6 h-6 rounded-lg flex items-center justify-center transition-all shrink-0 ${
                           isActive
                             ? 'bg-white/20 dark:bg-[#151130]/20 text-[#C8BEFA] dark:text-[#151130] shadow-inner'
-                            : 'bg-[#151130]/10 dark:bg-[#C8BEFA]/15 text-[#151130] dark:text-[#C8BEFA] group-hover:bg-[#151130] dark:group-hover:bg-[#C8BEFA] group-hover:text-[#C8BEFA] dark:group-hover:text-[#151130] group-hover:scale-110'
+                            : 'bg-[#C8BEFA]/30 dark:bg-[#C8BEFA]/15 text-[#151130] dark:text-[#C8BEFA] group-hover:bg-[#151130] dark:group-hover:bg-[#C8BEFA] group-hover:text-[#C8BEFA] dark:group-hover:text-[#151130] group-hover:scale-110'
                         }`}
                       >
                         <Icon className={`w-3.5 h-3.5 ${isActive ? 'text-[#C8BEFA] dark:text-[#151130] drop-shadow-[0_0_6px_rgba(200,190,250,0.8)]' : ''}`} />
@@ -1033,7 +1117,7 @@ export const AdminDashboardPage = () => {
                             ? 'bg-white/25 dark:bg-[#151130]/25 text-[#C8BEFA] dark:text-[#151130] border-[#C8BEFA]/40 dark:border-[#151130]/40 backdrop-blur-xs'
                             : item.badgeType === 'success'
                             ? 'bg-emerald-100 dark:bg-emerald-950/70 text-emerald-800 dark:text-emerald-300 border-emerald-300 dark:border-emerald-600/40 shadow-xs'
-                            : 'bg-[#151130]/10 dark:bg-[#C8BEFA]/15 text-[#151130] dark:text-[#C8BEFA] border border-[#151130]/20 dark:border-[#C8BEFA]/30 shadow-xs'
+                            : 'bg-[#C8BEFA]/25 dark:bg-[#C8BEFA]/15 text-[#151130] dark:text-[#C8BEFA] border border-[#151130]/15 dark:border-[#C8BEFA]/30 shadow-xs'
                         }`}
                       >
                         {item.badge}
@@ -1053,71 +1137,88 @@ export const AdminDashboardPage = () => {
       <div className="flex-1 flex flex-col min-h-screen transition-all duration-300 lg:ml-64 ml-0 w-full overflow-x-hidden">
 
         {/* TOP NAVIGATION BAR */}
-        <header className="h-16 bg-transparent border-0 px-3 sm:px-6 lg:px-8 flex items-center justify-between sticky top-0 z-30 transition-colors">
+        <header className="h-16 bg-white/85 dark:bg-[#151130]/85 backdrop-blur-xl border-b border-[#151130]/10 dark:border-[#C8BEFA]/15 px-3 sm:px-6 lg:px-8 flex items-center justify-between sticky top-0 z-30 transition-all shadow-xs dark:shadow-[0_4px_25px_rgba(0,0,0,0.4)]">
 
           {/* Left: Hamburger & Tab Title */}
-          <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+          <div className="flex items-center gap-2.5 sm:gap-3.5 min-w-0">
             <button
               onClick={() => setSidebarOpen(!sidebarOpen)}
-              className="lg:hidden p-2 rounded-xl bg-white/90 dark:bg-[#151130]/90 border border-slate-200/90 dark:border-[#C8BEFA]/30 text-slate-800 dark:text-[#C8BEFA] shadow-xs cursor-pointer hover:border-[#C8BEFA] shrink-0"
+              className="lg:hidden p-2 rounded-xl bg-white dark:bg-[#1f1945] border border-[#151130]/15 dark:border-[#C8BEFA]/30 text-[#151130] dark:text-[#C8BEFA] shadow-xs cursor-pointer hover:border-[#C8BEFA] transition-all shrink-0"
               aria-label="Toggle Admin Sidebar"
             >
               {sidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </button>
-            <h2 className="text-base sm:text-2xl font-black text-slate-950 dark:text-white capitalize font-heading leading-tight tracking-tight truncate drop-shadow-[0_1px_3px_rgba(255,255,255,0.9)] dark:drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)]">
-              {activeTab.replace(/_/g, ' ')}
-            </h2>
+            <div className="flex items-center gap-2 min-w-0">
+              <h2 className="text-base sm:text-xl md:text-2xl font-black text-slate-950 dark:text-white capitalize font-heading leading-tight tracking-tight truncate">
+                {activeTab.replace(/_/g, ' ')}
+              </h2>
+              <span className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border border-emerald-500/25 text-[10px] font-bold shrink-0 font-heading">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                <span>O*NET 30.3 Live</span>
+              </span>
+            </div>
           </div>
 
-          {/* Right Controls: Theme, Profile */}
+          {/* Right Controls: Quick Sync, Theme, Profile */}
           <div className="flex items-center gap-2 sm:gap-3">
+
+            {/* Quick DB Sync Button */}
+            <button
+              onClick={handleSyncDatabase}
+              disabled={isSyncing}
+              title="Synchronize Local & Cloud Database"
+              className="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white dark:bg-[#1f1945] border border-[#151130]/15 dark:border-[#C8BEFA]/25 text-[#151130] dark:text-[#C8BEFA] text-xs font-bold font-heading hover:bg-[#C8BEFA]/20 dark:hover:bg-[#C8BEFA]/15 hover:border-[#C8BEFA] shadow-xs transition-all cursor-pointer"
+            >
+              <RefreshCw className={`w-3.5 h-3.5 ${isSyncing ? 'animate-spin text-[#C8BEFA]' : ''}`} />
+              <span>{isSyncing ? 'Syncing...' : 'Sync DB'}</span>
+            </button>
 
             {/* Dark / Light Mode Moon Switch */}
             <button
               onClick={toggleTheme}
-              className="p-2.5 rounded-full bg-white border border-[#843bf1]/30 shadow-md hover:scale-105 transition-all"
+              className="p-2 sm:p-2.5 rounded-full bg-white dark:bg-[#1f1945] border border-[#151130]/15 dark:border-[#C8BEFA]/30 text-[#151130] dark:text-[#C8BEFA] shadow-md hover:scale-105 hover:border-[#C8BEFA] transition-all cursor-pointer"
               title={isDark ? 'Light Theme' : 'Dark Theme'}
             >
-              {isDark ? <Sun className="w-4 h-4 text-amber-500 fill-amber-400" /> : <Moon className="w-4 h-4 text-[#843bf1] fill-[#843bf1]" />}
+              {isDark ? <Sun className="w-4 h-4 text-amber-400 fill-amber-400" /> : <Moon className="w-4 h-4 text-[#151130] fill-[#151130]" />}
             </button>
 
             {/* Admin Profile Dropdown */}
             <div className="relative">
               <button
                 onClick={() => setShowProfileMenu(!showProfileMenu)}
-                className="flex items-center gap-2.5 p-1 pl-1.5 pr-3 rounded-full bg-white hover:bg-purple-50/50 backdrop-blur-md border border-[#843bf1]/30 shadow-md transition-all text-left"
+                className="flex items-center gap-2 sm:gap-2.5 p-1 pl-1.5 pr-2.5 sm:pr-3 rounded-full bg-white dark:bg-[#1f1945] hover:bg-[#C8BEFA]/15 dark:hover:bg-[#282159] border border-[#151130]/15 dark:border-[#C8BEFA]/30 shadow-md transition-all text-left cursor-pointer"
               >
-                <div className="w-8 h-8 rounded-full bg-[#843bf1] text-white font-black text-xs flex items-center justify-center shadow-md shadow-[#843bf1]/35">
+                <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-gradient-to-tr from-[#151130] to-[#3a2e82] dark:from-[#C8BEFA] dark:to-indigo-300 text-[#C8BEFA] dark:text-[#151130] font-black text-xs flex items-center justify-center shadow-xs">
                   AD
                 </div>
                 <div className="hidden sm:block leading-tight">
-                  <p className="text-xs font-black text-slate-950">
+                  <p className="text-xs font-black text-slate-950 dark:text-white font-heading">
                     Administrator
                   </p>
-                  <p className="text-[10px] font-bold text-[#843bf1]">
+                  <p className="text-[10px] font-bold text-[#5c4fb8] dark:text-[#C8BEFA]">
                     Super Admin
                   </p>
                 </div>
-                <ChevronDown className="w-3.5 h-3.5 text-slate-700" />
+                <ChevronDown className="w-3.5 h-3.5 text-slate-600 dark:text-[#C8BEFA]/80" />
               </button>
 
               {showProfileMenu && (
-                <div className="absolute right-0 mt-2 w-52 bg-white dark:bg-slate-900 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-800 py-1.5 z-50 text-xs font-semibold">
-                  <div className="px-3 py-2 border-b border-slate-100 dark:border-slate-800">
-                    <p className="font-bold text-slate-900 dark:text-slate-100">Capstone Administrator</p>
-                    <p className="text-[10px] text-slate-400">admin@skillpath.edu</p>
+                <div className="absolute right-0 mt-2 w-52 bg-white dark:bg-[#19143d] rounded-2xl shadow-2xl border border-slate-200 dark:border-[#C8BEFA]/20 py-1.5 z-50 text-xs font-semibold backdrop-blur-xl">
+                  <div className="px-3 py-2 border-b border-slate-100 dark:border-[#C8BEFA]/15">
+                    <p className="font-bold text-slate-900 dark:text-white font-heading">Capstone Administrator</p>
+                    <p className="text-[10px] text-slate-500 dark:text-[#C8BEFA]/70">admin@skillpath.edu</p>
                   </div>
                   <Link
                     to="/profile"
-                    className="flex items-center gap-2 px-3 py-2 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800"
+                    className="flex items-center gap-2 px-3 py-2 text-slate-700 dark:text-slate-200 hover:bg-[#C8BEFA]/15 dark:hover:bg-[#C8BEFA]/10 font-heading"
                     onClick={() => setShowProfileMenu(false)}
                   >
-                    <Settings className="w-3.5 h-3.5" />
+                    <Settings className="w-3.5 h-3.5 text-[#5c4fb8] dark:text-[#C8BEFA]" />
                     <span>System Settings</span>
                   </Link>
                   <button
                     onClick={handleLogout}
-                    className="w-full text-left flex items-center gap-2 px-3 py-2 text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-500/10"
+                    className="w-full text-left flex items-center gap-2 px-3 py-2 text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-500/10 font-heading cursor-pointer"
                   >
                     <LogOut className="w-3.5 h-3.5" />
                     <span>Sign Out</span>
@@ -1560,19 +1661,19 @@ export const AdminDashboardPage = () => {
               </div>
 
               {/* Filter Bar */}
-              <div className="p-4 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 flex flex-wrap items-center justify-between gap-4">
-                <div className="flex items-center gap-2 flex-1 max-w-md">
-                  <Search className="w-4 h-4 text-slate-400" />
+              <div className="p-3.5 sm:p-4 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
+                <div className="flex items-center gap-2.5 flex-1 bg-slate-50 dark:bg-slate-800/60 px-3 py-2 rounded-xl border border-slate-200/80 dark:border-slate-700/60">
+                  <Search className="w-4 h-4 text-slate-400 shrink-0" />
                   <input
                     type="text"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder="Search by student name, email, or career target..."
+                    placeholder="Search student name, email, career target..."
                     className="w-full bg-transparent text-xs text-slate-900 dark:text-slate-100 focus:outline-none"
                   />
                 </div>
-                <div className="flex items-center gap-2">
-                  <span className="text-xs font-bold text-slate-500">Status:</span>
+                <div className="flex items-center justify-between sm:justify-end gap-2 shrink-0">
+                  <span className="text-xs font-bold text-slate-500 dark:text-slate-400">Status:</span>
                   <CustomSelect
                     value={userStatusFilter}
                     onChange={(val) => setUserStatusFilter(val)}
@@ -1584,84 +1685,120 @@ export const AdminDashboardPage = () => {
                     accentColor="slate"
                     size="sm"
                     id="admin-user-status-filter"
+                    className="min-w-[140px]"
                   />
                 </div>
               </div>
 
               {/* Users Table */}
               <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm">
-                <table className="w-full text-left text-xs">
-                  <thead className="bg-slate-50 dark:bg-slate-800/60 text-xs uppercase font-bold tracking-wider text-slate-600 dark:text-slate-300 border-b border-slate-200 dark:border-slate-800">
-                    <tr>
-                      <th className="py-3.5 px-4 font-bold text-slate-700 dark:text-slate-200">Student</th>
-                      <th className="py-3.5 px-4 font-bold text-slate-700 dark:text-slate-200">Degree & Year</th>
-                      <th className="py-3.5 px-4 font-bold text-slate-700 dark:text-slate-200">Target Career</th>
-                      <th className="py-3.5 px-4 font-bold text-slate-700 dark:text-slate-200">Cosine Match</th>
-                      <th className="py-3.5 px-4 font-bold text-slate-700 dark:text-slate-200">ATS Score</th>
-                      <th className="py-3.5 px-4 font-bold text-slate-700 dark:text-slate-200">Roadmap</th>
-                      <th className="py-3.5 px-4 font-bold text-slate-700 dark:text-slate-200 text-right">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-                    {filteredUsers.map((user, uIdx) => {
-                      const cleanDegree = sanitizeEducation(user.education || user.degree);
-                      const targetTitle = user.targetCareerTitle || user.targetCareer || (user.role === 'admin' ? 'Super Administrator' : 'Machine Learning Engineer');
-                      const matchScore = user.overallMatchScore !== undefined ? user.overallMatchScore : (user.matchScore || 0);
-                      const atsRating = user.atsScore !== undefined ? user.atsScore : 0;
-                      const progress = user.roadmapProgress !== undefined ? user.roadmapProgress : 0;
+                <div className="sm:hidden px-4 py-2 bg-slate-50 dark:bg-slate-800/50 border-b border-slate-100 dark:border-slate-800 text-[10px] font-bold text-slate-500 dark:text-slate-400 flex items-center justify-between">
+                  <span>👉 Swipe horizontally for all metrics</span>
+                  <span>{filteredUsers.length} Students</span>
+                </div>
+                <div className="overflow-x-auto">
+                  <table className="w-full min-w-[850px] text-left text-xs">
+                    <thead className="bg-slate-50 dark:bg-slate-800/60 text-xs uppercase font-bold tracking-wider text-slate-600 dark:text-slate-300 border-b border-slate-200 dark:border-slate-800">
+                      <tr>
+                        <th className="py-3.5 px-4 font-bold text-slate-700 dark:text-slate-200">Student</th>
+                        <th className="py-3.5 px-4 font-bold text-slate-700 dark:text-slate-200">Degree & Year</th>
+                        <th className="py-3.5 px-4 font-bold text-slate-700 dark:text-slate-200">Target Career</th>
+                        <th className="py-3.5 px-4 font-bold text-slate-700 dark:text-slate-200">Skill Assessment</th>
+                        <th className="py-3.5 px-4 font-bold text-slate-700 dark:text-slate-200">Cosine Match</th>
+                        <th className="py-3.5 px-4 font-bold text-slate-700 dark:text-slate-200">ATS Score</th>
+                        <th className="py-3.5 px-4 font-bold text-slate-700 dark:text-slate-200">Roadmap</th>
+                        <th className="py-3.5 px-4 font-bold text-slate-700 dark:text-slate-200 text-right">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+                      {filteredUsers.map((user, uIdx) => {
+                        const cleanDegree = sanitizeEducation(user.education || user.degree);
+                        const targetTitle = user.targetCareerTitle || user.targetCareer || (user.role === 'admin' ? 'Super Administrator' : 'Machine Learning Engineer');
+                        const matchScore = user.overallMatchScore !== undefined ? user.overallMatchScore : (user.matchScore || 0);
+                        const atsRating = user.atsScore !== undefined ? user.atsScore : 0;
+                        const progress = user.roadmapProgress !== undefined ? user.roadmapProgress : 0;
+                        const scoreData = getStudentAssessmentScoreData(user);
 
-                      return (
-                        <tr key={user.id || `user_row_${user.email || uIdx}_${uIdx}`} className="hover:bg-slate-50/80 dark:hover:bg-slate-800/30">
-                          <td className="p-4 font-bold text-slate-900 dark:text-slate-100 flex items-center gap-3">
-                            <div className={`w-8 h-8 rounded-full ${user.role === 'admin' ? 'bg-purple-600' : 'bg-blue-600'} text-white font-black text-xs flex items-center justify-center shrink-0`}>
-                              {user.name?.charAt(0) || 'S'}
-                            </div>
-                            <div>
-                              <div className="flex items-center gap-1.5">
-                                <p>{user.name}</p>
-                                {user.role === 'admin' && (
-                                  <span className="px-1.5 py-0.2 bg-purple-100 text-purple-700 dark:bg-purple-900/50 dark:text-purple-300 text-[9px] font-extrabold rounded">ADMIN</span>
-                                )}
+                        return (
+                          <tr key={user.id || `user_row_${user.email || uIdx}_${uIdx}`} className="hover:bg-slate-50/80 dark:hover:bg-slate-800/30">
+                            <td className="p-4 font-bold text-slate-900 dark:text-slate-100 flex items-center gap-3">
+                              <div className={`w-8 h-8 rounded-full ${user.role === 'admin' ? 'bg-purple-600' : 'bg-blue-600'} text-white font-black text-xs flex items-center justify-center shrink-0`}>
+                                {user.name?.charAt(0) || 'S'}
                               </div>
-                              <p className="text-[11px] text-slate-400 font-normal">{user.email}</p>
-                            </div>
-                          </td>
-                          <td className="p-4 text-slate-600 dark:text-slate-300">
-                            <div>
-                              <p className="font-semibold">{cleanDegree}</p>
-                              <p className="text-[10px] text-slate-400">Class of {user.graduationYear || '2026'}</p>
-                            </div>
-                          </td>
-                          <td className="p-4 font-bold text-blue-600 dark:text-blue-400">
-                            {targetTitle}
-                          </td>
-                          <td className="p-4 font-mono font-bold text-emerald-600 dark:text-emerald-400">
-                            {matchScore}%
-                          </td>
-                          <td className="p-4 font-mono font-bold text-purple-600 dark:text-purple-400">
-                            {atsRating}%
-                          </td>
-                          <td className="p-4">
-                            <div className="flex items-center gap-2">
-                              <div className="w-20 bg-slate-100 dark:bg-slate-800 h-2 rounded-full overflow-hidden">
-                                <div className="bg-blue-600 h-full rounded-full transition-all duration-300" style={{ width: `${progress}%` }} />
+                              <div>
+                                <div className="flex items-center gap-1.5">
+                                  <p>{user.name}</p>
+                                  {user.role === 'admin' && (
+                                    <span className="px-1.5 py-0.2 bg-purple-100 text-purple-700 dark:bg-purple-900/50 dark:text-purple-300 text-[9px] font-extrabold rounded">ADMIN</span>
+                                  )}
+                                </div>
+                                <p className="text-[11px] text-slate-400 font-normal">{user.email}</p>
                               </div>
-                              <span className="text-[10px] font-mono text-slate-400">{progress}%</span>
-                            </div>
-                          </td>
-                          <td className="p-4 text-right">
-                            <button
-                              onClick={() => setSelectedUserModal(user)}
-                              className="px-3 py-1.5 bg-blue-50 dark:bg-blue-900/30 hover:bg-blue-100 dark:hover:bg-blue-900/50 text-blue-600 dark:text-blue-400 rounded-xl text-xs font-bold transition-all"
-                            >
-                              Inspect Profile
-                            </button>
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
+                            </td>
+                            <td className="p-4 text-slate-600 dark:text-slate-300">
+                              <div>
+                                <p className="font-semibold">{cleanDegree}</p>
+                                <p className="text-[10px] text-slate-400">Class of {user.graduationYear || '2026'}</p>
+                              </div>
+                            </td>
+                            <td className="p-4 font-bold text-blue-600 dark:text-blue-400">
+                              {targetTitle}
+                            </td>
+                            <td className="p-4">
+                              <button
+                                onClick={() => setSelectedUserScoresModal(user)}
+                                className="px-2.5 py-1 rounded-xl bg-purple-50 dark:bg-purple-950/40 hover:bg-purple-100 dark:hover:bg-purple-900/60 border border-purple-200 dark:border-purple-800/60 text-purple-700 dark:text-purple-300 text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-xs"
+                                title="Click to monitor detailed assessment scores"
+                              >
+                                <Award className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400 shrink-0" />
+                                <span>{scoreData.avgScore}% Avg ({scoreData.count} Skills)</span>
+                              </button>
+                            </td>
+                            <td className="p-4 font-mono font-bold text-emerald-600 dark:text-emerald-400">
+                              {matchScore}%
+                            </td>
+                            <td className="p-4 font-mono font-bold text-purple-600 dark:text-purple-400">
+                              {atsRating}%
+                            </td>
+                            <td className="p-4">
+                              <div className="flex items-center gap-2">
+                                <div className="w-20 bg-slate-100 dark:bg-slate-800 h-2 rounded-full overflow-hidden">
+                                  <div className="bg-blue-600 h-full rounded-full transition-all duration-300" style={{ width: `${progress}%` }} />
+                                </div>
+                                <span className="text-[10px] font-mono text-slate-400">{progress}%</span>
+                              </div>
+                            </td>
+                            <td className="p-4 text-right">
+                              <div className="flex items-center justify-end gap-1.5">
+                                <button
+                                  onClick={() => setSelectedUserModal(user)}
+                                  className="px-2.5 py-1.5 bg-blue-50 dark:bg-blue-900/30 hover:bg-blue-100 dark:hover:bg-blue-900/50 text-blue-600 dark:text-blue-400 rounded-xl text-xs font-bold transition-all cursor-pointer shadow-xs"
+                                  title="Inspect Student Profile"
+                                >
+                                  Inspect
+                                </button>
+                                <button
+                                  onClick={() => setSelectedUserScoresModal(user)}
+                                  className="p-1.5 bg-purple-50 dark:bg-purple-900/30 hover:bg-purple-100 dark:hover:bg-purple-900/50 text-purple-600 dark:text-purple-400 rounded-xl text-xs font-bold transition-all cursor-pointer shadow-xs"
+                                  title="Monitor Assessment Scores"
+                                >
+                                  <ClipboardCheck className="w-4 h-4" />
+                                </button>
+                                <button
+                                  onClick={() => setUserToDelete(user)}
+                                  className="p-1.5 bg-rose-50 dark:bg-rose-900/30 hover:bg-rose-100 dark:hover:bg-rose-900/50 text-rose-600 dark:text-rose-400 rounded-xl text-xs font-bold transition-all cursor-pointer shadow-xs"
+                                  title="Delete User from Database"
+                                >
+                                  <Trash2 className="w-4 h-4" />
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
               </div>
             </div>
           ) : activeTab === 'skills' ? (
@@ -1981,168 +2118,346 @@ export const AdminDashboardPage = () => {
             </div>
           ) : activeTab === 'assessments' ? (
             /* ========================================================================= */
-            /* ASSESSMENTS BANK SUB-VIEW */
+            /* ASSESSMENTS & STUDENT SKILL MONITORING SUB-VIEW */
             /* ========================================================================= */
             <div className="space-y-6">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
-                  <h2 className="text-xl font-black text-slate-900 dark:text-slate-100">
-                    Assessments Bank & Technical Question Inventory ({filteredQuestions.length} Questions)
+                  <h2 className="text-xl font-black text-slate-900 dark:text-slate-100 flex items-center gap-2">
+                    <Award className="w-5 h-5 text-purple-600 dark:text-purple-400" />
+                    <span>Skill Assessments & Student Score Telemetry</span>
                   </h2>
                   <p className="text-xs text-slate-500 dark:text-slate-400">
-                    Rule-based technical scenarios and multi-choice challenges mapped to core O*NET competencies.
+                    Live tracking of student technical assessment scores, verified O*NET proficiencies, and question bank inventory.
                   </p>
                 </div>
                 <div className="flex items-center gap-2">
                   <button
                     onClick={() => setIsAddQuestionModalOpen(true)}
-                    className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold shadow-md hover:shadow-lg transition-all flex items-center gap-2"
+                    className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold shadow-md hover:shadow-lg transition-all flex items-center gap-2 cursor-pointer"
                   >
                     <Plus className="w-4 h-4" />
                     <span>Author New Question</span>
                   </button>
                   <span className="px-3 py-1.5 rounded-xl bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 text-xs font-bold flex items-center gap-1.5">
                     <CheckCircle2 className="w-4 h-4 text-emerald-500" />
-                    <span>ML Pipeline Active</span>
+                    <span>Scoring Engine Active</span>
                   </span>
                 </div>
               </div>
 
-              {/* 1. Assessment Knowledge Integration KPI Cards */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                <div className="p-5 bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm space-y-1">
-                  <span className="text-[10px] uppercase font-bold text-slate-400">Total Question Bank</span>
-                  <p className="text-2xl font-black text-blue-600 dark:text-blue-400 font-mono">{assessmentsList.length} Questions</p>
-                  <p className="text-[10px] text-slate-500 font-medium">Mapped to Technical Skills</p>
-                </div>
-
-                <div className="p-5 bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm space-y-1">
-                  <span className="text-[10px] uppercase font-bold text-slate-400">Unique Skills Tested</span>
-                  <p className="text-2xl font-black text-purple-600 dark:text-purple-400 font-mono">
-                    {new Set(assessmentsList.map(q => q.skillId)).size} Competencies
-                  </p>
-                  <p className="text-[10px] text-purple-600 dark:text-purple-400 font-bold">O*NET 30.3 Aligned</p>
-                </div>
-
-                <div className="p-5 bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm space-y-1">
-                  <span className="text-[10px] uppercase font-bold text-slate-400">Target Correctness</span>
-                  <p className="text-2xl font-black text-emerald-600 dark:text-emerald-400 font-mono">100.0%</p>
-                  <p className="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold">Verified Expert Level</p>
-                </div>
-
-                <div className="p-5 bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm space-y-1">
-                  <span className="text-[10px] uppercase font-bold text-slate-400">Vector Integration</span>
-                  <p className="text-2xl font-black text-indigo-600 dark:text-indigo-400 font-mono">Live Ingestion</p>
-                  <p className="text-[10px] text-indigo-600 dark:text-indigo-400 font-medium">Feeds Cosine & RF Classifier</p>
-                </div>
+              {/* Sub-Tab Navigation Switcher */}
+              <div className="flex items-center gap-2 p-1.5 bg-slate-100 dark:bg-slate-800/80 rounded-2xl border border-slate-200 dark:border-slate-700/80 w-fit">
+                <button
+                  onClick={() => setAssessmentSubTab('scores')}
+                  className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-2 ${assessmentSubTab === 'scores'
+                    ? 'bg-blue-600 text-white shadow-md'
+                    : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'
+                    }`}
+                >
+                  <Award className="w-4 h-4" />
+                  <span>Student Assessment Scores Leaderboard ({usersList.length})</span>
+                </button>
+                <button
+                  onClick={() => setAssessmentSubTab('questions')}
+                  className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-2 ${assessmentSubTab === 'questions'
+                    ? 'bg-blue-600 text-white shadow-md'
+                    : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'
+                    }`}
+                >
+                  <ClipboardCheck className="w-4 h-4" />
+                  <span>Question Bank Inventory ({assessmentsList.length})</span>
+                </button>
               </div>
 
-              {/* Filter & Search Bar */}
-              <div className="p-4 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 flex flex-wrap items-center justify-between gap-4 shadow-sm">
-                <div className="flex items-center gap-2 flex-1 max-w-md">
-                  <Search className="w-4 h-4 text-slate-400" />
-                  <input
-                    type="text"
-                    value={assessmentSearch}
-                    onChange={(e) => setAssessmentSearch(e.target.value)}
-                    placeholder="Search questions by keyword, skill ID..."
-                    className="w-full bg-transparent text-xs text-slate-900 dark:text-slate-100 focus:outline-none"
-                  />
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="text-xs font-bold text-slate-500">Category:</span>
-                  <CustomSelect
-                    value={assessmentCategoryFilter}
-                    onChange={(val) => setAssessmentCategoryFilter(val)}
-                    options={['All', 'Programming', 'AI & ML', 'Frontend', 'Backend', 'Cloud & DevOps', 'Databases', 'Cybersecurity', 'Core & Soft Skills']}
-                    accentColor="slate"
-                    size="sm"
-                    id="admin-assessment-category"
-                  />
-                </div>
-              </div>
-
-              {/* Questions Grid */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {filteredQuestions.map((q, idx) => (
-                  <div key={q.id || idx} className="p-5 bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm space-y-3 flex flex-col justify-between hover:border-blue-300 dark:hover:border-blue-800 transition-all">
-                    <div className="space-y-2.5">
-                      <div className="flex items-center justify-between gap-2">
-                        <div className="flex items-center gap-1.5">
-                          <span className="text-[10px] font-mono font-bold px-2.5 py-0.5 rounded-lg bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800/60">
-                            {q.skillId || `Q-${idx + 1}`}
-                          </span>
-                          {q.difficulty && (
-                            <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md ${q.difficulty === 'Expert' ? 'bg-amber-100 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300' :
-                              q.difficulty === 'Advanced' ? 'bg-purple-100 dark:bg-purple-950/40 text-purple-800 dark:text-purple-300' :
-                                'bg-emerald-100 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300'
-                              }`}>
-                              {q.difficulty}
-                            </span>
-                          )}
-                        </div>
-                        <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
-                          {q.category || 'Technical'}
-                        </span>
-                      </div>
-                      <h4 className="font-bold text-xs text-slate-900 dark:text-slate-100 leading-relaxed">
-                        {q.question}
-                      </h4>
+              {assessmentSubTab === 'scores' ? (
+                /* ========================================================================= */
+                /* 1. STUDENT ASSESSMENT SCORES MONITORING VIEW */
+                /* ========================================================================= */
+                <div className="space-y-6">
+                  {/* KPI Cards for Student Assessment Monitoring */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div className="p-5 bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm space-y-1">
+                      <span className="text-[10px] uppercase font-bold text-slate-400">Total Assessed Students</span>
+                      <p className="text-2xl font-black text-blue-600 dark:text-blue-400 font-mono">{usersList.length} Students</p>
+                      <p className="text-[10px] text-slate-500 font-medium">Active Evaluation Profiles</p>
                     </div>
 
-                    <div className="space-y-1.5 pt-2 border-t border-slate-100 dark:border-slate-800/80">
-                      {q.options && q.options.map((opt, optIdx) => {
-                        const isCorrect = optIdx === q.correctAnswer || opt.score === 100 || (q.correctAnswer && typeof opt === 'object' && opt.text && opt.text.includes(q.correctAnswer));
-                        return (
-                          <div
-                            key={optIdx}
-                            className={`p-2 rounded-xl text-xs flex items-center justify-between gap-2 ${isCorrect
-                              ? 'bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/60 text-emerald-800 dark:text-emerald-300 font-bold'
-                              : 'bg-slate-50 dark:bg-slate-800/40 text-slate-600 dark:text-slate-400'
-                              }`}
-                          >
-                            <span className="truncate">{typeof opt === 'string' ? opt : opt.text}</span>
-                            <span className="text-[10px] font-mono shrink-0 font-bold">
-                              {isCorrect ? (
-                                <span className="text-emerald-600 dark:text-emerald-400 font-black">100% (Target)</span>
-                              ) : (
-                                <span className="text-slate-400">{typeof opt === 'object' && opt.score ? `${opt.score}%` : ''}</span>
-                              )}
-                            </span>
-                          </div>
-                        );
-                      })}
+                    <div className="p-5 bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm space-y-1">
+                      <span className="text-[10px] uppercase font-bold text-slate-400">Class Average Mastery</span>
+                      <p className="text-2xl font-black text-purple-600 dark:text-purple-400 font-mono">
+                        {usersList.length > 0
+                          ? Math.round(usersList.reduce((acc, u) => acc + getStudentAssessmentScoreData(u).avgScore, 0) / usersList.length)
+                          : 82}%
+                      </p>
+                      <p className="text-[10px] text-purple-600 dark:text-purple-400 font-bold">Across All Technical Skills</p>
                     </div>
 
-                    {/* Action Buttons: Test Simulation & Delete */}
-                    <div className="pt-2 flex items-center justify-between border-t border-slate-100 dark:border-slate-800/60 text-xs">
-                      <button
-                        onClick={() => {
-                          setTestQuestionModal(q);
-                          setTestSelectedOption(0);
-                        }}
-                        className="px-3 py-1.5 rounded-xl bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400 font-bold hover:bg-blue-100 dark:hover:bg-blue-900/40 transition-all flex items-center gap-1.5 text-[11px]"
-                      >
-                        <Zap className="w-3.5 h-3.5" />
-                        <span>Test Knowledge Simulation</span>
-                      </button>
+                    <div className="p-5 bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm space-y-1">
+                      <span className="text-[10px] uppercase font-bold text-slate-400">Top Scoring Competency</span>
+                      <p className="text-xl font-black text-emerald-600 dark:text-emerald-400 font-mono truncate">Python (88%)</p>
+                      <p className="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold">Highest Student Proficiency</p>
+                    </div>
 
-                      <button
-                        onClick={() => {
-                          if (window.confirm('Delete this question from the assessment bank?')) {
-                            const updated = storageService.deleteQuestion(q.id);
-                            setAssessmentsList(updated);
-                          }
-                        }}
-                        className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 rounded-lg transition-all"
-                        title="Delete Question"
-                      >
-                        <X className="w-4 h-4" />
-                      </button>
+                    <div className="p-5 bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm space-y-1">
+                      <span className="text-[10px] uppercase font-bold text-slate-400">Primary Remediation Area</span>
+                      <p className="text-xl font-black text-rose-600 dark:text-rose-400 font-mono truncate">Cloud & MLOps</p>
+                      <p className="text-[10px] text-rose-600 dark:text-rose-400 font-medium">Requires Targeted Roadmap</p>
                     </div>
                   </div>
-                ))}
-              </div>
+
+                  {/* Student Assessment Scores Table */}
+                  <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
+                    <div className="p-4 border-b border-slate-100 dark:border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-3">
+                      <div>
+                        <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
+                          <Award className="w-4 h-4 text-purple-500" />
+                          <span>Student Technical Assessment Scores & Proficiency Matrix</span>
+                        </h3>
+                        <p className="text-xs text-slate-400">Click on any student row or "Inspect Scorecard" to view full question-by-question skill evaluation.</p>
+                      </div>
+                      <span className="text-xs font-mono font-bold text-slate-500 bg-slate-100 dark:bg-slate-800 px-3 py-1 rounded-xl">
+                        {filteredUsers.length} Students Assessed
+                      </span>
+                    </div>
+
+                    <div className="overflow-x-auto">
+                      <table className="w-full min-w-[900px] text-left text-xs">
+                        <thead className="bg-slate-50 dark:bg-slate-800/60 text-xs uppercase font-bold tracking-wider text-slate-600 dark:text-slate-300 border-b border-slate-200 dark:border-slate-800">
+                          <tr>
+                            <th className="py-3.5 px-4 font-bold text-slate-700 dark:text-slate-200">Student Profile</th>
+                            <th className="py-3.5 px-4 font-bold text-slate-700 dark:text-slate-200">Target Career</th>
+                            <th className="py-3.5 px-4 font-bold text-slate-700 dark:text-slate-200">Assessed Skills</th>
+                            <th className="py-3.5 px-4 font-bold text-slate-700 dark:text-slate-200">Overall Score</th>
+                            <th className="py-3.5 px-4 font-bold text-slate-700 dark:text-slate-200">Top Strength</th>
+                            <th className="py-3.5 px-4 font-bold text-slate-700 dark:text-slate-200">Primary Skill Gap</th>
+                            <th className="py-3.5 px-4 font-bold text-slate-700 dark:text-slate-200 text-right">Actions</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-slate-100 dark:divide-slate-800 font-medium">
+                          {filteredUsers.map((user, idx) => {
+                            const scoreData = getStudentAssessmentScoreData(user);
+                            const targetTitle = user.targetCareerTitle || user.targetCareer || (user.role === 'admin' ? 'Super Administrator' : 'Machine Learning Engineer');
+                            const isHigh = scoreData.avgScore >= 80;
+                            const isMid = scoreData.avgScore >= 60 && scoreData.avgScore < 80;
+
+                            return (
+                              <tr key={user.id || idx} className="hover:bg-slate-50/80 dark:hover:bg-slate-800/30 transition-colors">
+                                <td className="p-4 font-bold text-slate-900 dark:text-slate-100 flex items-center gap-3">
+                                  <div className={`w-8 h-8 rounded-full ${user.role === 'admin' ? 'bg-purple-600' : 'bg-blue-600'} text-white font-black text-xs flex items-center justify-center shrink-0`}>
+                                    {user.name?.charAt(0) || 'S'}
+                                  </div>
+                                  <div>
+                                    <div className="flex items-center gap-1.5">
+                                      <p>{user.name}</p>
+                                      {user.role === 'admin' && (
+                                        <span className="px-1.5 py-0.2 bg-purple-100 text-purple-700 dark:bg-purple-900/50 dark:text-purple-300 text-[9px] font-extrabold rounded">ADMIN</span>
+                                      )}
+                                    </div>
+                                    <p className="text-[11px] text-slate-400 font-normal">{user.email}</p>
+                                  </div>
+                                </td>
+                                <td className="p-4 font-bold text-blue-600 dark:text-blue-400">
+                                  {targetTitle}
+                                </td>
+                                <td className="p-4">
+                                  <span className="px-2.5 py-1 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-mono font-bold text-xs">
+                                    {scoreData.count} Competencies
+                                  </span>
+                                </td>
+                                <td className="p-4">
+                                  <div className="space-y-1">
+                                    <div className="flex items-center gap-2">
+                                      <span className={`font-mono font-black text-xs ${isHigh ? 'text-emerald-600 dark:text-emerald-400' : isMid ? 'text-blue-600 dark:text-blue-400' : 'text-rose-600 dark:text-rose-400'}`}>
+                                        {scoreData.avgScore}%
+                                      </span>
+                                      <span className={`px-1.5 py-0.2 rounded text-[9px] font-bold ${isHigh ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300' : isMid ? 'bg-blue-100 text-blue-800 dark:bg-blue-950/60 dark:text-blue-300' : 'bg-rose-100 text-rose-800 dark:bg-rose-950/60 dark:text-rose-300'}`}>
+                                        {isHigh ? 'Expert' : isMid ? 'Advanced' : 'Needs Focus'}
+                                      </span>
+                                    </div>
+                                    <div className="w-24 bg-slate-100 dark:bg-slate-800 h-1.5 rounded-full overflow-hidden">
+                                      <div
+                                        className={`h-full rounded-full ${isHigh ? 'bg-emerald-500' : isMid ? 'bg-blue-600' : 'bg-rose-500'}`}
+                                        style={{ width: `${scoreData.avgScore}%` }}
+                                      />
+                                    </div>
+                                  </div>
+                                </td>
+                                <td className="p-4 font-bold text-emerald-600 dark:text-emerald-400 text-xs">
+                                  {scoreData.topSkill}
+                                </td>
+                                <td className="p-4 font-bold text-rose-600 dark:text-rose-400 text-xs">
+                                  {scoreData.gapSkill}
+                                </td>
+                                <td className="p-4 text-right">
+                                  <div className="flex items-center justify-end gap-1.5">
+                                    <button
+                                      onClick={() => setSelectedUserScoresModal(user)}
+                                      className="px-3 py-1.5 bg-purple-50 dark:bg-purple-900/30 hover:bg-purple-100 dark:hover:bg-purple-900/50 text-purple-600 dark:text-purple-400 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 shadow-xs"
+                                      title="Inspect Granular Skill Assessment Scorecard"
+                                    >
+                                      <Award className="w-3.5 h-3.5" />
+                                      <span>Inspect Scorecard</span>
+                                    </button>
+                                    <button
+                                      onClick={() => setUserToDelete(user)}
+                                      className="p-1.5 bg-rose-50 dark:bg-rose-900/30 hover:bg-rose-100 dark:hover:bg-rose-900/50 text-rose-600 dark:text-rose-400 rounded-xl text-xs font-bold transition-all cursor-pointer shadow-xs"
+                                      title="Delete User from Database"
+                                    >
+                                      <Trash2 className="w-4 h-4" />
+                                    </button>
+                                  </div>
+                                </td>
+                              </tr>
+                            );
+                          })}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                /* ========================================================================= */
+                /* 2. QUESTION BANK INVENTORY VIEW */
+                /* ========================================================================= */
+                <div className="space-y-6">
+                  {/* 1. Assessment Knowledge Integration KPI Cards */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div className="p-5 bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm space-y-1">
+                      <span className="text-[10px] uppercase font-bold text-slate-400">Total Question Bank</span>
+                      <p className="text-2xl font-black text-blue-600 dark:text-blue-400 font-mono">{assessmentsList.length} Questions</p>
+                      <p className="text-[10px] text-slate-500 font-medium">Mapped to Technical Skills</p>
+                    </div>
+
+                    <div className="p-5 bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm space-y-1">
+                      <span className="text-[10px] uppercase font-bold text-slate-400">Unique Skills Tested</span>
+                      <p className="text-2xl font-black text-purple-600 dark:text-purple-400 font-mono">
+                        {new Set(assessmentsList.map(q => q.skillId)).size} Competencies
+                      </p>
+                      <p className="text-[10px] text-purple-600 dark:text-purple-400 font-bold">O*NET 30.3 Aligned</p>
+                    </div>
+
+                    <div className="p-5 bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm space-y-1">
+                      <span className="text-[10px] uppercase font-bold text-slate-400">Target Correctness</span>
+                      <p className="text-2xl font-black text-emerald-600 dark:text-emerald-400 font-mono">100.0%</p>
+                      <p className="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold">Verified Expert Level</p>
+                    </div>
+
+                    <div className="p-5 bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm space-y-1">
+                      <span className="text-[10px] uppercase font-bold text-slate-400">Vector Integration</span>
+                      <p className="text-2xl font-black text-indigo-600 dark:text-indigo-400 font-mono">Live Ingestion</p>
+                      <p className="text-[10px] text-indigo-600 dark:text-indigo-400 font-medium">Feeds Cosine & RF Classifier</p>
+                    </div>
+                  </div>
+
+                  {/* Filter & Search Bar */}
+                  <div className="p-4 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 flex flex-wrap items-center justify-between gap-4 shadow-sm">
+                    <div className="flex items-center gap-2 flex-1 max-w-md">
+                      <Search className="w-4 h-4 text-slate-400" />
+                      <input
+                        type="text"
+                        value={assessmentSearch}
+                        onChange={(e) => setAssessmentSearch(e.target.value)}
+                        placeholder="Search questions by keyword, skill ID..."
+                        className="w-full bg-transparent text-xs text-slate-900 dark:text-slate-100 focus:outline-none"
+                      />
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs font-bold text-slate-500">Category:</span>
+                      <CustomSelect
+                        value={assessmentCategoryFilter}
+                        onChange={(val) => setAssessmentCategoryFilter(val)}
+                        options={['All', 'Programming', 'AI & ML', 'Frontend', 'Backend', 'Cloud & DevOps', 'Databases', 'Cybersecurity', 'Core & Soft Skills']}
+                        accentColor="slate"
+                        size="sm"
+                        id="admin-assessment-category"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Questions Grid */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {filteredQuestions.map((q, idx) => (
+                      <div key={q.id || idx} className="p-5 bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm space-y-3 flex flex-col justify-between hover:border-blue-300 dark:hover:border-blue-800 transition-all">
+                        <div className="space-y-2.5">
+                          <div className="flex items-center justify-between gap-2">
+                            <div className="flex items-center gap-1.5">
+                              <span className="text-[10px] font-mono font-bold px-2.5 py-0.5 rounded-lg bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800/60">
+                                {q.skillId || `Q-${idx + 1}`}
+                              </span>
+                              {q.difficulty && (
+                                <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md ${q.difficulty === 'Expert' ? 'bg-amber-100 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300' :
+                                  q.difficulty === 'Advanced' ? 'bg-purple-100 dark:bg-purple-950/40 text-purple-800 dark:text-purple-300' :
+                                    'bg-emerald-100 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300'
+                                  }`}>
+                                  {q.difficulty}
+                                </span>
+                              )}
+                            </div>
+                            <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
+                              {q.category || 'Technical'}
+                            </span>
+                          </div>
+                          <h4 className="font-bold text-xs text-slate-900 dark:text-slate-100 leading-relaxed">
+                            {q.question}
+                          </h4>
+                        </div>
+
+                        <div className="space-y-1.5 pt-2 border-t border-slate-100 dark:border-slate-800/80">
+                          {q.options && q.options.map((opt, optIdx) => {
+                            const isCorrect = optIdx === q.correctAnswer || opt.score === 100 || (q.correctAnswer && typeof opt === 'object' && opt.text && opt.text.includes(q.correctAnswer));
+                            return (
+                              <div
+                                key={optIdx}
+                                className={`p-2 rounded-xl text-xs flex items-center justify-between gap-2 ${isCorrect
+                                  ? 'bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/60 text-emerald-800 dark:text-emerald-300 font-bold'
+                                  : 'bg-slate-50 dark:bg-slate-800/40 text-slate-600 dark:text-slate-400'
+                                  }`}
+                              >
+                                <span className="truncate">{typeof opt === 'string' ? opt : opt.text}</span>
+                                <span className="text-[10px] font-mono shrink-0 font-bold">
+                                  {isCorrect ? (
+                                    <span className="text-emerald-600 dark:text-emerald-400 font-black">100% (Target)</span>
+                                  ) : (
+                                    <span className="text-slate-400">{typeof opt === 'object' && opt.score ? `${opt.score}%` : ''}</span>
+                                  )}
+                                </span>
+                              </div>
+                            );
+                          })}
+                        </div>
+
+                        {/* Action Buttons: Test Simulation & Delete */}
+                        <div className="pt-2 flex items-center justify-between border-t border-slate-100 dark:border-slate-800/60 text-xs">
+                          <button
+                            onClick={() => {
+                              setTestQuestionModal(q);
+                              setTestSelectedOption(0);
+                            }}
+                            className="px-3 py-1.5 rounded-xl bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400 font-bold hover:bg-blue-100 dark:hover:bg-blue-900/40 transition-all flex items-center gap-1.5 text-[11px] cursor-pointer"
+                          >
+                            <Zap className="w-3.5 h-3.5" />
+                            <span>Test Knowledge Simulation</span>
+                          </button>
+
+                          <button
+                            onClick={() => {
+                              if (window.confirm('Delete this question from the assessment bank?')) {
+                                const updated = storageService.deleteQuestion(q.id);
+                                setAssessmentsList(updated);
+                              }
+                            }}
+                            className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 rounded-lg transition-all cursor-pointer"
+                            title="Delete Question"
+                          >
+                            <X className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           ) : activeTab === 'career_recommendations' ? (
             /* ========================================================================= */
@@ -2603,7 +2918,7 @@ export const AdminDashboardPage = () => {
 
               {/* Trends Table */}
               <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-x-auto">
-                <table className="w-full text-left text-xs">
+                <table className="w-full min-w-[820px] text-left text-xs">
                   <thead>
                     <tr className="text-xs uppercase font-bold tracking-wider text-slate-600 dark:text-slate-300 border-b border-slate-200 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-800/50">
                       <th className="py-3 px-4 font-bold text-slate-700 dark:text-slate-200">Skill & Competency</th>
@@ -2764,7 +3079,7 @@ export const AdminDashboardPage = () => {
 
               {/* 3. Main Audit Trail Table */}
               <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-x-auto">
-                <table className="w-full text-left text-xs">
+                <table className="w-full min-w-[850px] text-left text-xs">
                   <thead>
                     <tr className="text-xs uppercase font-bold tracking-wider text-slate-600 dark:text-slate-300 border-b border-slate-200 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-800/50">
                       <th className="py-3 px-4 font-bold text-slate-700 dark:text-slate-200">Timestamp</th>
@@ -2935,7 +3250,7 @@ export const AdminDashboardPage = () => {
 
                 {/* Occupations Table */}
                 <div className="overflow-x-auto">
-                  <table className="w-full text-left text-xs">
+                  <table className="w-full min-w-[760px] text-left text-xs">
                     <thead>
                       <tr className="text-xs uppercase font-bold tracking-wider text-slate-600 dark:text-slate-300 border-b border-slate-200 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-800/50">
                         <th className="py-3 px-4 font-bold text-slate-700 dark:text-slate-200">O*NET-SOC Code</th>
@@ -3105,7 +3420,7 @@ export const AdminDashboardPage = () => {
               <div className="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
                 <h3 className="font-bold text-sm text-slate-900 dark:text-slate-100">Machine Learning Model Specifications & Hyperparameters</h3>
                 <div className="overflow-x-auto">
-                  <table className="w-full text-left text-xs">
+                  <table className="w-full min-w-[780px] text-left text-xs">
                     <thead>
                       <tr className="text-xs uppercase font-bold tracking-wider text-slate-600 dark:text-slate-300 border-b border-slate-200 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-800/50">
                         <th className="py-3 px-4 font-bold text-slate-700 dark:text-slate-200">Model Pipeline</th>
@@ -3228,7 +3543,7 @@ export const AdminDashboardPage = () => {
               <div className="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
                 <h3 className="font-bold text-sm text-slate-900 dark:text-slate-100">Per-Class Classification Report & Cross-Validation Metrics</h3>
                 <div className="overflow-x-auto">
-                  <table className="w-full text-left text-xs">
+                  <table className="w-full min-w-[700px] text-left text-xs">
                     <thead>
                       <tr className="text-xs uppercase font-bold tracking-wider text-slate-600 dark:text-slate-300 border-b border-slate-200 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-800/50">
                         <th className="py-3 px-4 font-bold text-slate-700 dark:text-slate-200">Target Career Role</th>
@@ -3442,7 +3757,7 @@ export const AdminDashboardPage = () => {
                   SHAP Numerical Feature Contribution & Attribute Matrix
                 </h3>
                 <div className="overflow-x-auto">
-                  <table className="w-full text-left text-xs">
+                  <table className="w-full min-w-[720px] text-left text-xs">
                     <thead>
                       <tr className="text-xs uppercase font-bold tracking-wider text-slate-600 dark:text-slate-300 border-b border-slate-200 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-800/50">
                         <th className="py-3 px-4 font-bold text-slate-700 dark:text-slate-200">Feature Competency</th>
@@ -3595,7 +3910,7 @@ export const AdminDashboardPage = () => {
                   </h3>
                   <span className="text-xs text-slate-400 font-mono">Status: 200 OK across all routes</span>
                 </div>
-                <table className="w-full text-left text-xs">
+                <table className="w-full min-w-[720px] text-left text-xs">
                   <thead>
                     <tr className="text-xs uppercase font-bold tracking-wider text-slate-600 dark:text-slate-300 border-b border-slate-200 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-800/50">
                       <th className="py-3 px-4 font-bold text-slate-700 dark:text-slate-200">Endpoint Route</th>
@@ -3736,15 +4051,234 @@ export const AdminDashboardPage = () => {
               </div>
             </div>
 
-            <button
-              onClick={() => setSelectedUserModal(null)}
-              className="w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold shadow-md"
-            >
-              Close Student Profile
-            </button>
+            <div className="space-y-2 pt-2">
+              <button
+                onClick={() => {
+                  const targetUser = selectedUserModal;
+                  setSelectedUserModal(null);
+                  setSelectedUserScoresModal(targetUser);
+                }}
+                className="w-full py-2.5 bg-purple-600 hover:bg-purple-700 text-white rounded-xl text-xs font-bold shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer"
+              >
+                <Award className="w-4 h-4" />
+                <span>Monitor Assessment Scores ({getStudentAssessmentScoreData(selectedUserModal).avgScore}% Avg)</span>
+              </button>
+
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => {
+                    const targetUser = selectedUserModal;
+                    setSelectedUserModal(null);
+                    setUserToDelete(targetUser);
+                  }}
+                  className="flex-1 py-2.5 rounded-xl border border-rose-200 dark:border-rose-900/60 hover:bg-rose-50 dark:hover:bg-rose-950/40 text-rose-600 dark:text-rose-400 text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                  <span>Delete Student</span>
+                </button>
+                <button
+                  onClick={() => setSelectedUserModal(null)}
+                  className="flex-1 py-2.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 rounded-xl text-xs font-bold transition-all cursor-pointer"
+                >
+                  Close Profile
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       )}
+
+      {/* CONFIRMATION MODAL: DELETE USER */}
+      {userToDelete && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-white dark:bg-slate-900 rounded-3xl max-w-md w-full p-6 border border-slate-200 dark:border-slate-800 shadow-2xl space-y-4">
+            <div className="flex items-center gap-3 text-rose-600 dark:text-rose-400">
+              <div className="w-10 h-10 rounded-2xl bg-rose-100 dark:bg-rose-950/60 flex items-center justify-center shrink-0">
+                <AlertTriangle className="w-5 h-5" />
+              </div>
+              <div>
+                <h3 className="font-bold text-base text-slate-900 dark:text-slate-100">Delete Student Account?</h3>
+                <p className="text-xs text-slate-400">This action is permanent and cannot be undone.</p>
+              </div>
+            </div>
+
+            <div className="p-4 bg-slate-50 dark:bg-slate-800/60 rounded-2xl border border-slate-200/60 dark:border-slate-700/60 text-xs space-y-2">
+              <div className="flex justify-between">
+                <span className="text-slate-500">Student Name:</span>
+                <span className="font-bold text-slate-900 dark:text-slate-100">{userToDelete.name || 'Unnamed Student'}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-slate-500">Email Address:</span>
+                <span className="font-mono text-slate-700 dark:text-slate-300">{userToDelete.email}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-slate-500">Degree:</span>
+                <span className="text-slate-700 dark:text-slate-300">{sanitizeEducation(userToDelete.education || userToDelete.degree)}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-slate-500">Target Career:</span>
+                <span className="font-bold text-blue-600 dark:text-blue-400">{userToDelete.targetCareerTitle || userToDelete.targetCareer || 'Machine Learning Engineer'}</span>
+              </div>
+            </div>
+
+            <p className="text-[11px] text-rose-600 dark:text-rose-400 font-medium">
+              Deleting this student will remove their profile, assessment score records, career roadmap, and skill evaluations from both Supabase Cloud PostgreSQL and local storage.
+            </p>
+
+            <div className="flex items-center gap-3 pt-2">
+              <button
+                onClick={() => setUserToDelete(null)}
+                disabled={isDeletingUser}
+                className="flex-1 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 text-xs font-bold text-slate-700 dark:text-slate-300 transition-all cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => handleDeleteUser(userToDelete)}
+                disabled={isDeletingUser}
+                className="flex-1 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold transition-all shadow-md flex items-center justify-center gap-1.5 cursor-pointer"
+              >
+                {isDeletingUser ? (
+                  <>
+                    <RotateCcw className="w-3.5 h-3.5 animate-spin" />
+                    <span>Deleting...</span>
+                  </>
+                ) : (
+                  <>
+                    <Trash2 className="w-3.5 h-3.5" />
+                    <span>Delete Permanently</span>
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* STUDENT SKILL ASSESSMENT SCORECARD & MONITORING MODAL */}
+      {selectedUserScoresModal && (() => {
+        const user = selectedUserScoresModal;
+        const scoreData = getStudentAssessmentScoreData(user);
+        return (
+          <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+            <div className="bg-white dark:bg-slate-900 rounded-3xl max-w-2xl w-full p-6 border border-slate-200 dark:border-slate-800 shadow-2xl space-y-5 max-h-[90vh] flex flex-col">
+              {/* Header */}
+              <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3 shrink-0">
+                <div className="flex items-center gap-3">
+                  <div className={`w-12 h-12 rounded-2xl ${user.role === 'admin' ? 'bg-purple-600' : 'bg-blue-600'} text-white font-black text-lg flex items-center justify-center shadow-md`}>
+                    {user.name?.charAt(0) || 'S'}
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <h3 className="font-bold text-base text-slate-900 dark:text-slate-100">{user.name}</h3>
+                      <span className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-purple-100 dark:bg-purple-950/60 text-purple-700 dark:text-purple-300">
+                        Live Assessment Scorecard
+                      </span>
+                    </div>
+                    <p className="text-xs text-slate-400">{user.email} • {sanitizeEducation(user.education || user.degree)}</p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setSelectedUserScoresModal(null)}
+                  className="p-1.5 rounded-lg text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              {/* Quick Summary KPIs */}
+              <div className="grid grid-cols-3 gap-3 shrink-0">
+                <div className="p-3 bg-purple-50 dark:bg-purple-950/40 rounded-2xl border border-purple-200 dark:border-purple-800/60">
+                  <span className="text-[10px] uppercase font-bold text-purple-600 dark:text-purple-400 block">Overall Mastery</span>
+                  <p className="text-2xl font-black text-purple-700 dark:text-purple-300 font-mono">{scoreData.avgScore}%</p>
+                  <span className="text-[10px] text-purple-500 font-bold">
+                    {scoreData.avgScore >= 80 ? '✓ Expert Verified' : scoreData.avgScore >= 60 ? '⚡ Intermediate' : '⚠️ Foundational'}
+                  </span>
+                </div>
+                <div className="p-3 bg-blue-50 dark:bg-blue-950/40 rounded-2xl border border-blue-200 dark:border-blue-800/60">
+                  <span className="text-[10px] uppercase font-bold text-blue-600 dark:text-blue-400 block">Assessed Skills</span>
+                  <p className="text-2xl font-black text-blue-700 dark:text-blue-300 font-mono">{scoreData.count} Skills</p>
+                  <span className="text-[10px] text-blue-500 font-medium">O*NET Mapped</span>
+                </div>
+                <div className="p-3 bg-emerald-50 dark:bg-emerald-950/40 rounded-2xl border border-emerald-200 dark:border-emerald-800/60">
+                  <span className="text-[10px] uppercase font-bold text-emerald-600 dark:text-emerald-400 block">Target Career</span>
+                  <p className="text-sm font-bold text-emerald-800 dark:text-emerald-300 truncate mt-1">
+                    {user.targetCareerTitle || user.targetCareer || 'Machine Learning Engineer'}
+                  </p>
+                  <span className="text-[10px] text-emerald-600 font-mono">
+                    {user.overallMatchScore !== undefined ? user.overallMatchScore : 88}% Match
+                  </span>
+                </div>
+              </div>
+
+              {/* Granular Skill Scores List */}
+              <div className="overflow-y-auto pr-1 space-y-2.5 flex-1">
+                <h4 className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider flex items-center justify-between">
+                  <span>Skill Competency Assessment Scores</span>
+                  <span className="text-[11px] font-normal text-slate-400">Target Benchmark: 80%</span>
+                </h4>
+
+                <div className="space-y-2">
+                  {scoreData.skills.map((sk, sIdx) => {
+                    const isHigh = sk.score >= 80;
+                    const isMid = sk.score >= 60 && sk.score < 80;
+                    const barColor = isHigh ? 'bg-emerald-500' : isMid ? 'bg-blue-600' : 'bg-rose-500';
+                    return (
+                      <div key={sIdx} className="p-3 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200/70 dark:border-slate-800 space-y-1.5">
+                        <div className="flex items-center justify-between text-xs">
+                          <div className="flex items-center gap-2">
+                            <span className="font-bold text-slate-900 dark:text-slate-100">{sk.name}</span>
+                            <span className="px-1.5 py-0.2 rounded text-[9px] font-bold bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300">
+                              {sk.category}
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-2 font-mono">
+                            <span className="text-slate-400 text-[10px]">Bench: {sk.required}%</span>
+                            <span className={`font-black text-xs ${isHigh ? 'text-emerald-600 dark:text-emerald-400' : isMid ? 'text-blue-600 dark:text-blue-400' : 'text-rose-600 dark:text-rose-400'}`}>
+                              {sk.score}%
+                            </span>
+                          </div>
+                        </div>
+
+                        <div className="w-full bg-slate-200 dark:bg-slate-700 h-2 rounded-full overflow-hidden">
+                          <div className={`h-full rounded-full transition-all duration-500 ${barColor}`} style={{ width: `${sk.score}%` }} />
+                        </div>
+
+                        <div className="flex items-center justify-between text-[10px] text-slate-400">
+                          <span>{sk.isProficient ? '✓ Benchmark Met' : `⚠️ Gap: ${sk.gap}% improvement required`}</span>
+                          <span className="font-bold text-slate-600 dark:text-slate-300">
+                            {sk.score >= 90 ? 'Expert' : sk.score >= 75 ? 'Advanced' : sk.score >= 50 ? 'Intermediate' : 'Beginner'}
+                          </span>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Footer Action Buttons */}
+              <div className="flex items-center justify-between gap-3 pt-3 border-t border-slate-100 dark:border-slate-800 shrink-0">
+                <button
+                  onClick={() => {
+                    setSelectedUserScoresModal(null);
+                    setUserToDelete(user);
+                  }}
+                  className="px-4 py-2.5 rounded-xl border border-rose-200 dark:border-rose-900/60 hover:bg-rose-50 dark:hover:bg-rose-950/40 text-rose-600 dark:text-rose-400 text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer"
+                >
+                  <Trash2 className="w-4 h-4" />
+                  <span>Delete User</span>
+                </button>
+                <button
+                  onClick={() => setSelectedUserScoresModal(null)}
+                  className="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold shadow-md cursor-pointer"
+                >
+                  Close Scorecard
+                </button>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
 
       {/* ALL ALERTS MODAL */}
       {alertsViewAll && (

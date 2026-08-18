@@ -22,20 +22,24 @@ export const SkillRadarChart = ({ skillCards = [], height = 300 }) => {
     { skill: 'Data Structures & Algorithms', yourProficiency: 75, benchmark: 80 }
   ];
 
-  const data = skillCards.length >= 4 
-    ? skillCards.slice(0, 6).map(s => ({
-        skill: s.skillName || s.name,
-        yourProficiency: s.currentLevel !== undefined ? s.currentLevel : 0,
-        benchmark: s.requiredLevel || 80
-      }))
-    : defaultSkills;
+  const data = (skillCards.length >= 4 ? skillCards.slice(0, 6) : defaultSkills).map(s => {
+    const rawName = s.skillName || s.skill || s.name || '';
+    let short = rawName;
+    if (short.length > 13) short = short.substring(0, 11) + '..';
+    return {
+      skill: short,
+      fullSkill: rawName,
+      yourProficiency: s.currentLevel !== undefined ? s.currentLevel : (s.yourProficiency || 0),
+      benchmark: s.requiredLevel || s.benchmark || 80
+    };
+  });
 
   const CustomTooltip = ({ active, payload }) => {
     if (active && payload && payload.length) {
       const item = payload[0]?.payload;
       return (
         <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-3 rounded-2xl shadow-xl text-xs space-y-1">
-          <p className="font-bold text-slate-900 dark:text-slate-100 pb-1 border-b border-slate-100 dark:border-slate-800">{item?.skill}</p>
+          <p className="font-bold text-slate-900 dark:text-slate-100 pb-1 border-b border-slate-100 dark:border-slate-800">{item?.fullSkill || item?.skill}</p>
           <p className="text-purple-600 dark:text-purple-400 font-semibold flex items-center justify-between gap-3">
             <span>Your Proficiency:</span>
             <span className="font-bold">{item?.yourProficiency}%</span>
@@ -54,11 +58,11 @@ export const SkillRadarChart = ({ skillCards = [], height = 300 }) => {
     <div className="w-full flex flex-col items-center">
       <div className="w-full" style={{ height: `${height}px` }}>
         <ResponsiveContainer width="100%" height="100%">
-          <RadarChart cx="50%" cy="50%" outerRadius="70%" data={data}>
+          <RadarChart cx="50%" cy="50%" outerRadius="68%" data={data}>
             <PolarGrid stroke={isDark ? "#475569" : "#cbd5e1"} />
             <PolarAngleAxis
               dataKey="skill"
-              tick={{ fill: isDark ? '#f8fafc' : '#0f172a', fontSize: 11, fontWeight: 800 }}
+              tick={{ fill: isDark ? '#f8fafc' : '#0f172a', fontSize: 10, fontWeight: 700, fontFamily: "'Plus Jakarta Sans', sans-serif" }}
             />
             <PolarRadiusAxis
               angle={90}

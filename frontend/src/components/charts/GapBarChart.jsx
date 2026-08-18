@@ -80,15 +80,37 @@ export const GapBarChart = ({ skillCards = [], height = 300 }) => {
         <ResponsiveContainer width="100%" height="100%">
           <BarChart
             data={chartData}
-            margin={{ top: 20, right: 10, left: -20, bottom: 20 }}
+            margin={{ top: 15, right: 10, left: -20, bottom: 25 }}
           >
             <CartesianGrid strokeDasharray="3 3" stroke={isDark ? "#334155" : "#e2e8f0"} vertical={false} />
             <XAxis
               dataKey="name"
-              tick={{ fill: isDark ? '#f8fafc' : '#0f172a', fontSize: 11, fontWeight: 700 }}
+              tick={({ x, y, payload }) => {
+                const name = String(payload?.value || '');
+                const display = name.length > 10 ? name.substring(0, 8) + '…' : name;
+                return (
+                  <g transform={`translate(${x},${y})`}>
+                    <text
+                      x={0}
+                      y={0}
+                      dy={8}
+                      dx={-2}
+                      textAnchor="end"
+                      fill={isDark ? '#f8fafc' : '#0f172a'}
+                      transform="rotate(-35)"
+                      fontSize={10}
+                      fontWeight={700}
+                      fontFamily="'Plus Jakarta Sans', 'Inter', sans-serif"
+                    >
+                      {display}
+                    </text>
+                  </g>
+                );
+              }}
               interval={0}
               tickLine={false}
               axisLine={{ stroke: isDark ? '#475569' : '#cbd5e1' }}
+              height={45}
             />
             <YAxis
               domain={[0, 100]}
@@ -98,20 +120,20 @@ export const GapBarChart = ({ skillCards = [], height = 300 }) => {
               axisLine={{ stroke: isDark ? '#475569' : '#cbd5e1' }}
             />
             <Tooltip content={<CustomTooltip />} />
-            <Bar dataKey="Current Proficiency" stackId="gapStack" fill="#2563eb" barSize={18} />
-            <Bar dataKey="Gap (Required - Current)" stackId="gapStack" fill="#ef4444" radius={[4, 4, 0, 0]} barSize={18} />
+            <Bar dataKey="Current Proficiency" stackId="gapStack" fill="#2563eb" barSize={16} />
+            <Bar dataKey="Gap (Required - Current)" stackId="gapStack" fill="#ef4444" radius={[4, 4, 0, 0]} barSize={16} />
           </BarChart>
         </ResponsiveContainer>
       </div>
 
-      {/* Legend matching reference photo */}
-      <div className="flex items-center justify-center gap-6 mt-1 text-xs font-bold text-slate-700 dark:text-slate-300">
-        <div className="flex items-center gap-2">
-          <span className="w-3 h-3 rounded-xs bg-[#ef4444] inline-block" />
+      {/* Legend with mobile wrapping */}
+      <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-1.5 mt-2 text-xs font-bold text-slate-700 dark:text-slate-300">
+        <div className="flex items-center gap-1.5">
+          <span className="w-3 h-3 rounded-xs bg-[#ef4444] inline-block shrink-0" />
           <span className="text-[11px] font-semibold text-slate-700 dark:text-slate-300">Gap (Required - Current)</span>
         </div>
-        <div className="flex items-center gap-2">
-          <span className="w-3 h-3 rounded-xs bg-[#2563eb] inline-block" />
+        <div className="flex items-center gap-1.5">
+          <span className="w-3 h-3 rounded-xs bg-[#2563eb] inline-block shrink-0" />
           <span className="text-[11px] font-semibold text-slate-700 dark:text-slate-300">Current Proficiency</span>
         </div>
       </div>
