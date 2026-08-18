@@ -102,16 +102,16 @@ export const CareerDetailModal = ({ socCode, initialData, onClose, onSelectTarge
       {/* ========================================================================= */}
       {/* TOP NAVIGATION & ACTION ROW */}
       {/* ========================================================================= */}
-      <div className="flex flex-wrap items-center justify-between gap-3">
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
         
         {/* Prominent Back Button & History Indicator */}
-        <div className="flex items-center gap-2 sm:gap-3">
+        <div className="flex flex-wrap items-center gap-2 sm:gap-3">
           <button
             onClick={handleBack}
-            className="group px-4 py-2.5 rounded-2xl bg-white/90 dark:bg-slate-900/90 hover:bg-[#843bf1] hover:text-white dark:hover:bg-[#843bf1] text-slate-900 dark:text-slate-100 border border-[#843bf1]/30 hover:border-[#843bf1] font-black text-xs sm:text-sm backdrop-blur-md shadow-md transition-all duration-200 flex items-center gap-2 cursor-pointer hover:scale-105"
+            className="group px-3.5 sm:px-4 py-2.5 rounded-2xl bg-white/90 dark:bg-slate-900/90 hover:bg-[#843bf1] hover:text-white dark:hover:bg-[#843bf1] text-slate-900 dark:text-slate-100 border border-[#843bf1]/30 hover:border-[#843bf1] font-black text-xs sm:text-sm backdrop-blur-md shadow-md transition-all duration-200 flex items-center gap-2 cursor-pointer hover:scale-105"
             title="Return to previous view"
           >
-            <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1" />
+            <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1 shrink-0" />
             <span>{history.length > 0 ? 'Back to Previous Role' : 'Back to Career Roles'}</span>
           </button>
 
@@ -130,9 +130,9 @@ export const CareerDetailModal = ({ socCode, initialData, onClose, onSelectTarge
           {onSelectTarget && data && (
             <button
               onClick={() => onSelectTarget(data)}
-              className="px-5 py-2.5 rounded-2xl bg-[#843bf1] hover:bg-[#722ed1] text-white font-black text-xs sm:text-sm shadow-md shadow-[#843bf1]/40 ring-1 ring-[#843bf1]/60 hover:scale-105 transition-all flex items-center gap-2 cursor-pointer"
+              className="w-full sm:w-auto px-4 sm:px-5 py-2.5 rounded-2xl bg-[#843bf1] hover:bg-[#722ed1] text-white font-black text-xs sm:text-sm shadow-md shadow-[#843bf1]/40 ring-1 ring-[#843bf1]/60 hover:scale-105 transition-all flex items-center justify-center gap-2 cursor-pointer"
             >
-              <CheckCircle2 className="w-4 h-4" />
+              <CheckCircle2 className="w-4 h-4 shrink-0" />
               <span>Set as My Target Career</span>
             </button>
           )}
@@ -142,7 +142,7 @@ export const CareerDetailModal = ({ socCode, initialData, onClose, onSelectTarge
       {/* ========================================================================= */}
       {/* HERO HEADER CARD */}
       {/* ========================================================================= */}
-      <div className="relative overflow-hidden rounded-3xl bg-white/85 dark:bg-slate-950/85 backdrop-blur-xl p-6 sm:p-8 shadow-xl border border-[#843bf1]/25 dark:border-[#843bf1]/35">
+      <div className="relative overflow-hidden rounded-3xl bg-white/85 dark:bg-slate-950/85 backdrop-blur-xl p-4 sm:p-6 md:p-8 shadow-xl border border-[#843bf1]/25 dark:border-[#843bf1]/35">
         <div className="absolute top-0 right-0 -mt-8 -mr-8 w-72 h-72 rounded-full bg-[#843bf1]/15 blur-3xl pointer-events-none" />
         
         <div className="relative z-10 space-y-4">

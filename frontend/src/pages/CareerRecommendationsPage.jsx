@@ -78,17 +78,17 @@ export const CareerRecommendationsPage = () => {
     <div className="space-y-8 pb-12 font-sans">
 
       {/* Hero Header (Frosted Glass & Dynamic High-Contrast Typography) */}
-      <div className="relative overflow-hidden rounded-3xl bg-white/80 dark:bg-slate-950/80 backdrop-blur-xl p-6 sm:p-8 shadow-xl border border-[#843bf1]/25 dark:border-[#843bf1]/35">
+      <div className="relative overflow-hidden rounded-3xl bg-white/80 dark:bg-slate-950/80 backdrop-blur-xl p-4 sm:p-6 md:p-8 shadow-xl border border-[#843bf1]/25 dark:border-[#843bf1]/35">
         <div className="absolute top-0 right-0 -mt-8 -mr-8 w-72 h-72 rounded-full bg-[#843bf1]/15 blur-3xl pointer-events-none" />
-        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4 sm:gap-6">
           <div className="max-w-2xl space-y-2">
             <div className="flex items-center gap-2 mb-1.5">
               <span className="px-3 py-1 rounded-full bg-[#843bf1]/15 dark:bg-[#843bf1]/25 text-[#843bf1] dark:text-[#a970fe] border border-[#843bf1]/30 text-[11px] font-extrabold flex items-center gap-1.5 uppercase tracking-wider">
-                <Award className="w-3.5 h-3.5" />
+                <Award className="w-3.5 h-3.5 shrink-0" />
                 <span>Module 4 — Random Forest Classifier</span>
               </span>
             </div>
-            <h1 className="text-2xl sm:text-4xl font-black text-slate-950 dark:text-white font-sans tracking-tight leading-tight drop-shadow-[0_1px_2px_rgba(255,255,255,0.7)] dark:drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-black text-slate-950 dark:text-white font-sans tracking-tight leading-tight drop-shadow-[0_1px_2px_rgba(255,255,255,0.7)] dark:drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
               Recommended Engineering Career Paths
             </h1>
             <p className="text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed font-medium">
@@ -99,9 +99,9 @@ export const CareerRecommendationsPage = () => {
           <div className="flex items-center gap-3 shrink-0">
             <button
               onClick={() => navigate('/career-roles')}
-              className="px-4 py-3 rounded-2xl bg-[#843bf1] hover:bg-[#722ed1] text-white font-black text-xs shadow-md shadow-[#843bf1]/40 ring-1 ring-[#843bf1]/60 hover:scale-105 transition-all flex items-center gap-2 cursor-pointer"
+              className="w-full sm:w-auto px-4 py-3 rounded-2xl bg-[#843bf1] hover:bg-[#722ed1] text-white font-black text-xs shadow-md shadow-[#843bf1]/40 ring-1 ring-[#843bf1]/60 hover:scale-105 transition-all flex items-center justify-center gap-2 cursor-pointer"
             >
-              <Sparkles className="w-4 h-4 text-white" />
+              <Sparkles className="w-4 h-4 text-white shrink-0" />
               <span>Explore All 1,016 O*NET Roles →</span>
             </button>
           </div>
@@ -125,7 +125,7 @@ export const CareerRecommendationsPage = () => {
       </div>
 
       {/* Career Cards List */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
         {filtered.map((career, idx) => (
           <div
             key={career.careerId}

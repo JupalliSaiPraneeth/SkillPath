@@ -43,16 +43,16 @@ export const Sidebar = () => {
   ];
 
   return (
-    <aside className="fixed inset-y-0 left-0 z-50 w-64 hidden md:flex flex-col bg-white/95 dark:bg-slate-950/95 text-slate-900 dark:text-slate-100 transition-all duration-300 border-r border-[#843bf1]/30 dark:border-[#843bf1]/40 shadow-[10px_0_35px_rgba(132,59,241,0.15)] dark:shadow-[10px_0_35px_rgba(0,0,0,0.5)] backdrop-blur-2xl">
+    <aside className="fixed inset-y-0 left-0 z-50 w-64 hidden md:flex flex-col bg-gradient-to-b from-[#FAF8FF] via-[#F3EFFF]/50 to-white dark:from-[#151130] dark:via-[#19143a] dark:to-[#0f0c24] text-slate-900 dark:text-slate-100 transition-all duration-300 border-r border-[#151130]/10 dark:border-[#C8BEFA]/15 shadow-[8px_0_30px_rgba(21,17,48,0.06)] dark:shadow-[8px_0_30px_rgba(0,0,0,0.6)] backdrop-blur-2xl">
 
-      {/* Ambient #843bf1 Gradient */}
-      <div className="absolute inset-0 bg-gradient-to-b from-[#843bf1]/15 via-white/40 to-[#843bf1]/10 dark:from-[#843bf1]/20 dark:via-slate-950/80 dark:to-slate-950/90 pointer-events-none" />
+      {/* Ambient Champion Blue & Lavender Tonic Gradient Glow */}
+      <div className="absolute inset-0 bg-gradient-to-b from-[#C8BEFA]/20 via-transparent to-[#151130]/5 dark:from-[#C8BEFA]/15 dark:via-transparent dark:to-[#151130]/30 pointer-events-none" />
 
       {/* Top Logo Header */}
-      <div className="h-16 flex items-center px-4 border-b border-[#843bf1]/20 dark:border-[#843bf1]/30 shrink-0 bg-white/90 dark:bg-slate-950/90 backdrop-blur-md relative z-10">
+      <div className="h-16 flex items-center px-4 border-b border-[#151130]/10 dark:border-[#C8BEFA]/15 shrink-0 bg-white/80 dark:bg-[#151130]/90 backdrop-blur-md relative z-10">
         <Link to="/" className="flex items-center gap-2 group select-none py-1">
           <div className="relative">
-            <div className="absolute -inset-1 bg-gradient-to-r from-[#843bf1]/30 to-purple-600/30 rounded-xl blur-xs opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+            <div className="absolute -inset-1 bg-gradient-to-r from-[#151130]/20 to-[#C8BEFA]/30 rounded-xl blur-xs opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
             <img
               key={isDark ? 'dark-logo' : 'light-logo'}
               src={isDark ? logoDark : logoWhite}
@@ -73,34 +73,34 @@ export const Sidebar = () => {
                 key={item.to}
                 to={item.to}
                 className={({ isActive }) =>
-                  `w-full group flex items-center justify-between px-2.5 py-2.5 rounded-xl text-xs font-bold transition-all duration-200 text-left relative overflow-hidden ${isActive
-                    ? 'bg-[#843bf1] text-white font-black shadow-[0_4px_18px_rgba(132,59,241,0.45)] dark:shadow-[0_4px_20px_rgba(132,59,241,0.6)] ring-1 ring-[#843bf1]/60 dark:ring-[#843bf1]/80 translate-x-0.5'
-                    : 'text-slate-700 dark:text-slate-300 hover:text-[#843bf1] dark:hover:text-white hover:bg-[#843bf1]/10 dark:hover:bg-[#843bf1]/25 hover:translate-x-1'
+                  `w-full group flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-bold transition-all duration-200 text-left relative overflow-hidden font-heading ${isActive
+                    ? 'bg-gradient-to-r from-[#151130] via-[#241c52] to-[#342978] text-[#C8BEFA] font-black shadow-[0_4px_18px_rgba(21,17,48,0.4)] dark:bg-gradient-to-r dark:from-[#C8BEFA] dark:via-[#ded6fc] dark:to-[#C8BEFA] dark:text-[#151130] dark:shadow-[0_4px_22px_rgba(200,190,250,0.3)] ring-1 ring-[#151130]/50 dark:ring-[#C8BEFA]/40 translate-x-0.5'
+                    : 'text-slate-800 dark:text-[#C8BEFA]/80 hover:text-[#151130] dark:hover:text-white hover:bg-[#151130]/8 dark:hover:bg-[#C8BEFA]/10 hover:translate-x-1'
                   }`
                 }
               >
                 {({ isActive }) => (
                   <>
                     {isActive && (
-                      <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1.5 h-5 bg-white rounded-r-full shadow-[0_0_8px_white]" />
+                      <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1.5 h-5 bg-[#C8BEFA] dark:bg-[#151130] rounded-r-full shadow-[0_0_8px_#C8BEFA] dark:shadow-[0_0_8px_#151130]" />
                     )}
 
                     <div className="flex items-center gap-2.5 min-w-0">
                       <div className={`w-6 h-6 rounded-lg flex items-center justify-center transition-all shrink-0 ${isActive
-                        ? 'bg-white/20 text-white shadow-inner'
-                        : 'bg-[#843bf1]/10 dark:bg-[#843bf1]/20 text-[#843bf1] dark:text-[#a970fe] group-hover:bg-[#843bf1] group-hover:text-white group-hover:scale-110'
+                        ? 'bg-white/20 dark:bg-[#151130]/20 text-[#C8BEFA] dark:text-[#151130] shadow-inner'
+                        : 'bg-[#151130]/10 dark:bg-[#C8BEFA]/15 text-[#151130] dark:text-[#C8BEFA] group-hover:bg-[#151130] dark:group-hover:bg-[#C8BEFA] group-hover:text-[#C8BEFA] dark:group-hover:text-[#151130] group-hover:scale-110'
                         }`}>
-                        <Icon className={`w-3.5 h-3.5 ${isActive ? 'text-white drop-shadow-[0_0_6px_rgba(255,255,255,0.8)]' : ''}`} />
+                        <Icon className={`w-3.5 h-3.5 ${isActive ? 'text-[#C8BEFA] dark:text-[#151130] drop-shadow-[0_0_6px_rgba(200,190,250,0.8)]' : ''}`} />
                       </div>
                       <span className="truncate text-xs">{item.label}</span>
                     </div>
 
                     {item.badge && (
                       <span className={`text-[9px] font-black px-1.5 py-0.5 rounded-md border shrink-0 transition-all ${isActive
-                        ? 'bg-white/25 text-white border-white/40 backdrop-blur-xs'
+                        ? 'bg-white/25 dark:bg-[#151130]/25 text-[#C8BEFA] dark:text-[#151130] border-[#C8BEFA]/40 dark:border-[#151130]/40 backdrop-blur-xs'
                         : item.badgeType === 'warning'
-                          ? 'bg-amber-100 dark:bg-amber-950/70 text-amber-800 dark:text-amber-300 border-amber-300 dark:border-amber-600/40 shadow-xs'
-                          : 'bg-[#843bf1]/15 dark:bg-[#843bf1]/25 text-[#843bf1] dark:text-purple-200 border border-[#843bf1]/30 dark:border-[#843bf1]/40 shadow-xs'
+                          ? 'bg-[#C8BEFA]/30 dark:bg-[#C8BEFA]/20 text-[#151130] dark:text-[#C8BEFA] border border-[#C8BEFA]/50 shadow-xs font-black'
+                          : 'bg-[#151130]/10 dark:bg-[#C8BEFA]/15 text-[#151130] dark:text-[#C8BEFA] border border-[#151130]/20 dark:border-[#C8BEFA]/30 shadow-xs'
                         }`}>
                         {item.badge}
                       </span>

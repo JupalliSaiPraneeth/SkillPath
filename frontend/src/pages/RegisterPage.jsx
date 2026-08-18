@@ -147,8 +147,8 @@ export const RegisterPage = () => {
   };
 
   return (
-    <div className="flex-1 min-h-[calc(100vh-4rem)] flex flex-col items-center justify-center px-4 py-2 sm:py-4 font-sans">
-      <div className="w-full max-w-2xl space-y-2.5 sm:space-y-3">
+    <div className="flex-1 min-h-[calc(100vh-4rem)] flex flex-col items-center justify-center px-3 sm:px-4 py-4 sm:py-8 font-sans">
+      <div className="w-full max-w-2xl space-y-2.5 sm:space-y-3 my-auto">
 
         {/* Header Branding */}
         <div className="text-center flex flex-col items-center mb-0.5">

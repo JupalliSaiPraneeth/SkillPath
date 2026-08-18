@@ -206,7 +206,7 @@ export const DashboardPage = () => {
       {/* ========================================================================= */}
       {userIsAdmin ? (
         /* Admin: 5 Platform Metrics (Photo 1) */
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3.5 sm:gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4">
           {/* Card 1: Total Users */}
           <StatCard
             title="Total Users"
@@ -254,7 +254,7 @@ export const DashboardPage = () => {
           </Link>
 
           {/* Card 5: Roadmaps Generated */}
-          <Link to="/roadmap" className="block">
+          <Link to="/roadmap" className="block col-span-2 sm:col-span-1">
             <StatCard
               title="Roadmaps Generated"
               value={platformStats.roadmapsGenerated}
@@ -267,7 +267,7 @@ export const DashboardPage = () => {
         </div>
       ) : (
         /* Regular User: 6 Personalized Career & Skill Metrics (Photo 2) */
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3.5 sm:gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4">
           {/* Card 1: Career Match */}
           <Link to="/career-recommendations" className="block">
             <StatCard

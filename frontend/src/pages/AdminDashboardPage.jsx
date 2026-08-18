@@ -99,7 +99,7 @@ export const AdminDashboardPage = () => {
 
   // Navigation & UI States
   const [activeTab, setActiveTab] = useState('dashboard');
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [sidebarOpen, setSidebarOpen] = useState(typeof window !== 'undefined' ? window.innerWidth >= 1024 : false);
   const [searchQuery, setSearchQuery] = useState('');
   const [timeRange, setTimeRange] = useState('30 Days');
   const [selectedUserModal, setSelectedUserModal] = useState(null);
@@ -937,20 +937,32 @@ export const AdminDashboardPage = () => {
   return (
     <div className="min-h-screen flex bg-transparent text-slate-900 dark:text-slate-100 font-sans antialiased">
 
-      {/* ========================================================================= */}
-      {/* 1. ELEGANT #843bf1 & DYNAMIC THEME-ADAPTIVE SIDEBAR NAVIGATION */}
-      {/* ========================================================================= */}
-      <aside className={`fixed inset-y-0 left-0 z-50 w-64 bg-white/95 dark:bg-slate-950/95 text-slate-900 dark:text-slate-100 flex flex-col transition-all duration-300 border-r border-[#843bf1]/30 dark:border-[#843bf1]/40 shadow-[10px_0_35px_rgba(132,59,241,0.15)] dark:shadow-[10px_0_35px_rgba(0,0,0,0.5)] backdrop-blur-2xl ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0 lg:w-64'
-        }`}>
+      {/* Mobile Drawer Backdrop Overlay */}
+      {sidebarOpen && (
+        <div
+          onClick={() => setSidebarOpen(false)}
+          className="fixed inset-0 z-40 bg-black/60 backdrop-blur-xs lg:hidden transition-opacity duration-300"
+          aria-hidden="true"
+        />
+      )}
 
-        {/* Ambient #843bf1 Gradient */}
-        <div className="absolute inset-0 bg-gradient-to-b from-[#843bf1]/15 via-white/40 to-[#843bf1]/10 dark:from-[#843bf1]/20 dark:via-slate-950/80 dark:to-slate-950/90 pointer-events-none" />
+      {/* ========================================================================= */}
+      {/* 1. ELEGANT THEME-ADAPTIVE SIDEBAR NAVIGATION */}
+      {/* ========================================================================= */}
+      <aside
+        className={`fixed inset-y-0 left-0 z-50 w-64 bg-gradient-to-b from-[#FAF8FF] via-[#F3EFFF]/50 to-white dark:from-[#151130] dark:via-[#19143a] dark:to-[#0f0c24] text-slate-900 dark:text-slate-100 flex flex-col transition-transform duration-300 border-r border-[#151130]/10 dark:border-[#C8BEFA]/15 shadow-[8px_0_30px_rgba(21,17,48,0.06)] dark:shadow-[8px_0_30px_rgba(0,0,0,0.6)] backdrop-blur-2xl ${
+          sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
+        }`}
+      >
+
+        {/* Ambient Gradient Glow */}
+        <div className="absolute inset-0 bg-gradient-to-b from-[#C8BEFA]/20 via-transparent to-[#151130]/5 dark:from-[#C8BEFA]/15 dark:via-transparent dark:to-[#151130]/30 pointer-events-none" />
 
         {/* Logo Header */}
-        <div className="h-16 flex items-center px-4 border-b border-[#843bf1]/20 dark:border-[#843bf1]/30 shrink-0 bg-white/90 dark:bg-slate-950/90 backdrop-blur-md relative z-10">
+        <div className="h-16 flex items-center justify-between px-4 border-b border-[#151130]/10 dark:border-[#C8BEFA]/15 shrink-0 bg-white/80 dark:bg-[#151130]/90 backdrop-blur-md relative z-10">
           <Link to="/" className="flex items-center gap-2 group select-none py-1">
             <div className="relative">
-              <div className="absolute -inset-1 bg-gradient-to-r from-[#843bf1]/30 to-purple-600/30 rounded-xl blur-xs opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+              <div className="absolute -inset-1 bg-gradient-to-r from-[#151130]/20 to-[#C8BEFA]/30 rounded-xl blur-xs opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
               <img
                 key={isDark ? 'dark-logo' : 'light-logo'}
                 src={isDark ? logoDark : logoWhite}
@@ -959,6 +971,13 @@ export const AdminDashboardPage = () => {
               />
             </div>
           </Link>
+          <button
+            onClick={() => setSidebarOpen(false)}
+            className="lg:hidden p-1.5 rounded-lg text-slate-500 hover:text-slate-800 dark:text-[#C8BEFA]/70 dark:hover:text-white cursor-pointer"
+            aria-label="Close Sidebar"
+          >
+            <X className="w-5 h-5" />
+          </button>
         </div>
 
         {/* Scrollable Navigation List */}
@@ -967,11 +986,11 @@ export const AdminDashboardPage = () => {
             <div key={idx} className="space-y-0.5">
               {sec.heading && (
                 <div className="px-2.5 pt-2 pb-1 flex items-center justify-between">
-                  <p className="text-[10px] font-black tracking-widest text-[#843bf1] dark:text-[#a970fe] uppercase flex items-center gap-1.5">
-                    <span className="w-1.5 h-1.5 rounded-full bg-[#843bf1] dark:bg-[#a970fe] shadow-[0_0_6px_#843bf1] dark:shadow-[0_0_8px_#a970fe]" />
+                  <p className="text-[10px] font-black tracking-widest text-[#151130] dark:text-[#C8BEFA] uppercase flex items-center gap-1.5 font-heading">
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#151130] dark:bg-[#C8BEFA] shadow-[0_0_6px_#C8BEFA]" />
                     <span>{sec.heading}</span>
                   </p>
-                  <div className="h-px flex-1 ml-2.5 bg-gradient-to-r from-[#843bf1]/30 dark:from-[#843bf1]/40 to-transparent" />
+                  <div className="h-px flex-1 ml-2.5 bg-gradient-to-r from-[#151130]/20 dark:from-[#C8BEFA]/30 to-transparent" />
                 </div>
               )}
               {sec.items.map((item) => {
@@ -984,32 +1003,39 @@ export const AdminDashboardPage = () => {
                       setActiveTab(item.id);
                       if (window.innerWidth < 1024) setSidebarOpen(false);
                     }}
-                    className={`w-full group flex items-center justify-between px-2.5 py-2 rounded-xl text-xs font-bold transition-all duration-200 text-left relative overflow-hidden ${isActive
-                      ? 'bg-[#843bf1] text-white font-black shadow-[0_4px_18px_rgba(132,59,241,0.45)] dark:shadow-[0_4px_20px_rgba(132,59,241,0.6)] ring-1 ring-[#843bf1]/60 dark:ring-[#843bf1]/80 translate-x-0.5'
-                      : 'text-slate-700 dark:text-slate-300 hover:text-[#843bf1] dark:hover:text-white hover:bg-[#843bf1]/10 dark:hover:bg-[#843bf1]/25 hover:translate-x-1'
-                      }`}
+                    className={`w-full group flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-bold transition-all duration-200 text-left relative overflow-hidden font-heading cursor-pointer ${
+                      isActive
+                        ? 'bg-gradient-to-r from-[#151130] via-[#241c52] to-[#342978] text-[#C8BEFA] font-black shadow-[0_4px_18px_rgba(21,17,48,0.4)] dark:bg-gradient-to-r dark:from-[#C8BEFA] dark:via-[#ded6fc] dark:to-[#C8BEFA] dark:text-[#151130] dark:shadow-[0_4px_22px_rgba(200,190,250,0.3)] ring-1 ring-[#151130]/50 dark:ring-[#C8BEFA]/40 translate-x-0.5'
+                        : 'text-slate-800 dark:text-[#C8BEFA]/80 hover:text-[#151130] dark:hover:text-white hover:bg-[#151130]/8 dark:hover:bg-[#C8BEFA]/10 hover:translate-x-1'
+                    }`}
                   >
                     {isActive && (
-                      <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1.5 h-5 bg-white rounded-r-full shadow-[0_0_8px_white]" />
+                      <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1.5 h-5 bg-[#C8BEFA] dark:bg-[#151130] rounded-r-full shadow-[0_0_8px_#C8BEFA] dark:shadow-[0_0_8px_#151130]" />
                     )}
 
                     <div className="flex items-center gap-2.5 min-w-0">
-                      <div className={`w-6 h-6 rounded-lg flex items-center justify-center transition-all shrink-0 ${isActive
-                        ? 'bg-white/20 text-white shadow-inner'
-                        : 'bg-[#843bf1]/10 dark:bg-[#843bf1]/20 text-[#843bf1] dark:text-[#a970fe] group-hover:bg-[#843bf1] group-hover:text-white group-hover:scale-110'
-                        }`}>
-                        <Icon className={`w-3.5 h-3.5 ${isActive ? 'text-white drop-shadow-[0_0_6px_rgba(255,255,255,0.8)]' : ''}`} />
+                      <div
+                        className={`w-6 h-6 rounded-lg flex items-center justify-center transition-all shrink-0 ${
+                          isActive
+                            ? 'bg-white/20 dark:bg-[#151130]/20 text-[#C8BEFA] dark:text-[#151130] shadow-inner'
+                            : 'bg-[#151130]/10 dark:bg-[#C8BEFA]/15 text-[#151130] dark:text-[#C8BEFA] group-hover:bg-[#151130] dark:group-hover:bg-[#C8BEFA] group-hover:text-[#C8BEFA] dark:group-hover:text-[#151130] group-hover:scale-110'
+                        }`}
+                      >
+                        <Icon className={`w-3.5 h-3.5 ${isActive ? 'text-[#C8BEFA] dark:text-[#151130] drop-shadow-[0_0_6px_rgba(200,190,250,0.8)]' : ''}`} />
                       </div>
                       <span className="truncate text-xs">{item.label}</span>
                     </div>
 
                     {item.badge && (
-                      <span className={`text-[9px] font-black px-1.5 py-0.5 rounded-md border shrink-0 transition-all ${isActive
-                        ? 'bg-white/25 text-white border-white/40 backdrop-blur-xs'
-                        : item.badgeType === 'success'
-                          ? 'bg-emerald-100 dark:bg-emerald-950/70 text-emerald-800 dark:text-emerald-300 border-emerald-300 dark:border-emerald-600/40 shadow-xs'
-                          : 'bg-[#843bf1]/15 dark:bg-[#843bf1]/25 text-[#843bf1] dark:text-purple-200 border border-[#843bf1]/30 dark:border-[#843bf1]/40 shadow-xs'
-                        }`}>
+                      <span
+                        className={`text-[9px] font-black px-1.5 py-0.5 rounded-md border shrink-0 transition-all ${
+                          isActive
+                            ? 'bg-white/25 dark:bg-[#151130]/25 text-[#C8BEFA] dark:text-[#151130] border-[#C8BEFA]/40 dark:border-[#151130]/40 backdrop-blur-xs'
+                            : item.badgeType === 'success'
+                            ? 'bg-emerald-100 dark:bg-emerald-950/70 text-emerald-800 dark:text-emerald-300 border-emerald-300 dark:border-emerald-600/40 shadow-xs'
+                            : 'bg-[#151130]/10 dark:bg-[#C8BEFA]/15 text-[#151130] dark:text-[#C8BEFA] border border-[#151130]/20 dark:border-[#C8BEFA]/30 shadow-xs'
+                        }`}
+                      >
                         {item.badge}
                       </span>
                     )}
@@ -1024,15 +1050,21 @@ export const AdminDashboardPage = () => {
       {/* ========================================================================= */}
       {/* 2. MAIN CONTENT WRAPPER */}
       {/* ========================================================================= */}
-      <div className={`flex-1 flex flex-col min-h-screen transition-all duration-300 ${sidebarOpen ? 'lg:ml-64' : 'ml-0'
-        }`}>
+      <div className="flex-1 flex flex-col min-h-screen transition-all duration-300 lg:ml-64 ml-0 w-full overflow-x-hidden">
 
         {/* TOP NAVIGATION BAR */}
-        <header className="h-16 bg-transparent border-0 px-4 sm:px-6 lg:px-8 flex items-center justify-between sticky top-0 z-40 transition-colors">
+        <header className="h-16 bg-transparent border-0 px-3 sm:px-6 lg:px-8 flex items-center justify-between sticky top-0 z-30 transition-colors">
 
-          {/* Left: Tab Title */}
-          <div>
-            <h2 className="text-xl sm:text-2xl font-black text-slate-950 dark:text-white capitalize font-sans leading-tight tracking-tight drop-shadow-[0_1px_3px_rgba(255,255,255,0.9)] dark:drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)]">
+          {/* Left: Hamburger & Tab Title */}
+          <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+            <button
+              onClick={() => setSidebarOpen(!sidebarOpen)}
+              className="lg:hidden p-2 rounded-xl bg-white/90 dark:bg-[#151130]/90 border border-slate-200/90 dark:border-[#C8BEFA]/30 text-slate-800 dark:text-[#C8BEFA] shadow-xs cursor-pointer hover:border-[#C8BEFA] shrink-0"
+              aria-label="Toggle Admin Sidebar"
+            >
+              {sidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            </button>
+            <h2 className="text-base sm:text-2xl font-black text-slate-950 dark:text-white capitalize font-heading leading-tight tracking-tight truncate drop-shadow-[0_1px_3px_rgba(255,255,255,0.9)] dark:drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)]">
               {activeTab.replace(/_/g, ' ')}
             </h2>
           </div>

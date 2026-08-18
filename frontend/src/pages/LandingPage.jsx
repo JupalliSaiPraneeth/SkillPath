@@ -26,67 +26,103 @@ import {
 import Card from '../components/common/Card';
 import Badge from '../components/common/Badge';
 
-// Sample preview data for interactive hero simulator
+// Sample preview data for interactive hero simulator with O*NET 30.3 benchmark data
 const DEMO_PREVIEWS = {
   aiml: {
+    id: 'aiml',
     title: 'AI / Machine Learning Engineer',
-    category: 'Intelligent Systems & Data Science',
+    socCode: '15-1299.08',
+    category: 'Intelligent Systems',
     matchScore: 92,
-    cosineDist: '0.081 (Exceptional Match)',
+    matchTier: 'Optimal Match Tier',
+    cosineDist: '0.080',
     rfConfidence: '99.9%',
-    topSkills: [
-      { name: 'Python & NumPy/Pandas', level: 95, status: 'Mastered', color: 'emerald' },
-      { name: 'Scikit-Learn & PyTorch', level: 88, status: 'Strong', color: 'emerald' },
-      { name: 'SHAP & LIME Interpretability', level: 80, status: 'Proficient', color: 'cyan' },
-      { name: 'MLOps & Model Tracking', level: 55, status: 'Action Gap', color: 'amber' },
-      { name: 'Kubernetes & GPU Scaling', level: 35, status: 'Action Gap', color: 'rose' }
+    thresholdsMet: '4 of 5',
+    estTimeToParity: '2 - 3 Weeks',
+    skills: [
+      { name: 'Python, NumPy & Vectorization', category: 'Core Language', userScore: 95, benchmark: 85, weight: 'Crucial' },
+      { name: 'PyTorch & Scikit-Learn Modeling', category: 'ML Frameworks', userScore: 88, benchmark: 80, weight: 'Core' },
+      { name: 'XAI Explainability (SHAP / LIME)', category: 'Model Governance', userScore: 82, benchmark: 75, weight: 'Core' },
+      { name: 'MLOps & Model Tracking (MLflow)', category: 'Deployment', userScore: 60, benchmark: 70, weight: 'High' },
+      { name: 'Kubernetes & Distributed GPU Training', category: 'Infrastructure', userScore: 40, benchmark: 75, weight: 'Emerging' }
     ],
-    shapInfluence: '+42% driven by Mathematics & Python ecosystem'
+    shapFactors: [
+      { feature: 'Python & Linear Algebra Vectorization', impact: '+38.2%', isPositive: true },
+      { feature: 'Scikit-Learn Ensemble Tuning', impact: '+26.5%', isPositive: true },
+      { feature: 'Distributed GPU Scaling', impact: '-12.4%', isPositive: false }
+    ]
   },
   fullstack: {
+    id: 'fullstack',
     title: 'Full-Stack Software Engineer',
-    category: 'Software & Cloud Architecture',
+    socCode: '15-1252.00',
+    category: 'Software Architecture',
     matchScore: 86,
-    cosineDist: '0.142 (High Alignment)',
+    matchTier: 'Strong Alignment Tier',
+    cosineDist: '0.140',
     rfConfidence: '99.4%',
-    topSkills: [
-      { name: 'React.js & Next.js', level: 90, status: 'Mastered', color: 'emerald' },
-      { name: 'Node.js & Express REST APIs', level: 85, status: 'Strong', color: 'emerald' },
-      { name: 'PostgreSQL & ORM Modeling', level: 75, status: 'Moderate', color: 'amber' },
-      { name: 'Docker & Microservices', level: 45, status: 'Action Gap', color: 'rose' },
-      { name: 'CI/CD & Cloud Deployment', level: 40, status: 'Action Gap', color: 'rose' }
+    thresholdsMet: '3 of 5',
+    estTimeToParity: '3 - 4 Weeks',
+    skills: [
+      { name: 'React.js, Next.js & UI Architecture', category: 'Frontend', userScore: 92, benchmark: 80, weight: 'Crucial' },
+      { name: 'Node.js, Express & REST/GraphQL', category: 'Backend API', userScore: 86, benchmark: 80, weight: 'Core' },
+      { name: 'PostgreSQL & ORM Schema Design', category: 'Database', userScore: 78, benchmark: 75, weight: 'Core' },
+      { name: 'Docker & Container Orchestration', category: 'DevOps', userScore: 52, benchmark: 70, weight: 'High' },
+      { name: 'CI/CD Pipelines & Cloud Hosting', category: 'Infrastructure', userScore: 45, benchmark: 75, weight: 'Core' }
     ],
-    shapInfluence: '+34% influenced by Frontend & Backend proficiency'
+    shapFactors: [
+      { feature: 'Component Architecture & React State', impact: '+34.1%', isPositive: true },
+      { feature: 'RESTful API & Database Integration', impact: '+24.6%', isPositive: true },
+      { feature: 'Automated CI/CD Pipeline Config', impact: '-15.8%', isPositive: false }
+    ]
   },
   cloud: {
+    id: 'cloud',
     title: 'Cloud Solutions Architect',
-    category: 'Infrastructure & DevOps',
+    socCode: '15-1254.00',
+    category: 'Cloud & Infrastructure',
     matchScore: 78,
-    cosineDist: '0.220 (Moderate Alignment)',
+    matchTier: 'Moderate Alignment Tier',
+    cosineDist: '0.220',
     rfConfidence: '97.8%',
-    topSkills: [
-      { name: 'AWS & Azure Architecture', level: 80, status: 'Strong', color: 'emerald' },
-      { name: 'Terraform & Infrastructure as Code', level: 70, status: 'Moderate', color: 'amber' },
-      { name: 'Linux System Administration', level: 85, status: 'Mastered', color: 'emerald' },
-      { name: 'Site Reliability Engineering (SRE)', level: 40, status: 'Action Gap', color: 'rose' },
-      { name: 'Zero Trust Security & IAM', level: 30, status: 'Action Gap', color: 'rose' }
+    thresholdsMet: '3 of 5',
+    estTimeToParity: '4 - 6 Weeks',
+    skills: [
+      { name: 'AWS / Azure Solution Architecture', category: 'Cloud Infra', userScore: 82, benchmark: 85, weight: 'Crucial' },
+      { name: 'Linux System Administration & Bash', category: 'Systems', userScore: 88, benchmark: 75, weight: 'Core' },
+      { name: 'Terraform & Infrastructure as Code', category: 'Automation', userScore: 72, benchmark: 80, weight: 'Core' },
+      { name: 'Site Reliability Engineering (SRE)', category: 'Reliability', userScore: 48, benchmark: 75, weight: 'High' },
+      { name: 'Zero Trust Security & Cloud IAM', category: 'Security', userScore: 38, benchmark: 75, weight: 'Critical Gap' }
     ],
-    shapInfluence: '+28% attributed to Cloud & Linux fundamentals'
+    shapFactors: [
+      { feature: 'Linux & POSIX System Administration', impact: '+30.8%', isPositive: true },
+      { feature: 'Multi-Region High-Availability VPCs', impact: '+21.3%', isPositive: true },
+      { feature: 'Zero Trust IAM & Encryption Policies', impact: '-18.4%', isPositive: false }
+    ]
   },
   cyber: {
+    id: 'cyber',
     title: 'Cybersecurity & Threat Analyst',
+    socCode: '15-1212.00',
     category: 'Security & Forensics',
     matchScore: 81,
-    cosineDist: '0.190 (Strong Alignment)',
+    matchTier: 'Strong Alignment Tier',
+    cosineDist: '0.190',
     rfConfidence: '98.5%',
-    topSkills: [
-      { name: 'Network Security & Protocols', level: 88, status: 'Mastered', color: 'emerald' },
-      { name: 'Vulnerability Assessment & Pen-Testing', level: 75, status: 'Strong', color: 'cyan' },
-      { name: 'SIEM & Threat Hunting', level: 65, status: 'Moderate', color: 'amber' },
-      { name: 'Cryptographic Protocols', level: 70, status: 'Strong', color: 'cyan' },
-      { name: 'SOC Incident Response', level: 45, status: 'Action Gap', color: 'rose' }
+    thresholdsMet: '4 of 5',
+    estTimeToParity: '3 - 5 Weeks',
+    skills: [
+      { name: 'Network Security & OSI Model Protocols', category: 'Infrastructure', userScore: 88, benchmark: 80, weight: 'Crucial' },
+      { name: 'Vulnerability Assessment & Pen-Testing', category: 'Offensive Ops', userScore: 76, benchmark: 70, weight: 'High' },
+      { name: 'SIEM & Real-Time Threat Hunting', category: 'Detection', userScore: 68, benchmark: 75, weight: 'Core' },
+      { name: 'Cryptographic Protocols & PKI', category: 'Defensive', userScore: 74, benchmark: 65, weight: 'Core' },
+      { name: 'SOC Incident Response & Forensics', category: 'Operations', userScore: 45, benchmark: 80, weight: 'Critical Gap' }
     ],
-    shapInfluence: '+31% driven by Networking & Security audits'
+    shapFactors: [
+      { feature: 'Network Protocol Audits & Wireshark', impact: '+31.4%', isPositive: true },
+      { feature: 'Vulnerability Scanning (OWASP/NIST)', impact: '+22.8%', isPositive: true },
+      { feature: 'Live SOC Digital Forensics Handling', impact: '-14.2%', isPositive: false }
+    ]
   }
 };
 
@@ -212,294 +248,383 @@ export const LandingPage = () => {
   ];
 
   return (
-    <div className="relative overflow-hidden w-full">
+    <div className="relative overflow-hidden w-full bg-slate-50/50 dark:bg-[#0a071b] min-h-screen">
       
-      {/* Ambient Lighting Mesh / Gradient Background Blobs */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[550px] ambient-blob-1 pointer-events-none blur-3xl -z-10" />
-      <div className="absolute top-96 right-0 w-[500px] h-[500px] ambient-blob-2 pointer-events-none blur-3xl -z-10" />
-      <div className="absolute top-[800px] left-0 w-[500px] h-[500px] ambient-blob-3 pointer-events-none blur-3xl -z-10" />
+      {/* Background Engineering Blueprint Grid & Ambient Lighting Glows */}
+      <div className="absolute inset-0 bg-grid-pattern opacity-40 dark:opacity-20 pointer-events-none -z-10" />
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[900px] h-[450px] bg-gradient-to-b from-[#C8BEFA]/25 via-[#151130]/10 to-transparent pointer-events-none blur-3xl -z-10" />
+      <div className="absolute top-[600px] right-0 w-[500px] h-[500px] bg-[#C8BEFA]/15 dark:bg-[#C8BEFA]/5 pointer-events-none blur-3xl -z-10" />
+      <div className="absolute top-[1200px] left-0 w-[600px] h-[600px] bg-[#151130]/20 dark:bg-[#151130]/50 pointer-events-none blur-3xl -z-10" />
 
       {/* Content Container */}
-      <div className="space-y-16 sm:space-y-20 pt-2 sm:pt-3 pb-16">
+      <div className="space-y-20 sm:space-y-24 pt-4 sm:pt-8 pb-20">
 
         {/* ========================================================================= */}
-        {/* HERO SECTION */}
+        {/* HERO SECTION — PROFESSIONAL DESIGNER CRAFTSMANSHIP */}
         {/* ========================================================================= */}
-        <section className="relative max-w-6xl mx-auto px-4 text-center">
-          
-          {/* Glowing Project Status Pill */}
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/80 dark:bg-slate-900/90 border border-brand-200 dark:border-brand-500/30 text-brand-700 dark:text-brand-300 text-xs font-black mb-3 sm:mb-4 shadow-md shadow-brand-500/10 backdrop-blur-md transition-all hover:scale-105">
-            <span className="flex h-2 w-2 relative">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-brand-600 dark:bg-brand-400"></span>
+        <section className="relative max-w-6xl mx-auto px-3 sm:px-6 text-center pt-1 sm:pt-4">
+
+          {/* Editorial Headline with Plus Jakarta Sans — Guaranteed 2 Lines on All Screen Sizes */}
+          <h1 className="text-[23px] min-[390px]:text-[25px] sm:text-4xl md:text-5xl lg:text-[62px] font-black text-slate-900 dark:text-white tracking-tight leading-[1.2] sm:leading-[1.12] max-w-5xl mx-auto font-heading">
+            <span className="block whitespace-nowrap overflow-visible">Intelligent Skill Gap Analysis</span>
+            <span className="block text-slate-900 dark:text-white mt-0.5 sm:mt-1">
+              for Engineering Careers
             </span>
-            <Sparkles className="w-3.5 h-3.5 text-brand-500 animate-pulse" />
-            <span>B.Tech Final-Year Capstone Project • O*NET 30.3 & Explainable AI</span>
+          </h1>
+
+          {/* High-Clarity Value Proposition Subtitle */}
+          <p className="mt-3.5 sm:mt-6 text-xs sm:text-base md:text-lg text-slate-600 dark:text-slate-300 max-w-2xl mx-auto leading-relaxed font-normal px-2">
+            Bridge the divide between academic foundations and modern tech demands. Calculate deterministic vector distance, predict career alignments, and execute a structured 5-phase roadmap.
+          </p>
+
+          {/* Primary & Secondary Call to Actions */}
+          <div className="mt-6 sm:mt-10 flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 max-w-xs sm:max-w-none mx-auto w-full">
+            <Link
+              to="/register"
+              id="hero-start-free-btn"
+              className="w-full sm:w-auto px-6 sm:px-7 py-3 sm:py-3.5 rounded-xl bg-[#151130] dark:bg-[#C8BEFA] text-[#C8BEFA] dark:text-[#151130] hover:bg-[#201a47] dark:hover:bg-white font-heading font-bold text-xs sm:text-sm shadow-xl shadow-[#151130]/15 dark:shadow-[#C8BEFA]/15 transition-all duration-200 hover:-translate-y-0.5 flex items-center justify-center gap-2 group cursor-pointer border border-transparent dark:border-[#C8BEFA]/30"
+            >
+              <span>Start Skill Assessment</span>
+              <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+            </Link>
+            <Link
+              to="/login"
+              id="hero-explore-demo-btn"
+              className="w-full sm:w-auto px-6 py-3 sm:py-3.5 rounded-xl bg-white dark:bg-[#151130]/80 hover:bg-slate-50 dark:hover:bg-[#1d1742] text-slate-800 dark:text-[#C8BEFA] border border-slate-200 dark:border-[#C8BEFA]/30 font-heading font-bold text-xs sm:text-sm backdrop-blur-md shadow-xs hover:shadow-md transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer"
+            >
+              <Sparkles className="w-4 h-4 text-[#5c4fb8] dark:text-[#C8BEFA]" />
+              <span>Explore Demo Profile</span>
+            </Link>
           </div>
 
-        {/* Dynamic Editorial Headline */}
-        <h1 className="text-4xl sm:text-6xl lg:text-7xl font-black text-slate-900 dark:text-slate-100 tracking-tight leading-[1.15] sm:leading-[1.12]">
-          Intelligent{' '}
-          <span className="bg-gradient-to-r from-blue-600 via-indigo-500 to-cyan-400 bg-clip-text text-transparent drop-shadow-sm">
-            Skill Gap Analysis
-          </span>
-          <br className="hidden sm:block" /> & Engineering Career Guidance
-        </h1>
-
-        {/* Subtitle with High-Contrast Mathematical Backing */}
-        <p className="mt-4 sm:mt-5 text-base sm:text-lg text-slate-600 dark:text-slate-300 max-w-3xl mx-auto leading-relaxed font-normal">
-          Bridge the divide between engineering academics and industry demands. Powered by{' '}
-          <span className="font-bold text-slate-900 dark:text-white">Cosine Similarity</span>,{' '}
-          <span className="font-bold text-slate-900 dark:text-white">Random Forest Classifiers</span>, and{' '}
-          <span className="font-bold text-slate-900 dark:text-white">SHAP & LIME Explainable AI</span>.
-        </p>
-
-        {/* Algorithm Compliance Badges */}
-        <div className="mt-5 flex flex-wrap items-center justify-center gap-3 text-xs font-semibold text-slate-500 dark:text-slate-400">
-          <span className="flex items-center gap-1.5 bg-slate-100/90 dark:bg-slate-900/80 px-3 py-1 rounded-full border border-slate-200 dark:border-slate-800">
-            <Database className="w-3.5 h-3.5 text-blue-500" /> O*NET 30.3 Standard
-          </span>
-          <span className="flex items-center gap-1.5 bg-slate-100/90 dark:bg-slate-900/80 px-3 py-1 rounded-full border border-slate-200 dark:border-slate-800">
-            <Cpu className="w-3.5 h-3.5 text-cyan-500" /> 10-Fold Cross-Validation
-          </span>
-          <span className="flex items-center gap-1.5 bg-slate-100/90 dark:bg-slate-900/80 px-3 py-1 rounded-full border border-slate-200 dark:border-slate-800">
-            <ShieldCheck className="w-3.5 h-3.5 text-emerald-500" /> Transparent Feature Attribution
-          </span>
-        </div>
-
-        {/* ========================================================================= */}
-        {/* INTERACTIVE HERO LIVE SIMULATOR / PREVIEW WIDGET */}
-        {/* ========================================================================= */}
-        <div className="mt-10 max-w-5xl mx-auto text-left">
-          <div className="rounded-3xl bg-white/90 dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800/80 shadow-2xl overflow-hidden backdrop-blur-xl p-6 sm:p-8">
-            
-            {/* Widget Top Bar: Role Selector Tabs */}
-            <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 pb-6 border-b border-slate-200/80 dark:border-slate-800">
-              <div>
-                <div className="flex items-center gap-2">
-                  <span className="p-1.5 rounded-lg bg-blue-500/10 text-blue-600 dark:text-cyan-400 font-bold">
-                    <Activity className="w-4 h-4" />
-                  </span>
-                  <h3 className="text-base sm:text-lg font-black text-slate-900 dark:text-slate-100">
-                    Live Career Match & Cosine Gap Simulator
-                  </h3>
-                </div>
-                <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-                  Select a target engineering domain below to inspect real-time mathematical vector alignment:
-                </p>
-              </div>
-
-              {/* Demo Role Switcher Tabs */}
-              <div className="flex flex-wrap sm:flex-nowrap items-center gap-1.5 bg-slate-100 dark:bg-slate-950 p-1.5 rounded-2xl border border-slate-200 dark:border-slate-800 shrink-0">
-                {[
-                  { id: 'aiml', label: 'AI & ML Engineer' },
-                  { id: 'fullstack', label: 'Full-Stack Eng' },
-                  { id: 'cloud', label: 'Cloud Architect' },
-                  { id: 'cyber', label: 'Cybersecurity' }
-                ].map((tab) => (
-                  <button
-                    key={tab.id}
-                    onClick={() => setSelectedDemo(tab.id)}
-                    className={`px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all ${
-                      selectedDemo === tab.id
-                        ? 'bg-blue-600 text-white shadow-md shadow-blue-500/20'
-                        : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
-                    }`}
-                  >
-                    {tab.label}
-                  </button>
-                ))}
-              </div>
+          {/* Social Proof & Technical Integrity Ribbon */}
+          <div className="mt-8 sm:mt-10 pt-5 sm:pt-6 border-t border-slate-200/60 dark:border-slate-800/60 flex flex-col sm:flex-row items-center justify-center gap-y-2 sm:gap-x-8 text-[11px] sm:text-xs font-medium text-slate-600 dark:text-slate-400">
+            <div className="flex items-center gap-1.5">
+              <Database className="w-3.5 h-3.5 text-[#5c4fb8] dark:text-[#C8BEFA] shrink-0" />
+              <span>1,016 O*NET 30.3 Standard Roles</span>
             </div>
+            <div className="flex items-center gap-1.5">
+              <Cpu className="w-3.5 h-3.5 text-[#5c4fb8] dark:text-[#C8BEFA] shrink-0" />
+              <span>10-Fold Cross-Validated Classifier</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <ShieldCheck className="w-3.5 h-3.5 text-[#5c4fb8] dark:text-[#C8BEFA] shrink-0" />
+              <span>Transparent SHAP & LIME Attribution</span>
+            </div>
+          </div>
 
-            {/* Widget Body: Two Column Metrics & Gap Visualizer */}
-            <div className="mt-6 grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
+          {/* ========================================================================= */}
+          {/* PRODUCT WORKSPACE WINDOW MOCKUP / LIVE SIMULATOR */}
+          {/* ========================================================================= */}
+          <div className="mt-12 sm:mt-14 max-w-5xl mx-auto text-left">
+            <div className="rounded-2xl bg-white dark:bg-[#120e29] border border-slate-200/90 dark:border-[#C8BEFA]/25 shadow-2xl shadow-slate-900/10 dark:shadow-black/60 overflow-hidden backdrop-blur-2xl transition-all">
               
-              {/* Left Column: Match Score & Model Metrics */}
-              <div className="lg:col-span-5 space-y-4">
-                <div className="p-5 rounded-2xl bg-gradient-to-br from-blue-50/70 via-indigo-50/30 to-slate-50/80 dark:from-slate-850 dark:via-blue-950/20 dark:to-slate-900 border border-blue-200/80 dark:border-blue-500/30">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-[11px] font-black uppercase text-blue-600 dark:text-cyan-400 tracking-wider">
-                      Cosine Vector Match
-                    </span>
-                    <span className="px-2 py-0.5 rounded-md bg-blue-600 text-white text-[10px] font-bold">
-                      {activeDemoData.category}
-                    </span>
+              {/* Window Header Bar: Active Workspace & Segmented Domain Controls */}
+              <div className="px-4 sm:px-6 py-3.5 bg-slate-50/90 dark:bg-[#0c091f] border-b border-slate-200/80 dark:border-[#C8BEFA]/15 flex flex-col md:flex-row items-start md:items-center justify-between gap-3">
+                <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-1.5">
+                    <span className="w-2.5 h-2.5 rounded-full bg-rose-400 inline-block"></span>
+                    <span className="w-2.5 h-2.5 rounded-full bg-amber-400 inline-block"></span>
+                    <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 inline-block"></span>
                   </div>
-
-                  <div className="flex items-baseline gap-3 my-2">
-                    <span className="text-4xl sm:text-5xl font-black text-slate-900 dark:text-white font-sans">
-                      {activeDemoData.matchScore}%
+                  <div className="flex items-center gap-2 pl-2 border-l border-slate-200 dark:border-slate-800 text-xs">
+                    <span className="font-heading font-bold text-slate-900 dark:text-white">
+                      {activeDemoData.title}
                     </span>
-                    <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400">
-                      Optimal Target Match
+                    <span className="hidden sm:inline-block px-2 py-0.5 rounded-md bg-slate-200/70 dark:bg-[#1f1947] text-[11px] font-heading font-bold text-slate-700 dark:text-[#C8BEFA]">
+                      SOC {activeDemoData.socCode}
                     </span>
-                  </div>
-
-                  {/* Visual Progress Bar */}
-                  <div className="w-full bg-slate-200 dark:bg-slate-800 h-2.5 rounded-full overflow-hidden my-3">
-                    <div
-                      className="bg-gradient-to-r from-blue-600 via-indigo-500 to-cyan-400 h-full rounded-full transition-all duration-500"
-                      style={{ width: `${activeDemoData.matchScore}%` }}
-                    />
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-2 pt-2 text-xs border-t border-slate-200/60 dark:border-slate-800/80">
-                    <div>
-                      <span className="text-[10px] text-slate-500 dark:text-slate-400 block font-medium">Cosine Distance</span>
-                      <span className="font-bold text-slate-800 dark:text-slate-200 text-xs font-mono">{activeDemoData.cosineDist}</span>
-                    </div>
-                    <div>
-                      <span className="text-[10px] text-slate-500 dark:text-slate-400 block font-medium">RF Confidence</span>
-                      <span className="font-bold text-emerald-600 dark:text-emerald-400 text-xs font-mono">{activeDemoData.rfConfidence}</span>
-                    </div>
                   </div>
                 </div>
 
-                <div className="p-3.5 rounded-2xl bg-amber-50/60 dark:bg-amber-950/20 border border-amber-200/80 dark:border-amber-500/20 flex items-start gap-2.5 text-xs text-slate-700 dark:text-slate-300">
-                  <ShieldCheck className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
-                  <div>
-                    <strong className="text-amber-800 dark:text-amber-300 font-bold block text-[11px]">SHAP Explainability Insight:</strong>
-                    <span>{activeDemoData.shapInfluence}</span>
-                  </div>
+                {/* Segmented Control Domain Tabs */}
+                <div className="flex items-center gap-1 bg-slate-200/60 dark:bg-[#18133a] p-1 rounded-xl w-full md:w-auto overflow-x-auto scrollbar-none">
+                  {[
+                    { id: 'aiml', label: 'AI & ML', fullName: 'AI & Machine Learning' },
+                    { id: 'fullstack', label: 'Full-Stack', fullName: 'Full-Stack Eng' },
+                    { id: 'cloud', label: 'Cloud', fullName: 'Cloud Architecture' },
+                    { id: 'cyber', label: 'Cybersecurity', fullName: 'Cybersecurity & Ops' }
+                  ].map((tab) => (
+                    <button
+                      key={tab.id}
+                      onClick={() => setSelectedDemo(tab.id)}
+                      className={`px-3 py-1.5 rounded-lg text-xs font-heading font-bold whitespace-nowrap transition-all cursor-pointer ${
+                        selectedDemo === tab.id
+                          ? 'bg-white dark:bg-[#C8BEFA] text-[#151130] shadow-xs'
+                          : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                      }`}
+                    >
+                      {tab.fullName}
+                    </button>
+                  ))}
                 </div>
               </div>
 
-              {/* Right Column: Skill Proficiencies & Gaps Breakdown */}
-              <div className="lg:col-span-7 space-y-3">
-                <div className="flex items-center justify-between text-xs font-bold text-slate-600 dark:text-slate-400 px-1">
-                  <span>Required Skill Competencies (O*NET 30.3)</span>
-                  <span>Proficiency Status</span>
-                </div>
+              {/* Window Content: 2-Column High-Density Analytics Layout */}
+              <div className="p-5 sm:p-7 md:p-8 grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+                
+                {/* Left Column: Radial Vector Score & SHAP Waterfall Feature Weights */}
+                <div className="lg:col-span-5 space-y-4">
+                  
+                  {/* Vector Match Score Card */}
+                  <div className="p-5 rounded-2xl bg-gradient-to-b from-slate-50 to-white dark:from-[#19133e] dark:to-[#120d2d] border border-slate-200/80 dark:border-[#C8BEFA]/20 relative overflow-hidden">
+                    
+                    <div className="flex items-center justify-between mb-4">
+                      <span className="text-[11px] font-heading font-bold uppercase tracking-wider text-slate-600 dark:text-[#C8BEFA]">
+                        Cosine Vector Alignment
+                      </span>
+                      <span className="px-2.5 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-300 text-[11px] font-heading font-bold border border-emerald-200 dark:border-emerald-700/50">
+                        {activeDemoData.matchTier.split('Tier')[0]}
+                      </span>
+                    </div>
 
-                <div className="space-y-2.5">
-                  {activeDemoData.topSkills.map((sk, idx) => (
-                    <div
-                      key={idx}
-                      className="p-3 rounded-xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200/80 dark:border-slate-800/80 flex items-center justify-between gap-3 hover:border-blue-400/40 transition-all"
-                    >
-                      <div className="min-w-0 flex-1">
-                        <div className="flex items-center justify-between mb-1">
-                          <span className="text-xs font-bold text-slate-800 dark:text-slate-200 truncate">
-                            {sk.name}
-                          </span>
-                          <span className="text-xs font-black text-slate-700 dark:text-slate-300 font-mono">
-                            {sk.level}%
-                          </span>
-                        </div>
-                        <div className="w-full bg-slate-200 dark:bg-slate-800 h-1.5 rounded-full overflow-hidden">
-                          <div
-                            className={`h-full rounded-full ${
-                              sk.color === 'emerald'
-                                ? 'bg-emerald-500'
-                                : sk.color === 'cyan'
-                                ? 'bg-cyan-500'
-                                : sk.color === 'amber'
-                                ? 'bg-amber-500'
-                                : 'bg-rose-500'
-                            }`}
-                            style={{ width: `${sk.level}%` }}
+                    {/* Circular Radial Gauge Display */}
+                    <div className="flex items-center gap-5 my-2">
+                      <div className="relative w-24 h-24 shrink-0 flex items-center justify-center">
+                        <svg className="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
+                          {/* Background Circle Track */}
+                          <path
+                            className="text-slate-200 dark:text-slate-800"
+                            strokeWidth="3.5"
+                            stroke="currentColor"
+                            fill="none"
+                            d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
                           />
+                          {/* Progress Arc */}
+                          <path
+                            className="text-[#5c4fb8] dark:text-[#C8BEFA] transition-all duration-700 ease-out"
+                            strokeDasharray={`${activeDemoData.matchScore}, 100`}
+                            strokeWidth="3.5"
+                            strokeLinecap="round"
+                            stroke="currentColor"
+                            fill="none"
+                            d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                          />
+                        </svg>
+                        <div className="absolute inset-0 flex flex-col items-center justify-center">
+                          <span className="text-2xl font-black text-slate-900 dark:text-white font-heading leading-none tabular-nums">
+                            {activeDemoData.matchScore}%
+                          </span>
+                          <span className="text-[10px] font-heading font-bold text-slate-500 dark:text-[#C8BEFA] uppercase mt-0.5">
+                            Match
+                          </span>
                         </div>
                       </div>
 
-                      <span
-                        className={`text-[10px] font-black px-2 py-0.5 rounded-full whitespace-nowrap ${
-                          sk.color === 'emerald'
-                            ? 'bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400'
-                            : sk.color === 'cyan'
-                            ? 'bg-cyan-100 dark:bg-cyan-950/60 text-cyan-700 dark:text-cyan-400'
-                            : sk.color === 'amber'
-                            ? 'bg-amber-100 dark:bg-amber-950/60 text-amber-700 dark:text-amber-400'
-                            : 'bg-rose-100 dark:bg-rose-950/60 text-rose-700 dark:text-rose-400'
-                        }`}
-                      >
-                        {sk.status}
+                      <div className="space-y-1 min-w-0 font-sans">
+                        <div className="text-xs font-heading font-bold text-slate-900 dark:text-white">
+                          Deterministic Vector Score
+                        </div>
+                        <div className="text-xs text-slate-600 dark:text-slate-400">
+                          cos(θ) = <strong className="text-slate-900 dark:text-slate-200 font-semibold tabular-nums">{(activeDemoData.matchScore / 100).toFixed(3)}</strong>
+                        </div>
+                        <div className="text-xs text-slate-600 dark:text-slate-400">
+                          distance = <strong className="text-slate-900 dark:text-slate-200 font-semibold tabular-nums">{activeDemoData.cosineDist}</strong>
+                        </div>
+                        <div className="inline-flex items-center gap-1 text-xs font-heading font-bold text-emerald-600 dark:text-emerald-400 pt-0.5">
+                          <CheckCircle2 className="w-3.5 h-3.5" />
+                          <span>RF Confidence: {activeDemoData.rfConfidence}</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="mt-4 pt-3 border-t border-slate-200/80 dark:border-slate-800 flex items-center justify-between text-xs font-sans">
+                      <span className="text-slate-600 dark:text-slate-400">Benchmark Alignment:</span>
+                      <strong className="text-slate-900 dark:text-white font-heading font-bold">{activeDemoData.thresholdsMet} Thresholds Met</strong>
+                    </div>
+
+                  </div>
+
+                  {/* SHAP & LIME Feature Attribution Card */}
+                  <div className="p-4 rounded-2xl bg-slate-50/90 dark:bg-[#161038]/60 border border-slate-200/80 dark:border-[#C8BEFA]/15">
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="flex items-center gap-1.5 text-xs font-heading font-bold text-slate-900 dark:text-white">
+                        <ShieldCheck className="w-4 h-4 text-[#5c4fb8] dark:text-[#C8BEFA]" />
+                        <span>XAI Feature Attribution (SHAP φᵢ)</span>
+                      </div>
+                      <span className="text-[11px] font-heading font-medium text-slate-500 dark:text-slate-400">
+                        Linear Explainer
                       </span>
                     </div>
-                  ))}
+
+                    {/* Attribution Factor Bars — Unified in Champion Blue & Lavender Tonic */}
+                    <div className="space-y-2.5">
+                      {activeDemoData.shapFactors.map((factor, idx) => (
+                        <div key={idx} className="space-y-1 font-sans">
+                          <div className="flex items-center justify-between text-xs">
+                            <span className="text-slate-700 dark:text-slate-300 font-medium truncate max-w-[200px]">
+                              {factor.feature}
+                            </span>
+                            <span className="font-heading font-bold text-slate-900 dark:text-[#C8BEFA] tabular-nums">
+                              {factor.impact}
+                            </span>
+                          </div>
+                          <div className="w-full bg-slate-200/80 dark:bg-slate-800/80 h-1.5 rounded-full overflow-hidden">
+                            <div
+                              className="h-full rounded-full bg-gradient-to-r from-[#151130] via-[#5c4fb8] to-[#C8BEFA] dark:from-[#5c4fb8] dark:via-[#8778db] dark:to-[#C8BEFA] transition-all duration-500"
+                              style={{ width: `${Math.abs(parseFloat(factor.impact)) * 2}%` }}
+                            />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
                 </div>
 
-                <div className="pt-2 flex items-center justify-end">
-                  <Link
-                    to="/login"
-                    className="inline-flex items-center gap-1 text-xs font-bold text-blue-600 dark:text-cyan-400 hover:underline"
-                  >
-                    <span>Launch Full Vector Gap Engine</span>
-                    <ChevronRight className="w-4 h-4" />
-                  </Link>
+                {/* Right Column: O*NET 30.3 Dual-Layer Competency Matrix */}
+                <div className="lg:col-span-7 space-y-3.5">
+                  
+                  {/* Column Header */}
+                  <div className="flex items-center justify-between text-[11px] font-heading font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 px-1 border-b border-slate-200/80 dark:border-slate-800 pb-2">
+                    <span>SKILL COMPETENCY & WEIGHT</span>
+                    <span className="hidden sm:inline-block">YOUR LEVEL VS O*NET BENCHMARK</span>
+                    <span>VARIANCE / STATUS</span>
+                  </div>
+
+                  {/* Competency Item Rows with Unified Champion Blue & Lavender Tonic Progress Bars */}
+                  <div className="space-y-2.5">
+                    {activeDemoData.skills.map((sk, idx) => {
+                      const delta = sk.userScore - sk.benchmark;
+                      const isMastered = delta >= 0;
+
+                      return (
+                        <div
+                          key={idx}
+                          className="p-3.5 rounded-xl bg-slate-50/70 dark:bg-[#161038]/50 border border-slate-200/70 dark:border-[#C8BEFA]/15 hover:border-[#5c4fb8]/40 dark:hover:border-[#C8BEFA]/40 transition-all group"
+                        >
+                          <div className="flex items-center justify-between gap-3 mb-2">
+                            <div className="min-w-0 flex-1 flex items-center gap-2">
+                              <span className="text-xs sm:text-sm font-heading font-bold text-slate-900 dark:text-white truncate">
+                                {sk.name}
+                              </span>
+                              <span className="hidden sm:inline-block text-[10px] font-heading font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-slate-200/80 dark:bg-[#1f1947] text-slate-700 dark:text-[#C8BEFA] border border-slate-300/60 dark:border-[#C8BEFA]/20">
+                                {sk.weight}
+                              </span>
+                            </div>
+
+                            {/* Status Tag in Lavender Tonic Palette */}
+                            <span
+                              className={`text-xs font-heading font-bold px-2.5 py-0.5 rounded-md whitespace-nowrap ${
+                                isMastered
+                                  ? 'bg-[#C8BEFA]/20 dark:bg-[#C8BEFA]/15 text-[#151130] dark:text-[#C8BEFA] border border-[#C8BEFA]/40'
+                                  : 'bg-slate-100 dark:bg-[#1f1947] text-slate-700 dark:text-[#C8BEFA]/80 border border-slate-300/80 dark:border-[#C8BEFA]/25'
+                              }`}
+                            >
+                              {delta >= 0 ? `+${delta}% Target Met` : `${delta}% Skill Gap`}
+                            </span>
+                          </div>
+
+                          {/* Unified Progress Visualizer in Champion Blue & Lavender Tonic */}
+                          <div className="space-y-1.5">
+                            <div className="relative w-full bg-slate-200/90 dark:bg-slate-800 h-2.5 rounded-full overflow-hidden">
+                              {/* Candidate User Score Bar */}
+                              <div
+                                className="h-full rounded-full bg-gradient-to-r from-[#151130] via-[#5c4fb8] to-[#C8BEFA] dark:from-[#5c4fb8] dark:via-[#8778db] dark:to-[#C8BEFA] transition-all duration-500 shadow-xs"
+                                style={{ width: `${sk.userScore}%` }}
+                              />
+                            </div>
+
+                            {/* Benchmark Marker Reference Subtext */}
+                            <div className="flex items-center justify-between text-xs text-slate-600 dark:text-slate-400 font-sans pt-0.5">
+                              <span>Candidate Level: <strong className="font-heading font-bold text-slate-900 dark:text-[#C8BEFA] tabular-nums">{sk.userScore}%</strong></span>
+                              <span>O*NET Benchmark: <strong className="font-heading font-bold text-slate-900 dark:text-slate-200 tabular-nums">{sk.benchmark}%</strong></span>
+                            </div>
+                          </div>
+
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                  {/* Interactive Footer Action Strip */}
+                  <div className="pt-3 border-t border-slate-200/80 dark:border-slate-800 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs">
+                    <div className="flex items-center gap-1.5 text-slate-700 dark:text-slate-300 font-sans">
+                      <Sparkles className="w-4 h-4 text-[#5c4fb8] dark:text-[#C8BEFA]" />
+                      <span>Est. time to full parity: <strong className="font-heading font-bold text-slate-900 dark:text-white">{activeDemoData.estTimeToParity}</strong></span>
+                    </div>
+                    <Link
+                      to="/login"
+                      className="inline-flex items-center gap-1 font-heading font-bold text-[#5c4fb8] dark:text-[#C8BEFA] hover:underline"
+                    >
+                      <span>Analyze My Profile in Vector Engine</span>
+                      <ChevronRight className="w-4 h-4" />
+                    </Link>
+                  </div>
+
                 </div>
+
               </div>
 
             </div>
-
           </div>
-        </div>
+
+        </section>
 
         {/* ========================================================================= */}
         {/* 4 HIGH-IMPACT STATS BANNER */}
         {/* ========================================================================= */}
-        <div className="mt-14 grid grid-cols-2 md:grid-cols-4 gap-4 max-w-5xl mx-auto text-left">
-          
-          <div className="p-5 rounded-3xl bg-white/90 dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 shadow-lg hover:border-blue-500/40 hover:-translate-y-1 transition-all group">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase">Classifier Accuracy</span>
-              <Award className="w-4 h-4 text-blue-500 group-hover:scale-110 transition-transform" />
+        <section className="max-w-5xl mx-auto px-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-left">
+            
+            <div className="p-5 rounded-2xl bg-white dark:bg-[#151130] border border-slate-200/90 dark:border-[#C8BEFA]/25 shadow-md hover:border-indigo-400 dark:hover:border-[#C8BEFA] hover:-translate-y-1 transition-all group">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Classifier Accuracy</span>
+                <Award className="w-4 h-4 text-indigo-600 dark:text-[#C8BEFA] group-hover:scale-110 transition-transform" />
+              </div>
+              <p className="text-2xl sm:text-3xl font-black text-[#151130] dark:text-[#C8BEFA] tracking-tight font-heading">
+                100.0%
+              </p>
+              <div className="mt-1 flex items-center justify-between text-[11px]">
+                <span className="text-slate-500 dark:text-slate-400 font-medium">Random Forest</span>
+                <span className="text-emerald-600 dark:text-emerald-400 font-bold font-mono">10-Fold CV</span>
+              </div>
             </div>
-            <p className="text-2xl sm:text-3xl font-black text-blue-600 dark:text-blue-400 tracking-tight font-sans">
-              100.0% Acc
-            </p>
-            <div className="mt-1 flex items-center justify-between text-[11px]">
-              <span className="text-slate-500 dark:text-slate-400 font-medium">Random Forest Ensemble</span>
-              <span className="text-emerald-600 dark:text-emerald-400 font-bold font-mono">10-Fold CV</span>
+
+            <div className="p-5 rounded-2xl bg-white dark:bg-[#151130] border border-slate-200/90 dark:border-[#C8BEFA]/25 shadow-md hover:border-indigo-400 dark:hover:border-[#C8BEFA] hover:-translate-y-1 transition-all group">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Skill Gap Distance</span>
+                <Target className="w-4 h-4 text-indigo-600 dark:text-[#C8BEFA] group-hover:scale-110 transition-transform" />
+              </div>
+              <p className="text-2xl sm:text-3xl font-black text-[#151130] dark:text-[#C8BEFA] tracking-tight font-heading">
+                Cosine Sim
+              </p>
+              <div className="mt-1 flex items-center justify-between text-[11px]">
+                <span className="text-slate-500 dark:text-slate-400 font-medium">Vector Metric</span>
+                <span className="text-indigo-600 dark:text-[#C8BEFA] font-bold font-mono">||u||·||v||</span>
+              </div>
             </div>
+
+            <div className="p-5 rounded-2xl bg-white dark:bg-[#151130] border border-slate-200/90 dark:border-[#C8BEFA]/25 shadow-md hover:border-indigo-400 dark:hover:border-[#C8BEFA] hover:-translate-y-1 transition-all group">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Transparency</span>
+                <ShieldCheck className="w-4 h-4 text-indigo-600 dark:text-[#C8BEFA] group-hover:scale-110 transition-transform" />
+              </div>
+              <p className="text-2xl sm:text-3xl font-black text-[#151130] dark:text-[#C8BEFA] tracking-tight font-heading">
+                SHAP & LIME
+              </p>
+              <div className="mt-1 flex items-center justify-between text-[11px]">
+                <span className="text-slate-500 dark:text-slate-400 font-medium">Zero Blackbox XAI</span>
+                <span className="text-emerald-600 dark:text-emerald-400 font-bold font-mono">φᵢ Impact</span>
+              </div>
+            </div>
+
+            <div className="p-5 rounded-2xl bg-white dark:bg-[#151130] border border-slate-200/90 dark:border-[#C8BEFA]/25 shadow-md hover:border-indigo-400 dark:hover:border-[#C8BEFA] hover:-translate-y-1 transition-all group">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">O*NET 30.3 Base</span>
+                <Database className="w-4 h-4 text-indigo-600 dark:text-[#C8BEFA] group-hover:scale-110 transition-transform" />
+              </div>
+              <p className="text-2xl sm:text-3xl font-black text-[#151130] dark:text-[#C8BEFA] tracking-tight font-heading">
+                7,860 Skills
+              </p>
+              <div className="mt-1 flex items-center justify-between text-[11px]">
+                <span className="text-slate-500 dark:text-slate-400 font-medium">66 Tech Occupations</span>
+                <span className="text-indigo-600 dark:text-[#C8BEFA] font-bold font-mono">SOC Codes</span>
+              </div>
+            </div>
+
           </div>
-
-          <div className="p-5 rounded-3xl bg-white/90 dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 shadow-lg hover:border-cyan-500/40 hover:-translate-y-1 transition-all group">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase">Skill Gap Distance</span>
-              <Target className="w-4 h-4 text-cyan-500 group-hover:scale-110 transition-transform" />
-            </div>
-            <p className="text-2xl sm:text-3xl font-black text-cyan-600 dark:text-cyan-400 tracking-tight font-sans">
-              Cosine Sim
-            </p>
-            <div className="mt-1 flex items-center justify-between text-[11px]">
-              <span className="text-slate-500 dark:text-slate-400 font-medium">Multidimensional Vector</span>
-              <span className="text-cyan-600 dark:text-cyan-400 font-bold font-mono">||u||·||v||</span>
-            </div>
-          </div>
-
-          <div className="p-5 rounded-3xl bg-white/90 dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 shadow-lg hover:border-emerald-500/40 hover:-translate-y-1 transition-all group">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase">Transparency</span>
-              <ShieldCheck className="w-4 h-4 text-emerald-500 group-hover:scale-110 transition-transform" />
-            </div>
-            <p className="text-2xl sm:text-3xl font-black text-emerald-600 dark:text-emerald-400 tracking-tight font-sans">
-              SHAP & LIME
-            </p>
-            <div className="mt-1 flex items-center justify-between text-[11px]">
-              <span className="text-slate-500 dark:text-slate-400 font-medium">Zero Blackbox XAI</span>
-              <span className="text-emerald-600 dark:text-emerald-400 font-bold font-mono">φᵢ Impact</span>
-            </div>
-          </div>
-
-          <div className="p-5 rounded-3xl bg-white/90 dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 shadow-lg hover:border-amber-500/40 hover:-translate-y-1 transition-all group">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase">O*NET 30.3 Base</span>
-              <Database className="w-4 h-4 text-amber-500 group-hover:scale-110 transition-transform" />
-            </div>
-            <p className="text-2xl sm:text-3xl font-black text-amber-600 dark:text-amber-400 tracking-tight font-sans">
-              7,860 Skills
-            </p>
-            <div className="mt-1 flex items-center justify-between text-[11px]">
-              <span className="text-slate-500 dark:text-slate-400 font-medium">66 Tech Occupations</span>
-              <span className="text-amber-600 dark:text-amber-400 font-bold font-mono">SOC Codes</span>
-            </div>
-          </div>
-
-        </div>
-
-      </section>
+        </section>
 
       {/* ========================================================================= */}
       {/* 6 CORE ARCHITECTURAL MODULES SHOWCASE */}
@@ -507,8 +632,10 @@ export const LandingPage = () => {
       <section id="architecture-section" className="max-w-7xl mx-auto px-4">
         
         <div className="text-center max-w-3xl mx-auto mb-14">
-          <Badge variant="primary" size="lg">Machine Learning & Mathematical Architecture</Badge>
-          <h2 className="text-3xl sm:text-4xl font-black text-slate-900 dark:text-slate-100 mt-4 tracking-tight">
+          <span className="px-4 py-1.5 rounded-full bg-[#C8BEFA]/20 text-[#151130] dark:text-[#C8BEFA] border border-[#C8BEFA]/40 text-xs font-black uppercase tracking-wider inline-block">
+            Machine Learning & Mathematical Architecture
+          </span>
+          <h2 className="text-3xl sm:text-4xl font-black text-slate-900 dark:text-white mt-4 tracking-tight">
             Comprehensive Engineering Intelligence Pipeline
           </h2>
           <p className="text-slate-600 dark:text-slate-400 text-sm sm:text-base mt-2 leading-relaxed">
@@ -522,24 +649,26 @@ export const LandingPage = () => {
             return (
               <div
                 key={idx}
-                className="p-6 sm:p-7 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-lg hover:shadow-2xl hover:border-blue-500/50 hover:-translate-y-1.5 transition-all flex flex-col justify-between group"
+                className="p-6 sm:p-7 rounded-3xl bg-white dark:bg-[#151130]/90 border border-[#C8BEFA]/25 dark:border-[#C8BEFA]/35 shadow-lg hover:shadow-2xl hover:border-[#C8BEFA] hover:-translate-y-1.5 transition-all flex flex-col justify-between group"
               >
                 <div>
                   
                   {/* Top Bar: Icon & Category Tag */}
                   <div className="flex items-center justify-between mb-5">
-                    <div className="p-3.5 rounded-2xl bg-blue-50 dark:bg-blue-950/50 border border-blue-200 dark:border-blue-800/60 text-blue-600 dark:text-cyan-400 group-hover:scale-110 transition-transform">
+                    <div className="p-3.5 rounded-2xl bg-[#C8BEFA]/20 border border-[#C8BEFA]/40 text-[#151130] dark:text-[#C8BEFA] group-hover:scale-110 transition-transform">
                       <Icon className="w-6 h-6" />
                     </div>
-                    <Badge variant={mod.color}>{mod.tag}</Badge>
+                    <span className="px-2.5 py-1 rounded-lg bg-[#C8BEFA]/15 text-[#151130] dark:text-[#C8BEFA] border border-[#C8BEFA]/30 text-[11px] font-black">
+                      {mod.tag}
+                    </span>
                   </div>
 
                   {/* Title & Mathematical Formula Pill */}
-                  <h3 className="text-lg font-black text-slate-900 dark:text-slate-100 font-sans tracking-tight mb-2">
+                  <h3 className="text-lg font-black text-slate-900 dark:text-white font-sans tracking-tight mb-2">
                     {mod.title}
                   </h3>
 
-                  <div className="p-2 rounded-xl bg-slate-100 dark:bg-slate-950/80 border border-slate-200/80 dark:border-slate-800 text-[11px] font-mono text-slate-600 dark:text-slate-400 mb-3 truncate">
+                  <div className="p-2 rounded-xl bg-slate-100 dark:bg-[#0e0c22] border border-[#C8BEFA]/20 text-[11px] font-mono text-[#151130] dark:text-[#C8BEFA]/90 mb-3 truncate">
                     {mod.formula}
                   </div>
 
@@ -560,10 +689,10 @@ export const LandingPage = () => {
                 </div>
 
                 {/* Direct Action Link */}
-                <div className="pt-4 border-t border-slate-100 dark:border-slate-800/80">
+                <div className="pt-4 border-t border-slate-100 dark:border-[#C8BEFA]/20">
                   <Link
                     to="/login"
-                    className="flex items-center justify-between text-xs font-black text-blue-600 dark:text-cyan-400 group-hover:text-blue-700 dark:group-hover:text-cyan-300 transition-colors"
+                    className="flex items-center justify-between text-xs font-black text-[#151130] dark:text-[#C8BEFA] group-hover:underline transition-colors"
                   >
                     <span>Launch {mod.title.split(' ')[0]} Module</span>
                     <ArrowRight className="w-4 h-4 transform group-hover:translate-x-1 transition-transform" />
@@ -582,11 +711,13 @@ export const LandingPage = () => {
       {/* ========================================================================= */}
       <section id="workflow-section" className="max-w-7xl mx-auto px-4">
         
-        <div className="p-8 sm:p-12 md:p-14 rounded-3xl bg-gradient-to-b from-white to-slate-50/80 dark:from-slate-900 dark:to-slate-950 border border-slate-200 dark:border-slate-800 shadow-2xl">
+        <div className="p-8 sm:p-12 md:p-14 rounded-3xl bg-gradient-to-b from-white via-slate-50 to-[#C8BEFA]/10 dark:from-[#151130] dark:via-[#171336] dark:to-[#0e0b24] border border-[#C8BEFA]/30 dark:border-[#C8BEFA]/40 shadow-2xl">
           
           <div className="text-center max-w-2xl mx-auto mb-12">
-            <Badge variant="violet" size="lg">User Journey Pathway</Badge>
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-black text-slate-900 dark:text-slate-100 mt-3 font-sans tracking-tight">
+            <span className="px-4 py-1.5 rounded-full bg-[#C8BEFA]/20 text-[#151130] dark:text-[#C8BEFA] border border-[#C8BEFA]/40 text-xs font-black uppercase tracking-wider inline-block">
+              User Journey Pathway
+            </span>
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-black text-slate-900 dark:text-white mt-3 font-sans tracking-tight">
               4-Stage Engineering Career Acceleration
             </h2>
             <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 mt-2">
@@ -598,19 +729,19 @@ export const LandingPage = () => {
             {steps.map((s, idx) => (
               <div
                 key={idx}
-                className="relative p-6 rounded-2xl bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800/90 shadow-md hover:shadow-xl hover:border-blue-500/40 hover:-translate-y-1 transition-all flex flex-col justify-between"
+                className="relative p-6 rounded-2xl bg-white dark:bg-[#151130]/90 border border-slate-200 dark:border-[#C8BEFA]/30 shadow-md hover:shadow-xl hover:border-[#C8BEFA] hover:-translate-y-1 transition-all flex flex-col justify-between"
               >
                 <div>
                   <div className="flex items-center justify-between mb-3">
-                    <span className="text-3xl font-black text-blue-600/30 dark:text-cyan-400/40 font-mono">
+                    <span className="text-3xl font-black text-[#151130]/30 dark:text-[#C8BEFA]/40 font-mono">
                       {s.num}
                     </span>
-                    <span className="w-2.5 h-2.5 rounded-full bg-blue-500"></span>
+                    <span className="w-2.5 h-2.5 rounded-full bg-[#151130] dark:bg-[#C8BEFA]"></span>
                   </div>
-                  <h4 className="text-base font-bold text-slate-900 dark:text-slate-100 font-sans">
+                  <h4 className="text-base font-bold text-slate-900 dark:text-white font-sans">
                     {s.title}
                   </h4>
-                  <span className="text-[11px] font-bold text-blue-600 dark:text-cyan-400 block mb-2">
+                  <span className="text-[11px] font-bold text-[#151130] dark:text-[#C8BEFA] block mb-2">
                     {s.subtitle}
                   </span>
                   <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
@@ -625,7 +756,7 @@ export const LandingPage = () => {
             <Link
               to="/login"
               id="workflow-start-demo-btn"
-              className="inline-flex items-center gap-2.5 px-8 py-3.5 rounded-2xl bg-blue-600 hover:bg-blue-500 text-white font-black text-sm shadow-lg shadow-blue-500/25 transition-all transform hover:-translate-y-0.5"
+              className="inline-flex items-center gap-2.5 px-8 py-3.5 rounded-2xl bg-[#151130] dark:bg-[#C8BEFA] text-[#C8BEFA] dark:text-[#151130] hover:bg-[#201a47] dark:hover:bg-white font-black text-sm shadow-lg shadow-[#151130]/20 dark:shadow-[#C8BEFA]/20 transition-all transform hover:-translate-y-0.5 border border-[#C8BEFA]/30"
             >
               <span>Launch Step 01 (Skill Assessment)</span>
               <ArrowRight className="w-4 h-4" />
@@ -642,8 +773,10 @@ export const LandingPage = () => {
       <section id="viva-defense-section" className="max-w-7xl mx-auto px-4">
         
         <div className="text-center max-w-3xl mx-auto mb-12">
-          <Badge variant="emerald" size="lg">Academic Evaluation & Viva Defense</Badge>
-          <h2 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-slate-100 mt-3 font-sans tracking-tight">
+          <span className="px-4 py-1.5 rounded-full bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-600/40 text-xs font-black uppercase tracking-wider inline-block">
+            Academic Evaluation & Viva Defense
+          </span>
+          <h2 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white mt-3 font-sans tracking-tight">
             Engineered for Academic Rigor & Viva Presentation
           </h2>
           <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 mt-2">
@@ -657,7 +790,7 @@ export const LandingPage = () => {
             return (
               <div
                 key={idx}
-                className="p-6 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-md hover:border-emerald-500/40 hover:-translate-y-1 transition-all"
+                className="p-6 rounded-3xl bg-white dark:bg-[#151130]/90 border border-slate-200 dark:border-[#C8BEFA]/30 shadow-md hover:border-emerald-500/40 hover:-translate-y-1 transition-all"
               >
                 <div className="flex items-center justify-between mb-4">
                   <div className="p-3 rounded-2xl bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200 dark:border-emerald-800/60 text-emerald-600 dark:text-emerald-400">
@@ -668,7 +801,7 @@ export const LandingPage = () => {
                   </span>
                 </div>
 
-                <h4 className="text-base font-bold text-slate-900 dark:text-slate-100 mb-1.5 font-sans">
+                <h4 className="text-base font-bold text-slate-900 dark:text-white mb-1.5 font-sans">
                   {dp.title}
                 </h4>
                 <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
@@ -696,36 +829,36 @@ export const LandingPage = () => {
       {/* BOTTOM CONVERSION CTA CARD */}
       {/* ========================================================================= */}
       <section className="max-w-6xl mx-auto px-4 pb-12">
-        <div className="p-8 sm:p-12 rounded-3xl bg-gradient-to-r from-blue-600 via-indigo-600 to-cyan-600 text-white shadow-2xl relative overflow-hidden text-center sm:text-left flex flex-col md:flex-row items-center justify-between gap-8">
+        <div className="p-8 sm:p-12 rounded-3xl bg-gradient-to-r from-[#151130] via-[#1c1742] to-[#151130] text-white border border-[#C8BEFA]/40 shadow-2xl relative overflow-hidden text-center sm:text-left flex flex-col md:flex-row items-center justify-between gap-8">
           
           {/* Subtle Background Glow Circles */}
-          <div className="absolute -top-24 -right-24 w-72 h-72 rounded-full bg-white/10 blur-2xl pointer-events-none" />
-          <div className="absolute -bottom-24 -left-24 w-72 h-72 rounded-full bg-cyan-400/20 blur-2xl pointer-events-none" />
+          <div className="absolute -top-24 -right-24 w-72 h-72 rounded-full bg-[#C8BEFA]/15 blur-2xl pointer-events-none" />
+          <div className="absolute -bottom-24 -left-24 w-72 h-72 rounded-full bg-[#C8BEFA]/20 blur-2xl pointer-events-none" />
 
           <div className="relative z-10 max-w-xl">
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/20 text-white text-[11px] font-bold mb-3 backdrop-blur-sm">
-              <Sparkles className="w-3.5 h-3.5" /> Ready for Live Evaluation
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#C8BEFA]/20 text-[#C8BEFA] text-[11px] font-bold mb-3 backdrop-blur-sm border border-[#C8BEFA]/30">
+              <Sparkles className="w-3.5 h-3.5 text-[#C8BEFA]" /> Ready for Live Evaluation
             </span>
             <h3 className="text-2xl sm:text-4xl font-black font-sans tracking-tight leading-tight">
               Ready to Discover Your Engineering Skill Gap?
             </h3>
-            <p className="text-blue-100 text-xs sm:text-sm mt-2.5 leading-relaxed">
+            <p className="text-[#C8BEFA]/90 text-xs sm:text-sm mt-2.5 leading-relaxed">
               Run the instant multidimensional vector calculation and generate your custom 5-phase career roadmap in under 60 seconds.
             </p>
           </div>
 
-          <div className="relative z-10 flex flex-wrap items-center justify-center gap-3 shrink-0">
+          <div className="relative z-10 flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3 w-full sm:w-auto shrink-0">
             <Link
               to="/login"
               id="cta-bottom-assessment-btn"
-              className="px-7 py-3.5 rounded-2xl bg-white text-blue-600 hover:bg-blue-50 font-black text-xs sm:text-sm shadow-xl transition-all transform hover:-translate-y-0.5"
+              className="w-full sm:w-auto px-7 py-3.5 rounded-2xl bg-[#C8BEFA] hover:bg-white text-[#151130] font-black text-xs sm:text-sm shadow-xl transition-all transform hover:-translate-y-0.5 text-center"
             >
               Start Skill Assessment
             </Link>
             <Link
               to="/login"
               id="cta-bottom-dashboard-btn"
-              className="px-6 py-3.5 rounded-2xl bg-blue-700/60 hover:bg-blue-700 text-white border border-white/20 font-bold text-xs sm:text-sm backdrop-blur-md transition-all"
+              className="w-full sm:w-auto px-6 py-3.5 rounded-2xl bg-[#151130] hover:bg-[#201a47] text-[#C8BEFA] border border-[#C8BEFA]/40 font-bold text-xs sm:text-sm backdrop-blur-md transition-all text-center"
             >
               Explore Demo Profile
             </Link>

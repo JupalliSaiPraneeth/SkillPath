@@ -34,17 +34,17 @@ export const LearningRoadmapPage = () => {
     <div className="space-y-8 pb-12 font-sans">
 
       {/* Hero Header (Frosted Glass & Dynamic High-Contrast Typography) */}
-      <div className="relative overflow-hidden rounded-3xl bg-white/80 dark:bg-slate-950/80 backdrop-blur-xl p-6 sm:p-8 shadow-xl border border-[#843bf1]/25 dark:border-[#843bf1]/35">
+      <div className="relative overflow-hidden rounded-3xl bg-white/80 dark:bg-slate-950/80 backdrop-blur-xl p-4 sm:p-6 md:p-8 shadow-xl border border-[#843bf1]/25 dark:border-[#843bf1]/35">
         <div className="absolute top-0 right-0 -mt-8 -mr-8 w-72 h-72 rounded-full bg-[#843bf1]/15 blur-3xl pointer-events-none" />
-        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4 sm:gap-6">
           <div className="max-w-2xl space-y-2">
             <div className="flex items-center gap-2 mb-1.5">
               <span className="px-3 py-1 rounded-full bg-[#843bf1]/15 dark:bg-[#843bf1]/25 text-[#843bf1] dark:text-[#a970fe] border border-[#843bf1]/30 text-[11px] font-extrabold flex items-center gap-1.5 uppercase tracking-wider">
-                <Map className="w-3.5 h-3.5" />
+                <Map className="w-3.5 h-3.5 shrink-0" />
                 <span>Module 5 — Content-Based Recommendation</span>
               </span>
             </div>
-            <h1 className="text-2xl sm:text-4xl font-black text-slate-950 dark:text-white font-sans tracking-tight leading-tight drop-shadow-[0_1px_2px_rgba(255,255,255,0.7)] dark:drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-black text-slate-950 dark:text-white font-sans tracking-tight leading-tight drop-shadow-[0_1px_2px_rgba(255,255,255,0.7)] dark:drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
               Personalized 5-Phase Learning Roadmap
             </h1>
             <p className="text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed font-medium">
@@ -55,9 +55,9 @@ export const LearningRoadmapPage = () => {
           <div className="flex items-center gap-3 shrink-0">
             <button
               onClick={handleDownloadPlan}
-              className="px-4 py-3 rounded-2xl bg-white dark:bg-slate-900 border border-[#843bf1]/40 text-[#843bf1] dark:text-[#a970fe] font-black text-xs hover:bg-purple-50 dark:hover:bg-purple-950/40 shadow-xs hover:scale-105 transition-all flex items-center gap-2 cursor-pointer"
+              className="w-full sm:w-auto px-4 py-3 rounded-2xl bg-white dark:bg-slate-900 border border-[#843bf1]/40 text-[#843bf1] dark:text-[#a970fe] font-black text-xs hover:bg-purple-50 dark:hover:bg-purple-950/40 shadow-xs hover:scale-105 transition-all flex items-center justify-center gap-2 cursor-pointer"
             >
-              <Download className="w-4 h-4 text-[#843bf1] dark:text-[#a970fe]" />
+              <Download className="w-4 h-4 text-[#843bf1] dark:text-[#a970fe] shrink-0" />
               <span>Export Syllabus</span>
             </button>
           </div>

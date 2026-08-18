@@ -272,7 +272,7 @@ export const OccupationsExplorerPage = () => {
 
       {/* Grid of Career Cards */}
       {isLoading ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
           {[...Array(6)].map((_, i) => (
             <div key={i} className="h-64 rounded-3xl bg-white/70 dark:bg-slate-900/70 backdrop-blur-md animate-pulse border border-[#843bf1]/20 dark:border-[#843bf1]/30"></div>
           ))}
@@ -295,7 +295,7 @@ export const OccupationsExplorerPage = () => {
           </button>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
           {occupations.map((occ) => {
             const soc = occ.onet_soc_code || occ.soc_code;
             return (

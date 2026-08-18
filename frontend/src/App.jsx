@@ -63,7 +63,7 @@ export function App() {
   }, [location.pathname]);
 
   return (
-    <div className={`relative min-h-screen flex flex-col font-sans antialiased text-slate-900 dark:text-slate-100 bg-slate-50 dark:bg-[#090d16] selection:bg-indigo-500 selection:text-white transition-colors duration-300 overflow-x-hidden ${isAuthPage ? 'h-screen overflow-hidden' : ''}`}>
+    <div className="relative min-h-screen flex flex-col font-sans antialiased text-slate-900 dark:text-slate-100 bg-slate-50 dark:bg-[#090d16] selection:bg-indigo-500 selection:text-white transition-colors duration-300 overflow-x-hidden">
 
       {/* ========================================================================= */}
       {/* GLOBAL FULL-WEBSITE SCENIC BACKGROUND BACKDROP (EXCLUDING LANDING PAGE) */}

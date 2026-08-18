@@ -8,11 +8,11 @@ export const Logo = ({ size = 'lg', className = '', imgClassName = '' }) => {
   const { isDark } = useTheme();
 
   const sizeMap = {
-    sm: 'h-8 sm:h-9 w-auto',
-    md: 'h-10 sm:h-11 md:h-12 w-auto max-h-12',
-    lg: 'h-12 sm:h-14 md:h-16 w-auto max-h-16',
-    xl: 'h-16 sm:h-20 md:h-22 w-auto max-h-24',
-    '2xl': 'h-20 sm:h-24 md:h-28 w-auto max-h-28'
+    sm: 'h-8 sm:h-9 md:h-10 w-auto max-h-10',
+    md: 'h-10 sm:h-11 md:h-13 w-auto max-h-14',
+    lg: 'h-11 sm:h-13 md:h-15 w-auto max-h-16',
+    xl: 'h-12 sm:h-15 md:h-18 w-auto max-h-20',
+    '2xl': 'h-16 sm:h-20 md:h-24 w-auto max-h-28'
   };
 
   const imgClass = sizeMap[size] || sizeMap.lg;
@@ -20,7 +20,7 @@ export const Logo = ({ size = 'lg', className = '', imgClassName = '' }) => {
   const fallbackSrc = isDark ? '/logo-dark.png' : '/logo-white.png';
 
   return (
-    <Link to="/" className={`flex items-center group select-none ${className}`}>
+    <Link to="/" className={`flex items-center group select-none shrink-0 ${className}`}>
       <img
         key={isDark ? 'dark-logo' : 'white-logo'}
         src={currentLogo}

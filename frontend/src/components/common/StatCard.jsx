@@ -65,21 +65,21 @@ export const StatCard = ({
   return (
     <div
       onClick={onClick}
-      className={`p-4 sm:p-5 rounded-3xl bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border border-white/90 dark:border-slate-800/90 transition-all duration-300 shadow-xl shadow-slate-950/5 hover:shadow-2xl hover:border-indigo-500/50 ${onClick ? 'cursor-pointer hover:-translate-y-0.5' : ''} flex flex-col justify-between overflow-hidden relative group`}
+      className={`p-3.5 sm:p-5 rounded-3xl bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border border-white/90 dark:border-slate-800/90 transition-all duration-300 shadow-xl shadow-slate-950/5 hover:shadow-2xl hover:border-indigo-500/50 ${onClick ? 'cursor-pointer hover:-translate-y-0.5' : ''} flex flex-col justify-between overflow-hidden relative group`}
     >
       <div>
         {/* Top: Circular Icon + Title & Value */}
-        <div className="flex items-center gap-3 mb-2">
+        <div className="flex items-center gap-2 sm:gap-3 mb-1 sm:mb-2">
           {Icon && (
-            <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${scheme.circle} group-hover:scale-105 transition-transform duration-200`}>
-              <Icon className="w-5 h-5" />
+            <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center shrink-0 ${scheme.circle} group-hover:scale-105 transition-transform duration-200`}>
+              <Icon className="w-4 h-4 sm:w-5 sm:h-5" />
             </div>
           )}
           <div className="min-w-0">
-            <span className="text-xs font-bold text-slate-600 dark:text-slate-300 block truncate">
+            <span className="text-[11px] sm:text-xs font-bold text-slate-600 dark:text-slate-300 block truncate">
               {title}
             </span>
-            <span className="text-2xl sm:text-3xl font-black text-slate-950 dark:text-white font-sans tracking-tight leading-none block mt-1">
+            <span className="text-xl sm:text-2xl md:text-3xl font-black text-slate-950 dark:text-white font-sans tracking-tight leading-none block mt-0.5 sm:mt-1">
               {value}
             </span>
           </div>
@@ -87,14 +87,14 @@ export const StatCard = ({
       </div>
 
       {/* Subtitle & Trend */}
-      <div className="mt-3 flex items-center justify-between gap-1 text-xs font-bold">
+      <div className="mt-2 sm:mt-3 flex items-center justify-between gap-1 text-[10px] sm:text-xs font-bold">
         {subtitle && (
           <span className="text-slate-600 dark:text-slate-400 truncate">
             {subtitle}
           </span>
         )}
         {trend && (
-          <span className={`inline-flex items-center gap-0.5 font-bold px-1.5 py-0.5 rounded-md shrink-0 text-[11px] ${
+          <span className={`inline-flex items-center gap-0.5 font-bold px-1.5 py-0.5 rounded-md shrink-0 text-[9px] sm:text-[11px] ${
             trend.direction === 'up' 
               ? 'text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800/50' 
               : trend.direction === 'down' 

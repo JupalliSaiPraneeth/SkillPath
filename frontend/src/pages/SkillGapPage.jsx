@@ -32,19 +32,19 @@ export const SkillGapPage = () => {
     <div className="space-y-8 pb-12 font-sans">
 
       {/* Hero Header (Frosted Glass & Dynamic High-Contrast Typography) */}
-      <div className="relative overflow-visible rounded-3xl bg-white/80 dark:bg-slate-950/80 backdrop-blur-xl p-6 sm:p-8 shadow-xl border border-[#843bf1]/25 dark:border-[#843bf1]/35">
+      <div className="relative overflow-visible rounded-3xl bg-white/80 dark:bg-slate-950/80 backdrop-blur-xl p-4 sm:p-6 md:p-8 shadow-xl border border-[#843bf1]/25 dark:border-[#843bf1]/35">
         <div className="absolute inset-0 overflow-hidden rounded-3xl pointer-events-none">
           <div className="absolute top-0 right-0 -mt-8 -mr-8 w-72 h-72 rounded-full bg-[#843bf1]/15 blur-3xl pointer-events-none" />
         </div>
-        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4 sm:gap-6">
           <div className="max-w-2xl space-y-2">
             <div className="flex items-center gap-2 mb-1.5">
               <span className="px-3 py-1 rounded-full bg-[#843bf1]/15 dark:bg-[#843bf1]/25 text-[#843bf1] dark:text-[#a970fe] border border-[#843bf1]/30 text-[11px] font-extrabold flex items-center gap-1.5 uppercase tracking-wider">
-                <Target className="w-3.5 h-3.5" />
+                <Target className="w-3.5 h-3.5 shrink-0" />
                 <span>Module 2 — Cosine Similarity Engine</span>
               </span>
             </div>
-            <h1 className="text-2xl sm:text-4xl font-black text-slate-950 dark:text-white font-sans tracking-tight leading-tight drop-shadow-[0_1px_2px_rgba(255,255,255,0.7)] dark:drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-black text-slate-950 dark:text-white font-sans tracking-tight leading-tight drop-shadow-[0_1px_2px_rgba(255,255,255,0.7)] dark:drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
               Skill Gap Analysis
             </h1>
             <p className="text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed font-medium">
@@ -74,7 +74,7 @@ export const SkillGapPage = () => {
       </div>
 
       {/* Vector Math & Metric Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         <div className="p-5 rounded-3xl bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl border border-[#843bf1]/25 dark:border-[#843bf1]/35 shadow-lg hover:border-[#843bf1] hover:-translate-y-1 transition-all">
           <span className="text-[11px] font-black text-slate-600 dark:text-slate-400 uppercase tracking-wider">Cosine Similarity</span>
           <p className="text-3xl font-black text-[#843bf1] dark:text-[#a970fe] font-mono mt-1">{gapAnalysis.cosineSimilarity}</p>

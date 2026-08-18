@@ -61,14 +61,14 @@ export const LoginPage = () => {
   };
 
   return (
-    <div className="flex-1 min-h-[calc(100vh-4rem)] flex flex-col items-center justify-center px-4 pt-2 pb-8 sm:pb-12 -translate-y-4 sm:-translate-y-6 md:-translate-y-8 font-sans">
-      <div className="w-full max-w-md space-y-4 sm:space-y-5">
+    <div className="flex-1 min-h-[calc(100vh-4rem)] flex flex-col items-center justify-center px-3 sm:px-4 py-4 sm:py-8 font-sans">
+      <div className="w-full max-w-md space-y-4 sm:space-y-5 my-auto">
 
         {/* Header Branding */}
         <div className="text-center flex flex-col items-center mb-1">
-          <Logo size="xl" className="mb-3" />
+          <Logo size="xl" className="mb-2 sm:mb-3" />
 
-          <h1 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white font-sans tracking-tight">
+          <h1 className="text-xl sm:text-2xl md:text-3xl font-black text-slate-900 dark:text-white font-sans tracking-tight">
             Sign In to SkillPath Finder
           </h1>
 
