@@ -1,5 +1,6 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { Link, NavLink, useNavigate, useLocation } from 'react-router-dom';
+import gsap from 'gsap';
 import {
   Sun,
   Moon,
@@ -35,7 +36,12 @@ export const Navbar = () => {
 
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isMobileMenuMounted, setIsMobileMenuMounted] = useState(false);
+
   const profileDropdownRef = useRef(null);
+  const drawerBackdropRef = useRef(null);
+  const drawerPanelRef = useRef(null);
+  const drawerNavContainerRef = useRef(null);
 
   const isAuthPage = location.pathname === '/login' || location.pathname === '/register';
   const isLanding = location.pathname === '/';
@@ -55,15 +61,104 @@ export const Navbar = () => {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
+  // Smooth GSAP Close Handler
+  const closeMobileMenu = useCallback(() => {
+    if (drawerPanelRef.current && drawerBackdropRef.current) {
+      const tl = gsap.timeline({
+        onComplete: () => {
+          setIsMobileMenuOpen(false);
+          setIsMobileMenuMounted(false);
+          document.body.style.overflow = '';
+        }
+      });
+
+      tl.to(drawerPanelRef.current, {
+        x: '-100%',
+        duration: 0.32,
+        ease: 'power3.in'
+      }, 0);
+
+      tl.to(drawerBackdropRef.current, {
+        opacity: 0,
+        duration: 0.25,
+        ease: 'power2.in'
+      }, 0.05);
+    } else {
+      setIsMobileMenuOpen(false);
+      setIsMobileMenuMounted(false);
+      document.body.style.overflow = '';
+    }
+  }, []);
+
+  // Smooth GSAP Open Handler
+  const openMobileMenu = () => {
+    setIsMobileMenuMounted(true);
+    setIsMobileMenuOpen(true);
+  };
+
   // Close mobile drawer on route change
   useEffect(() => {
-    setIsMobileMenuOpen(false);
+    if (isMobileMenuOpen) {
+      closeMobileMenu();
+    }
     setIsProfileOpen(false);
-  }, [location.pathname]);
+  }, [location.pathname, closeMobileMenu]);
+
+  // GSAP animation when drawer mounts
+  useEffect(() => {
+    if (isMobileMenuMounted && isMobileMenuOpen) {
+      document.body.style.overflow = 'hidden';
+
+      const ctx = gsap.context(() => {
+        // 1. Backdrop Fade In
+        if (drawerBackdropRef.current) {
+          gsap.fromTo(
+            drawerBackdropRef.current,
+            { opacity: 0 },
+            { opacity: 1, duration: 0.35, ease: 'power2.out' }
+          );
+        }
+
+        // 2. Drawer Panel Slide in smoothly from Left
+        if (drawerPanelRef.current) {
+          gsap.fromTo(
+            drawerPanelRef.current,
+            { x: '-100%' },
+            {
+              x: '0%',
+              duration: 0.45,
+              ease: 'power3.out'
+            }
+          );
+        }
+
+        // 3. Stagger individual items in
+        const navElements = drawerNavContainerRef.current?.querySelectorAll('.gsap-drawer-item');
+        if (navElements && navElements.length > 0) {
+          gsap.fromTo(
+            navElements,
+            { x: -22, opacity: 0 },
+            {
+              x: 0,
+              opacity: 1,
+              duration: 0.35,
+              stagger: 0.025,
+              ease: 'power2.out',
+              delay: 0.1
+            }
+          );
+        }
+      });
+
+      return () => {
+        ctx.revert();
+      };
+    }
+  }, [isMobileMenuMounted, isMobileMenuOpen]);
 
   const handleLogout = () => {
     setIsProfileOpen(false);
-    setIsMobileMenuOpen(false);
+    closeMobileMenu();
     logout();
     navigate('/login');
   };
@@ -97,8 +192,8 @@ export const Navbar = () => {
           <div className="flex items-center gap-2 sm:gap-3 shrink-0 min-w-0">
             {!isLanding && !isAuthPage && (
               <button
-                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                className="md:hidden p-1.5 sm:p-2 rounded-xl bg-white/90 dark:bg-slate-900/90 border border-slate-200/80 dark:border-slate-800 text-slate-700 dark:text-slate-200 hover:border-[#843bf1] transition-all shadow-sm shrink-0"
+                onClick={isMobileMenuOpen ? closeMobileMenu : openMobileMenu}
+                className="md:hidden p-1.5 sm:p-2 rounded-xl bg-white/90 dark:bg-slate-900/90 border border-slate-200/80 dark:border-slate-800 text-slate-700 dark:text-slate-200 hover:border-[#843bf1] transition-all shadow-sm shrink-0 cursor-pointer"
                 aria-label="Toggle Mobile Menu"
               >
                 {isMobileMenuOpen ? <X className="w-4 h-4 sm:w-5 sm:h-5 text-[#843bf1]" /> : <Menu className="w-4 h-4 sm:w-5 sm:h-5 text-slate-700 dark:text-slate-200" />}
@@ -108,7 +203,9 @@ export const Navbar = () => {
             {isLanding ? (
               <Logo size="xl" />
             ) : isAuthPage ? (
-              <div className="shrink-0" />
+              <div className="flex items-center shrink-0">
+                <Logo size="md" imgClassName="w-28 xs:w-32 sm:w-36 max-h-8 sm:max-h-9" />
+              </div>
             ) : (
               <div className="flex items-center shrink-0 md:hidden">
                 <Logo size="xl" />
@@ -330,30 +427,36 @@ export const Navbar = () => {
       {/* ========================================================================= */}
       {/* MOBILE NAVIGATION DRAWER (For Screens < 768px in App Mode) */}
       {/* ========================================================================= */}
-      {!isLanding && !isAuthPage && isMobileMenuOpen && (
-        <div className="fixed inset-0 z-50 md:hidden flex">
+      {!isLanding && !isAuthPage && isMobileMenuMounted && (
+        <div className="fixed inset-0 z-50 md:hidden flex pointer-events-auto">
           {/* Backdrop Blur Overlay */}
           <div
-            onClick={() => setIsMobileMenuOpen(false)}
-            className="fixed inset-0 bg-slate-950/60 backdrop-blur-sm transition-opacity"
+            ref={drawerBackdropRef}
+            onClick={closeMobileMenu}
+            className="fixed inset-0 bg-slate-950/70 backdrop-blur-sm transition-all cursor-pointer"
+            aria-hidden="true"
           />
 
           {/* Slide-out Drawer Panel */}
-          <div className="relative w-4/5 max-w-xs bg-white dark:bg-slate-950 border-r border-[#843bf1]/30 shadow-2xl z-10 flex flex-col h-full overflow-hidden animate-slide-right">
+          <div
+            ref={drawerPanelRef}
+            className="relative w-4/5 max-w-xs bg-white dark:bg-slate-950 border-r border-[#843bf1]/30 shadow-2xl z-10 flex flex-col h-full overflow-hidden will-change-transform"
+          >
             
             {/* Drawer Header */}
             <div className="h-16 px-4 flex items-center justify-between border-b border-[#843bf1]/20 dark:border-[#843bf1]/30 shrink-0">
               <Logo size="xl" />
               <button
-                onClick={() => setIsMobileMenuOpen(false)}
-                className="p-2 rounded-xl bg-slate-100 dark:bg-slate-900 text-slate-700 dark:text-slate-300 hover:text-[#843bf1] transition-colors"
+                onClick={closeMobileMenu}
+                className="p-2 rounded-xl bg-slate-100 dark:bg-slate-900 text-slate-700 dark:text-slate-300 hover:text-[#843bf1] transition-colors cursor-pointer"
+                aria-label="Close Mobile Navigation"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
             {/* Drawer Header: Career Selector */}
-            <div className="p-4 border-b border-[#0F129A]/15 dark:border-[#FFEDDF]/15 bg-[#FFF9F5]/90 dark:bg-[#0a0d42]/60">
+            <div className="p-4 border-b border-[#0F129A]/15 dark:border-[#FFEDDF]/15 bg-[#FFF9F5]/90 dark:bg-[#0a0d42]/60 gsap-drawer-item">
               <div className="flex items-center gap-1.5 text-xs font-black uppercase tracking-wider text-[#0F129A] dark:text-[#FFEDDF] mb-2 font-heading">
                 <Target className="w-3.5 h-3.5" />
                 <span>Target Role</span>
@@ -362,7 +465,7 @@ export const Navbar = () => {
                 value={selectedCareer?.id || 'car_fullstack'}
                 onChange={(val) => {
                   selectCareer(val);
-                  setIsMobileMenuOpen(false);
+                  closeMobileMenu();
                 }}
                 options={careers.map((c) => ({ value: c.id, label: c.title, badge: c.category }))}
                 placeholder="Select role…"
@@ -374,16 +477,16 @@ export const Navbar = () => {
             </div>
 
             {/* Scrollable Navigation Links */}
-            <div className="flex-1 overflow-y-auto p-3 space-y-1">
+            <div ref={drawerNavContainerRef} className="flex-1 overflow-y-auto p-3 space-y-1">
               {navItems.map((item) => {
                 const Icon = item.icon;
                 return (
                   <NavLink
                     key={item.to}
                     to={item.to}
-                    onClick={() => setIsMobileMenuOpen(false)}
+                    onClick={closeMobileMenu}
                     className={({ isActive }) =>
-                      `w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-bold transition-all font-heading ${
+                      `w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-bold transition-all font-heading gsap-drawer-item ${
                         isActive
                           ? 'bg-gradient-to-r from-[#151130] via-[#241c52] to-[#342978] text-[#C8BEFA] font-black shadow-md shadow-[#151130]/30 dark:bg-gradient-to-r dark:from-[#C8BEFA] dark:to-[#ded6fc] dark:text-[#151130]'
                           : 'text-slate-700 dark:text-[#C8BEFA]/80 hover:bg-[#151130]/10 hover:text-[#151130] dark:hover:white'
@@ -415,7 +518,7 @@ export const Navbar = () => {
             </div>
 
             {/* Drawer Footer: User Profile & Sign Out */}
-            <div className="p-3 border-t border-[#151130]/15 dark:border-[#C8BEFA]/15 bg-[#FAF8FF] dark:bg-[#151130]/90">
+            <div className="p-3 border-t border-[#151130]/15 dark:border-[#C8BEFA]/15 bg-[#FAF8FF] dark:bg-[#151130]/90 gsap-drawer-item">
               <div className="flex items-center gap-2.5 mb-2.5 px-1">
                 <div className="w-8 h-8 rounded-full bg-[#151130] dark:bg-[#C8BEFA] flex items-center justify-center text-[#C8BEFA] dark:text-[#151130] font-black text-xs shrink-0 shadow-sm">
                   {firstLetter}

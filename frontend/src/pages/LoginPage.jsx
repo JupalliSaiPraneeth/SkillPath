@@ -65,67 +65,70 @@ export const LoginPage = () => {
       <div className="w-full max-w-md space-y-4 sm:space-y-5 my-auto">
 
         {/* Header Branding */}
-        <div className="text-center flex flex-col items-center mb-1">
-          <Logo size="xl" className="mb-2 sm:mb-3" />
+        <div className="text-center flex flex-col items-center mb-2">
+          <div className="hidden sm:flex justify-center items-center mb-2 sm:mb-3 translate-x-4 sm:translate-x-5">
+            <Logo size="2xl" imgClassName="w-64 sm:w-80 md:w-96 max-h-16 sm:max-h-20 md:max-h-24 mx-auto" />
+          </div>
 
-          <h1 className="text-xl sm:text-2xl md:text-3xl font-black text-slate-900 dark:text-white font-sans tracking-tight">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-black text-black font-heading tracking-tight drop-shadow-xs">
             Sign In to SkillPath Finder
           </h1>
 
-          <p className="text-xs font-semibold text-slate-600 dark:text-slate-300 mt-1">
+          <p className="text-xs sm:text-sm font-bold text-black font-sans mt-1">
             Access your AI & O*NET 30.3 Career Guidance Workspace
           </p>
         </div>
 
-        {/* Credentials Form Card (Clean, sharp border without glow/blur) */}
-        <Card className="bg-white/90 dark:bg-slate-950/90 backdrop-blur-xl border border-white/80 dark:border-slate-800 shadow-xl dark:shadow-2xl">
+        {/* Credentials Form Card (Ultramarine #0F129A & Peach Cream #FFEDDF Theme) */}
+        <div className="rounded-3xl bg-[#FFEDDF]/95 dark:bg-[#FFEDDF]/95 backdrop-blur-xl border-2 border-[#0F129A]/20 shadow-2xl p-6 sm:p-8">
 
           {errorMessage && (
-            <div className="mb-5 p-3.5 rounded-2xl bg-rose-50 dark:bg-rose-950/60 border border-rose-200 dark:border-rose-800/80 text-xs font-bold text-rose-700 dark:text-rose-200 flex items-start gap-2.5 shadow-sm">
-              <ShieldAlert className="w-4 h-4 text-rose-500 shrink-0 mt-0.5" />
+            <div className="mb-5 p-3.5 rounded-2xl bg-rose-100 border border-rose-300 text-xs font-bold text-rose-800 flex items-start gap-2.5 shadow-sm">
+              <ShieldAlert className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />
               <span>{errorMessage}</span>
             </div>
           )}
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-1.5">
+              <label className="block text-xs font-black text-[#0F129A] uppercase tracking-wider mb-1.5 font-heading">
                 Account Email or Username
               </label>
               <div className="relative">
-                <Mail className="w-4 h-4 text-slate-400 dark:text-slate-500 absolute left-3.5 top-3.5 pointer-events-none" />
+                <Mail className="w-4 h-4 text-[#0F129A]/70 absolute left-3.5 top-3.5 pointer-events-none" />
                 <input
                   type="text"
                   required
                   value={email}
                   disabled={isSubmitting}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full pl-10 pr-4 py-3 bg-white/95 dark:bg-slate-900 border border-slate-300/90 dark:border-slate-700 rounded-2xl text-xs text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-[#843bf1] focus:border-transparent shadow-sm font-medium disabled:opacity-50 transition-all"
+                  className="w-full pl-10 pr-4 py-3 bg-white border-2 border-[#0F129A]/25 rounded-2xl text-xs text-[#0F129A] font-bold placeholder:text-[#0F129A]/40 focus:outline-none focus:border-[#0F129A] focus:ring-2 focus:ring-[#0F129A]/20 shadow-xs disabled:opacity-50 transition-all"
                   placeholder="name@university.edu or admin"
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-1.5">
+              <label className="block text-xs font-black text-[#0F129A] uppercase tracking-wider mb-1.5 font-heading">
                 Password
               </label>
               <div className="relative">
-                <Lock className="w-4 h-4 text-slate-400 dark:text-slate-500 absolute left-3.5 top-3.5 pointer-events-none" />
+                <Lock className="w-4 h-4 text-[#0F129A]/70 absolute left-3.5 top-3.5 pointer-events-none" />
                 <input
                   type={showPassword ? 'text' : 'password'}
                   required
                   value={password}
                   disabled={isSubmitting}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full pl-10 pr-10 py-3 bg-white/95 dark:bg-slate-900 border border-slate-300/90 dark:border-slate-700 rounded-2xl text-xs text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-[#843bf1] focus:border-transparent shadow-sm font-medium disabled:opacity-50 transition-all"
+                  className="w-full pl-10 pr-10 py-3 bg-white border-2 border-[#0F129A]/25 rounded-2xl text-xs text-[#0F129A] font-bold placeholder:text-[#0F129A]/40 focus:outline-none focus:border-[#0F129A] focus:ring-2 focus:ring-[#0F129A]/20 shadow-xs disabled:opacity-50 transition-all"
                   placeholder="••••••••"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3.5 top-3.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 cursor-pointer"
+                  className="absolute right-3.5 top-3.5 text-[#0F129A]/70 hover:text-[#0F129A] cursor-pointer"
                   tabIndex={-1}
+                  aria-label={showPassword ? 'Hide password' : 'Show password'}
                 >
                   {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
@@ -135,29 +138,29 @@ export const LoginPage = () => {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-[#843bf1] via-indigo-600 to-cyan-500 hover:from-[#722ada] hover:to-cyan-400 text-white font-bold text-xs shadow-md hover:shadow-lg hover:scale-[1.01] active:scale-[0.99] transition-all flex items-center justify-center gap-2 mt-2 disabled:opacity-60 cursor-pointer"
+              className="w-full py-3.5 rounded-2xl bg-[#0F129A] hover:bg-[#0a0d78] text-[#FFEDDF] font-black text-xs sm:text-sm tracking-wider uppercase font-heading shadow-lg shadow-[#0F129A]/25 hover:shadow-xl hover:scale-[1.01] active:scale-[0.99] transition-all flex items-center justify-center gap-2 mt-2 disabled:opacity-60 cursor-pointer"
             >
               {isSubmitting ? (
                 <>
-                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <Loader2 className="w-4 h-4 animate-spin text-[#FFEDDF]" />
                   <span>Authenticating with Database...</span>
                 </>
               ) : (
                 <>
                   <span>Authenticate & Enter Workspace</span>
-                  <ArrowRight className="w-4 h-4" />
+                  <ArrowRight className="w-4 h-4 text-[#FFEDDF]" />
                 </>
               )}
             </button>
           </form>
 
-          <div className="mt-6 pt-5 border-t border-slate-200/80 dark:border-slate-800/80 text-center text-xs text-slate-600 dark:text-slate-400">
+          <div className="mt-6 pt-5 border-t border-[#0F129A]/15 text-center text-xs text-[#0F129A]/80 font-bold">
             Don't have an account yet?{' '}
-            <Link to="/register" className="text-[#843bf1] dark:text-[#a970fe] font-black hover:underline ml-1">
+            <Link to="/register" className="text-[#0F129A] font-black underline hover:text-[#0a0d78] ml-1">
               Create Engineering Account
             </Link>
           </div>
-        </Card>
+        </div>
 
       </div>
     </div>
