@@ -45,6 +45,16 @@ const ProtectedRoute = ({ children, adminOnly = false }) => {
     return <Navigate to="/dashboard" replace />;
   }
 
+  // Gate only brand-new registered users to /assessment until they score their initial skills
+  if (
+    currentUser?.role !== 'admin' &&
+    currentUser?.isNewUser &&
+    !currentUser?.assessmentDone &&
+    location.pathname !== '/assessment'
+  ) {
+    return <Navigate to="/assessment" replace state={{ from: location }} />;
+  }
+
   return children;
 };
 

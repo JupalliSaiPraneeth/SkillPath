@@ -50,6 +50,8 @@ export const RegisterPage = () => {
     if (isAuthenticated && currentUser) {
       if (currentUser.role === 'admin') {
         navigate('/admin', { replace: true });
+      } else if (currentUser.isNewUser && !currentUser.assessmentDone) {
+        navigate('/assessment', { replace: true });
       } else {
         navigate('/dashboard', { replace: true });
       }
@@ -151,66 +153,65 @@ export const RegisterPage = () => {
       <div className="w-full max-w-2xl space-y-2.5 sm:space-y-3 my-auto">
 
         {/* Header Branding */}
-        <div className="text-center flex flex-col items-center mb-0.5">
-          <Logo size="lg" className="mb-1.5" />
+        <div className="text-center flex flex-col items-center mb-1">
+          <div className="hidden sm:flex justify-center items-center mb-1.5 sm:mb-2 translate-x-4 sm:translate-x-5">
+            <Logo size="2xl" imgClassName="w-60 sm:w-72 md:w-80 max-h-14 sm:max-h-18 md:max-h-20 mx-auto" />
+          </div>
 
-          <h1 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white font-sans tracking-tight">
+          <h1 className="text-2xl sm:text-3xl font-black text-black font-heading tracking-tight drop-shadow-xs">
             Create Engineering Account
           </h1>
 
-          <p className="text-[11px] sm:text-xs font-semibold text-slate-600 dark:text-slate-300 mt-0.5">
+          <p className="text-xs sm:text-sm font-bold text-black font-sans mt-0.5">
             Join SkillPath Finder for AI & O*NET 30.3 Career Intelligence
           </p>
         </div>
 
-        {/* Credentials Form Card */}
-        <Card
-          className="bg-white/90 dark:bg-slate-950/90 backdrop-blur-xl border border-white/80 dark:border-slate-800 shadow-xl dark:shadow-2xl overflow-visible relative z-20"
-          bodyClassName="p-4 sm:p-5"
-        >
+        {/* Credentials Form Card (Ultramarine #0F129A & Peach Cream #FFEDDF Theme) */}
+        <div className="rounded-3xl bg-[#FFEDDF]/95 dark:bg-[#FFEDDF]/95 backdrop-blur-xl border-2 border-[#0F129A]/20 shadow-2xl p-5 sm:p-7 overflow-visible relative z-20">
 
           {errorMessage && (
-            <div className="mb-3.5 p-2.5 rounded-xl bg-rose-50 dark:bg-rose-950/60 border border-rose-200 dark:border-rose-800/80 text-[11px] font-bold text-rose-700 dark:text-rose-200 flex items-start gap-2 shadow-xs">
-              <ShieldAlert className="w-3.5 h-3.5 text-rose-500 shrink-0 mt-0.5" />
+            <div className="mb-3.5 p-3 rounded-2xl bg-rose-100 border border-rose-300 text-xs font-bold text-rose-800 flex items-start gap-2 shadow-xs">
+              <ShieldAlert className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />
               <span>{errorMessage}</span>
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-3">
+          <form onSubmit={handleSubmit} className="space-y-3.5">
             
             {/* Row 1: Name & Email */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
               <div>
-                <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-200 mb-1">
+                <label className="block text-xs font-black text-[#0F129A] uppercase tracking-wider mb-1 font-heading">
                   Full Name <span className="text-rose-500">*</span>
                 </label>
                 <div className="relative">
-                  <User className="w-3.5 h-3.5 text-slate-400 dark:text-slate-500 absolute left-3 top-3 pointer-events-none" />
+                  <User className="w-4 h-4 text-[#0F129A]/70 absolute left-3 top-3 pointer-events-none" />
                   <input
                     type="text"
                     required
                     value={formData.name}
                     disabled={isSubmitting}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    className="w-full pl-9 pr-3 py-2 bg-white/95 dark:bg-slate-900 border border-slate-300/90 dark:border-slate-700 rounded-xl text-xs text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-[#843bf1] focus:border-transparent shadow-xs font-medium disabled:opacity-50 transition-all"
+                    className="w-full pl-9 pr-3 py-2.5 bg-white border-2 border-[#0F129A]/25 rounded-2xl text-xs text-[#0F129A] font-bold placeholder:text-[#0F129A]/40 focus:outline-none focus:border-[#0F129A] focus:ring-2 focus:ring-[#0F129A]/20 shadow-xs disabled:opacity-50 transition-all"
                     placeholder="e.g. Alex Rivera"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-200 mb-1">
+                <label className="block text-xs font-black text-[#0F129A] uppercase tracking-wider mb-1 font-heading">
                   Email Address <span className="text-rose-500">*</span>
                 </label>
                 <div className="relative">
-                  <Mail className="w-3.5 h-3.5 text-slate-400 dark:text-slate-500 absolute left-3 top-3 pointer-events-none" />
+                  <Mail className="w-4 h-4 text-[#0F129A]/70 absolute left-3 top-3 pointer-events-none" />
                   <input
                     type="email"
                     required
                     value={formData.email}
                     disabled={isSubmitting}
                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                    className="w-full pl-9 pr-3 py-2 bg-white/95 dark:bg-slate-900 border border-slate-300/90 dark:border-slate-700 rounded-xl text-xs text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-[#843bf1] focus:border-transparent shadow-xs font-medium disabled:opacity-50 transition-all"
+                    className="w-full pl-9 pr-3 py-2.5 bg-white border-2 border-[#0F129A]/25 rounded-2xl text-xs text-[#0F129A] font-bold placeholder:text-[#0F129A]/40 focus:outline-none focus:border-[#0F129A] focus:ring-2 focus:ring-[#0F129A]/20 shadow-xs disabled:opacity-50 transition-all"
                     placeholder="student@university.edu"
                   />
                 </div>
@@ -218,32 +219,32 @@ export const RegisterPage = () => {
             </div>
 
             {/* Row 2: Degree & Branch */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
               <div>
-                <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-200 mb-1">
+                <label className="block text-xs font-black text-[#0F129A] uppercase tracking-wider mb-1 font-heading">
                   Degree Program
                 </label>
                 <CustomSelect
                   value={formData.degree}
                   onChange={(val) => setFormData({ ...formData, degree: val })}
                   options={degreeOptions}
-                  icon={<GraduationCap className="w-3.5 h-3.5" />}
-                  accentColor="purple"
+                  icon={<GraduationCap className="w-4 h-4" />}
+                  accentColor="ultramarine"
                   placeholder="Select Degree..."
                   id="reg-degree-select"
                 />
               </div>
 
               <div>
-                <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-200 mb-1">
+                <label className="block text-xs font-black text-[#0F129A] uppercase tracking-wider mb-1 font-heading">
                   Branch / Specialization
                 </label>
                 <CustomSelect
                   value={formData.education}
                   onChange={(val) => setFormData({ ...formData, education: val })}
                   options={branchOptions}
-                  icon={<Briefcase className="w-3.5 h-3.5" />}
-                  accentColor="purple"
+                  icon={<Briefcase className="w-4 h-4" />}
+                  accentColor="ultramarine"
                   placeholder="Select Branch..."
                   id="reg-branch-select"
                 />
@@ -251,26 +252,26 @@ export const RegisterPage = () => {
             </div>
 
             {/* Row 3: College & Target Career */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
               <div>
-                <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-200 mb-1">
+                <label className="block text-xs font-black text-[#0F129A] uppercase tracking-wider mb-1 font-heading">
                   College / University
                 </label>
                 <div className="relative">
-                  <School className="w-3.5 h-3.5 text-slate-400 dark:text-slate-500 absolute left-3 top-3 pointer-events-none" />
+                  <School className="w-4 h-4 text-[#0F129A]/70 absolute left-3 top-3 pointer-events-none" />
                   <input
                     type="text"
                     value={formData.college}
                     disabled={isSubmitting}
                     onChange={(e) => setFormData({ ...formData, college: e.target.value })}
-                    className="w-full pl-9 pr-3 py-2 bg-white/95 dark:bg-slate-900 border border-slate-300/90 dark:border-slate-700 rounded-xl text-xs text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-[#843bf1] focus:border-transparent shadow-xs font-medium disabled:opacity-50 transition-all"
+                    className="w-full pl-9 pr-3 py-2.5 bg-white border-2 border-[#0F129A]/25 rounded-2xl text-xs text-[#0F129A] font-bold placeholder:text-[#0F129A]/40 focus:outline-none focus:border-[#0F129A] focus:ring-2 focus:ring-[#0F129A]/20 shadow-xs disabled:opacity-50 transition-all"
                     placeholder="e.g. University / Institute"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-200 mb-1">
+                <label className="block text-xs font-black text-[#0F129A] uppercase tracking-wider mb-1 font-heading">
                   Target Career Role
                 </label>
                 <CustomSelect
@@ -282,8 +283,8 @@ export const RegisterPage = () => {
                     badge: c.category,
                     group: c.category
                   }))}
-                  icon={<Target className="w-3.5 h-3.5" />}
-                  accentColor="purple"
+                  icon={<Target className="w-4 h-4" />}
+                  accentColor="ultramarine"
                   placeholder="Select Target Career..."
                   id="reg-career-select"
                 />
@@ -291,53 +292,55 @@ export const RegisterPage = () => {
             </div>
 
             {/* Row 4: Passwords */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
               <div>
-                <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-200 mb-1">
+                <label className="block text-xs font-black text-[#0F129A] uppercase tracking-wider mb-1 font-heading">
                   Password <span className="text-rose-500">*</span>
                 </label>
                 <div className="relative">
-                  <Lock className="w-3.5 h-3.5 text-slate-400 dark:text-slate-500 absolute left-3 top-3 pointer-events-none" />
+                  <Lock className="w-4 h-4 text-[#0F129A]/70 absolute left-3 top-3 pointer-events-none" />
                   <input
                     type={showPassword ? 'text' : 'password'}
                     required
                     value={formData.password}
                     disabled={isSubmitting}
                     onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                    className="w-full pl-9 pr-9 py-2 bg-white/95 dark:bg-slate-900 border border-slate-300/90 dark:border-slate-700 rounded-xl text-xs text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-[#843bf1] focus:border-transparent shadow-xs font-medium disabled:opacity-50 transition-all"
+                    className="w-full pl-9 pr-9 py-2.5 bg-white border-2 border-[#0F129A]/25 rounded-2xl text-xs text-[#0F129A] font-bold placeholder:text-[#0F129A]/40 focus:outline-none focus:border-[#0F129A] focus:ring-2 focus:ring-[#0F129A]/20 shadow-xs disabled:opacity-50 transition-all"
                     placeholder="Min 6 characters"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-2.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 cursor-pointer"
+                    className="absolute right-3 top-3 text-[#0F129A]/70 hover:text-[#0F129A] cursor-pointer"
+                    aria-label={showPassword ? 'Hide password' : 'Show password'}
                   >
-                    {showPassword ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
                 </div>
               </div>
 
               <div>
-                <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-200 mb-1">
+                <label className="block text-xs font-black text-[#0F129A] uppercase tracking-wider mb-1 font-heading">
                   Confirm Password <span className="text-rose-500">*</span>
                 </label>
                 <div className="relative">
-                  <Lock className="w-3.5 h-3.5 text-slate-400 dark:text-slate-500 absolute left-3 top-3 pointer-events-none" />
+                  <Lock className="w-4 h-4 text-[#0F129A]/70 absolute left-3 top-3 pointer-events-none" />
                   <input
                     type={showConfirmPassword ? 'text' : 'password'}
                     required
                     value={formData.confirmPassword}
                     disabled={isSubmitting}
                     onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
-                    className="w-full pl-9 pr-9 py-2 bg-white/95 dark:bg-slate-900 border border-slate-300/90 dark:border-slate-700 rounded-xl text-xs text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-[#843bf1] focus:border-transparent shadow-xs font-medium disabled:opacity-50 transition-all"
+                    className="w-full pl-9 pr-9 py-2.5 bg-white border-2 border-[#0F129A]/25 rounded-2xl text-xs text-[#0F129A] font-bold placeholder:text-[#0F129A]/40 focus:outline-none focus:border-[#0F129A] focus:ring-2 focus:ring-[#0F129A]/20 shadow-xs disabled:opacity-50 transition-all"
                     placeholder="Re-enter password"
                   />
                   <button
                     type="button"
                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                    className="absolute right-3 top-2.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 cursor-pointer"
+                    className="absolute right-3 top-3 text-[#0F129A]/70 hover:text-[#0F129A] cursor-pointer"
+                    aria-label={showConfirmPassword ? 'Hide password' : 'Show password'}
                   >
-                    {showConfirmPassword ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+                    {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
                 </div>
               </div>
@@ -347,30 +350,30 @@ export const RegisterPage = () => {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="w-full py-3 rounded-xl bg-gradient-to-r from-[#843bf1] via-indigo-600 to-cyan-500 hover:from-[#722ada] hover:to-cyan-400 text-white font-bold text-xs shadow-md hover:shadow-lg hover:scale-[1.005] active:scale-[0.995] transition-all flex items-center justify-center gap-2 mt-3 disabled:opacity-60 cursor-pointer"
+              className="w-full py-3.5 rounded-2xl bg-[#0F129A] hover:bg-[#0a0d78] text-[#FFEDDF] font-black text-xs sm:text-sm tracking-wider uppercase font-heading shadow-lg shadow-[#0F129A]/25 hover:shadow-xl hover:scale-[1.005] active:scale-[0.995] transition-all flex items-center justify-center gap-2 mt-3 disabled:opacity-60 cursor-pointer"
             >
               {isSubmitting ? (
                 <>
-                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                  <Loader2 className="w-4 h-4 animate-spin text-[#FFEDDF]" />
                   <span>Creating Student Account...</span>
                 </>
               ) : (
                 <>
                   <span>Create Account & Start Assessment</span>
-                  <ArrowRight className="w-3.5 h-3.5" />
+                  <ArrowRight className="w-4 h-4 text-[#FFEDDF]" />
                 </>
               )}
             </button>
           </form>
 
           {/* Footer Switch to Sign In */}
-          <div className="mt-4 pt-3.5 border-t border-slate-200/80 dark:border-slate-800/80 text-center text-[11px] text-slate-600 dark:text-slate-400">
+          <div className="mt-4 pt-3.5 border-t border-[#0F129A]/15 text-center text-xs text-[#0F129A]/80 font-bold">
             Already have a registered account?{' '}
-            <Link to="/login" className="text-[#843bf1] dark:text-[#a970fe] font-black hover:underline ml-1">
+            <Link to="/login" className="text-[#0F129A] font-black underline hover:text-[#0a0d78] ml-1">
               Sign In to Workspace
             </Link>
           </div>
-        </Card>
+        </div>
 
       </div>
     </div>

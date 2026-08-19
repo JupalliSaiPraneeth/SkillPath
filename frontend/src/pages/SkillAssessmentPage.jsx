@@ -11,6 +11,7 @@ import {
   TrendingUp
 } from 'lucide-react';
 import { useCareer } from '../context/CareerContext';
+import { useAuth } from '../context/AuthContext';
 import Card from '../components/common/Card';
 import Badge from '../components/common/Badge';
 import ProgressBar from '../components/common/ProgressBar';
@@ -19,6 +20,7 @@ import storageService from '../services/storageService';
 
 export const SkillAssessmentPage = () => {
   const navigate = useNavigate();
+  const { currentUser, updateProfile } = useAuth();
   const { skillsList, userSkills, updateSkillLevel, updateBatchSkills, resetSkills, gapAnalysis, selectedCareer } = useCareer();
   const questions = storageService.getQuestions();
 
@@ -49,12 +51,48 @@ export const SkillAssessmentPage = () => {
     setSubmittedQuiz({});
   };
 
-  const handleDone = () => {
+  const handleDone = async () => {
+    if (updateProfile) {
+      await updateProfile({ assessmentDone: true, isNewUser: false });
+    }
+    const user = storageService.getCurrentUser();
+    if (user) {
+      user.assessmentDone = true;
+      user.isNewUser = false;
+      storageService.saveCurrentUser(user);
+      storageService.updateUser(user);
+    }
     navigate('/dashboard');
   };
 
   return (
     <div className="space-y-8 pb-12 font-sans">
+
+      {/* Onboarding Notice for Initial Assessment (New Users Only) */}
+      {currentUser?.isNewUser && !currentUser?.assessmentDone && currentUser?.role !== 'admin' && (
+        <div className="p-4 sm:p-5 rounded-3xl bg-gradient-to-r from-[#FFEDDF] via-[#FFF9F5] to-white dark:from-[#151130] dark:via-[#1c1742] dark:to-[#0f0c24] border-2 border-[#0F129A]/30 dark:border-[#C8BEFA]/30 shadow-lg flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div className="flex items-center gap-3.5">
+            <div className="w-10 h-10 rounded-2xl bg-[#0F129A] dark:bg-[#C8BEFA] text-[#FFEDDF] dark:text-[#151130] flex items-center justify-center font-black shrink-0 shadow-md">
+              <Sparkles className="w-5 h-5" />
+            </div>
+            <div>
+              <h4 className="text-sm font-black text-[#0F129A] dark:text-[#FFEDDF] font-heading">
+                Step 1: Complete Initial Skills Assessment
+              </h4>
+              <p className="text-xs text-slate-700 dark:text-slate-300 font-medium">
+                Welcome, {currentUser?.name || 'Student'}! Rate your baseline skills using the sliders or answer the scenario questions. Click <strong>"Complete & Enter Workspace"</strong> to finalize your scores and unlock your personalized workspace.
+              </p>
+            </div>
+          </div>
+          <button
+            onClick={handleDone}
+            className="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-[#0F129A] hover:bg-[#0a0d78] text-[#FFEDDF] font-black text-xs font-heading uppercase tracking-wider shadow-md hover:scale-105 transition-all flex items-center justify-center gap-2 shrink-0 cursor-pointer"
+          >
+            <CheckCircle2 className="w-4 h-4" />
+            <span>Complete & Enter Workspace</span>
+          </button>
+        </div>
+      )}
 
       {/* Hero Header (Frosted Glass & Dynamic High-Contrast Typography) */}
       <div className="relative overflow-hidden rounded-3xl bg-white/80 dark:bg-slate-950/80 backdrop-blur-xl p-4 sm:p-6 md:p-8 shadow-xl border border-[#843bf1]/25 dark:border-[#843bf1]/35">
@@ -299,7 +337,7 @@ export const SkillAssessmentPage = () => {
                     Completed your technical questions?
                   </p>
                   <p className="text-[11px] text-slate-600 dark:text-slate-400 mt-0.5">
-                    Click Done to finalize your scores and return to the Executive Dashboard.
+                    Click below to finalize your skill scores and enter the Executive Dashboard.
                   </p>
                 </div>
                 <button
@@ -308,7 +346,7 @@ export const SkillAssessmentPage = () => {
                   className="w-full sm:w-auto flex items-center justify-center gap-2 px-8 py-3.5 rounded-2xl bg-gradient-to-r from-[#843bf1] via-indigo-600 to-blue-600 hover:from-[#722ada] hover:to-blue-500 text-white font-black text-sm sm:text-base shadow-lg shadow-[#843bf1]/30 hover:shadow-xl hover:shadow-[#843bf1]/40 transition-all transform hover:-translate-y-0.5 cursor-pointer shrink-0"
                 >
                   <CheckCircle2 className="w-5 h-5" />
-                  <span>Done</span>
+                  <span>Complete Assessment & Enter Dashboard</span>
                   <ArrowRight className="w-4 h-4 ml-0.5" />
                 </button>
               </div>
@@ -353,7 +391,7 @@ export const SkillAssessmentPage = () => {
                 className="w-full mt-2 flex items-center justify-center gap-2 px-5 py-3.5 rounded-2xl bg-gradient-to-r from-[#843bf1] to-blue-600 hover:from-[#722ada] hover:to-blue-500 text-white font-black text-xs sm:text-sm shadow-md shadow-[#843bf1]/30 hover:shadow-lg transition-all transform hover:-translate-y-0.5 cursor-pointer"
               >
                 <CheckCircle2 className="w-4 h-4" />
-                <span>Done</span>
+                <span>Complete Assessment & Enter Dashboard</span>
                 <ArrowRight className="w-3.5 h-3.5 ml-0.5" />
               </button>
             </div>

@@ -28,6 +28,8 @@ export const LoginPage = () => {
     if (isAuthenticated && currentUser) {
       if (currentUser.role === 'admin') {
         navigate('/admin', { replace: true });
+      } else if (currentUser.isNewUser && !currentUser.assessmentDone) {
+        navigate('/assessment', { replace: true });
       } else {
         navigate('/dashboard', { replace: true });
       }
@@ -50,6 +52,8 @@ export const LoginPage = () => {
       const id = (email || '').toLowerCase().trim();
       if (id === 'admin' || id.includes('admin') || id.includes('faculty') || res.user?.role === 'admin') {
         navigate('/admin', { replace: true });
+      } else if (res.user?.isNewUser && !res.user?.assessmentDone) {
+        navigate('/assessment', { replace: true });
       } else {
         navigate('/dashboard', { replace: true });
       }

@@ -88,7 +88,9 @@ export const AuthProvider = ({ children }) => {
 
     const newUser = {
       ...res.user,
-      password: formData.password
+      password: formData.password,
+      isNewUser: true,
+      assessmentDone: false
     };
 
     // Save to session and initialize baseline
