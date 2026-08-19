@@ -71,6 +71,19 @@ const ACCENT = {
     shadow:    'shadow-[0_10px_35px_rgba(15,18,154,0.18)]',
     dot:       'bg-[#0F129A] dark:bg-[#FFEDDF]',
   },
+  midnight: {
+    border:    'border-[#151130]/20 dark:border-[#C8BEFA]/30',
+    borderOpen:'border-[#151130] ring-2 ring-[#151130]/20 dark:border-[#C8BEFA] dark:ring-[#C8BEFA]/30',
+    bg:        'bg-[#FAF8FF] dark:bg-[#19143d]/80',
+    chevron:   'text-[#5c4fb8] dark:text-[#C8BEFA]',
+    label:     'text-[#151130] dark:text-[#C8BEFA]',
+    value:     'text-[#151130] dark:text-white',
+    badge:     'bg-[#C8BEFA]/30 dark:bg-[#C8BEFA]/20 text-[#151130] dark:text-[#C8BEFA] border-[#151130]/15 dark:border-[#C8BEFA]/30 font-bold',
+    hoverRow:  'hover:bg-[#C8BEFA]/20 dark:hover:bg-[#C8BEFA]/15 text-[#151130] dark:text-white',
+    activeRow: 'bg-gradient-to-r from-[#151130] via-[#241c52] to-[#3a2e82] text-[#C8BEFA] dark:from-[#C8BEFA] dark:via-[#ded6fc] dark:to-[#C8BEFA] dark:text-[#151130] shadow-md font-bold',
+    shadow:    'shadow-[0_10px_35px_rgba(21,17,48,0.15)]',
+    dot:       'bg-[#5c4fb8] dark:bg-[#C8BEFA]',
+  },
   slate: {
     border:    'border-slate-300 dark:border-slate-700',
     borderOpen:'border-slate-500 ring-2 ring-slate-500/20',
@@ -190,7 +203,7 @@ const CustomSelect = ({
   const hasGroups  = groupKeys.length > 1 || (groupKeys[0] && groupKeys[0] !== '__none__');
 
   return (
-    <div ref={wrapRef} className={`relative overflow-visible ${className}`}>
+    <div ref={wrapRef} className={`relative overflow-visible ${open ? 'z-50' : 'z-10'} ${className}`}>
       {label && (
         <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5 flex items-center gap-1">
           {icon && <span className={palette.label}>{icon}</span>}
@@ -234,11 +247,11 @@ const CustomSelect = ({
         <div
           role="listbox"
           className={[
-            'absolute z-[9999] top-full mt-2 left-0 min-w-full rounded-2xl border border-slate-200 dark:border-slate-700',
+            'absolute z-[9999] top-full mt-2 left-0 min-w-full w-full sm:min-w-[320px] rounded-2xl border border-slate-200 dark:border-slate-700',
             'bg-white dark:bg-slate-900 shadow-2xl overflow-hidden',
             palette.shadow,
           ].join(' ')}
-          style={{ animation: 'csDropIn 0.15s cubic-bezier(0.16,1,0.3,1) both', width: 'max-content', maxWidth: '360px' }}
+          style={{ animation: 'csDropIn 0.15s cubic-bezier(0.16,1,0.3,1) both' }}
         >
           <style>{`@keyframes csDropIn{from{opacity:0;transform:translateY(-6px) scale(.98)}to{opacity:1;transform:translateY(0) scale(1)}}`}</style>
           <div className={`overflow-y-auto p-1.5 space-y-0.5 ${isSmall ? 'max-h-52' : 'max-h-64'}`}>

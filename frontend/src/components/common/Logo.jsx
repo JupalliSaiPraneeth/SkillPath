@@ -1,37 +1,37 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import logoWhite from '../../assets/logo-white.png';
-import logoDark from '../../assets/logo-dark.png';
+import brandLogoLight from '../../assets/skillgaplogo-removebg-preview-CQm3OAth.png';
+import brandLogoDark from '../../assets/dark-latest.png';
 import { useTheme } from '../../context/ThemeContext';
 
 export const Logo = ({ size = 'lg', className = '', imgClassName = '' }) => {
   const { isDark } = useTheme();
 
   const sizeMap = {
-    sm: 'h-8 sm:h-9 md:h-10 w-auto max-h-10',
-    md: 'h-10 sm:h-11 md:h-13 w-auto max-h-14',
-    lg: 'h-11 sm:h-13 md:h-15 w-auto max-h-16',
-    xl: 'h-12 sm:h-15 md:h-18 w-auto max-h-20',
-    '2xl': 'h-16 sm:h-20 md:h-24 w-auto max-h-28'
+    xs: 'w-24 sm:w-36 md:w-40 h-auto max-h-7 sm:max-h-8',
+    sm: 'w-28 sm:w-44 md:w-48 h-auto max-h-7 sm:max-h-10',
+    md: 'w-32 sm:w-52 md:w-56 h-auto max-h-8 sm:max-h-11',
+    lg: 'w-36 sm:w-60 md:w-64 h-auto max-h-8 sm:max-h-12',
+    xl: 'w-36 sm:w-64 md:w-80 h-auto max-h-9 sm:max-h-11 md:max-h-13',
+    '2xl': 'w-48 sm:w-80 md:w-96 h-auto max-h-10 sm:max-h-16'
   };
 
   const imgClass = sizeMap[size] || sizeMap.lg;
-  const currentLogo = isDark ? logoDark : logoWhite;
-  const fallbackSrc = isDark ? '/logo-dark.png' : '/logo-white.png';
+  const currentLogo = isDark ? brandLogoDark : brandLogoLight;
 
   return (
     <Link to="/" className={`flex items-center group select-none shrink-0 ${className}`}>
       <img
-        key={isDark ? 'dark-logo' : 'white-logo'}
         src={currentLogo}
         alt="SkillPath Finder"
-        className={`${imgClass} ${imgClassName} object-contain transition-transform duration-200 group-hover:scale-105 drop-shadow-sm`}
-        onError={(e) => {
-          e.currentTarget.src = fallbackSrc;
-        }}
+        className={`${imgClass} ${imgClassName} object-contain object-left transition-all duration-200 group-hover:scale-105 ${isDark
+            ? 'drop-shadow-[0_0_15px_rgba(200,190,250,0.35)]'
+            : 'drop-shadow-[0_2px_8px_rgba(21,17,48,0.12)]'
+          }`}
       />
     </Link>
   );
 };
 
 export default Logo;
+

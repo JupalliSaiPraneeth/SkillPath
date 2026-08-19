@@ -15,8 +15,7 @@ import {
 } from 'lucide-react';
 import { useCareer } from '../../context/CareerContext';
 import { useTheme } from '../../context/ThemeContext';
-import logoDark from '../../assets/logo-dark.png';
-import logoWhite from '../../assets/logo-white.png';
+import Logo from '../common/Logo';
 
 export const Sidebar = () => {
   const { gapAnalysis } = useCareer();
@@ -30,7 +29,7 @@ export const Sidebar = () => {
       to: '/skill-gap',
       label: 'Skill Gap Analysis',
       icon: Target,
-      badge: gapAnalysis.priorityCounts.high > 0 ? `${gapAnalysis.priorityCounts.high} High` : null,
+      badge: gapAnalysis?.priorityCounts?.high > 0 ? `${gapAnalysis.priorityCounts.high} High` : null,
       badgeType: 'warning'
     },
     { to: '/career-recommendations', label: 'Career Recommendations', icon: Award },
@@ -49,18 +48,8 @@ export const Sidebar = () => {
       <div className="absolute inset-0 bg-gradient-to-b from-[#C8BEFA]/20 via-transparent to-[#151130]/5 dark:from-[#C8BEFA]/15 dark:via-transparent dark:to-[#151130]/30 pointer-events-none" />
 
       {/* Top Logo Header */}
-      <div className="h-16 flex items-center px-4 border-b border-[#151130]/10 dark:border-[#C8BEFA]/15 shrink-0 bg-white/80 dark:bg-[#151130]/90 backdrop-blur-md relative z-10">
-        <Link to="/" className="flex items-center gap-2 group select-none py-1">
-          <div className="relative">
-            <div className="absolute -inset-1 bg-gradient-to-r from-[#151130]/20 to-[#C8BEFA]/30 rounded-xl blur-xs opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-            <img
-              key={isDark ? 'dark-logo' : 'light-logo'}
-              src={isDark ? logoDark : logoWhite}
-              alt="SkillPath Finder"
-              className="h-11 sm:h-12 w-auto max-h-12 object-contain drop-shadow-sm group-hover:scale-105 transition-transform duration-200 relative"
-            />
-          </div>
-        </Link>
+      <div className="h-16 flex items-center px-3.5 border-b border-[#151130]/10 dark:border-[#C8BEFA]/15 shrink-0 bg-white/80 dark:bg-[#151130]/90 backdrop-blur-md relative z-10 overflow-hidden">
+        <Logo size="xl" />
       </div>
 
       {/* Scrollable Navigation List */}

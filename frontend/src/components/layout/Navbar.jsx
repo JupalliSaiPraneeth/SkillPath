@@ -9,9 +9,7 @@ import {
   Target,
   Map,
   ClipboardCheck,
-  ShieldCheck,
   CheckCircle2,
-  Sparkles,
   Menu,
   X,
   LayoutDashboard,
@@ -93,17 +91,17 @@ export const Navbar = () => {
   return (
     <>
       <header className="sticky top-0 z-40 w-full bg-transparent border-0 transition-all duration-200">
-        <div className="w-full px-3 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-2 sm:gap-4">
+        <div className="w-full px-3 sm:px-6 lg:px-8 h-14 sm:h-16 flex items-center justify-between gap-1.5 sm:gap-4">
 
           {/* Left Corner: Brand Logo and Mobile Menu Trigger */}
-          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+          <div className="flex items-center gap-2 sm:gap-3 shrink-0 min-w-0">
             {!isLanding && !isAuthPage && (
               <button
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                className="md:hidden p-2 rounded-xl bg-white/90 dark:bg-slate-900/90 border border-slate-200/80 dark:border-slate-800 text-slate-700 dark:text-slate-200 hover:border-[#843bf1] transition-all shadow-sm"
+                className="md:hidden p-1.5 sm:p-2 rounded-xl bg-white/90 dark:bg-slate-900/90 border border-slate-200/80 dark:border-slate-800 text-slate-700 dark:text-slate-200 hover:border-[#843bf1] transition-all shadow-sm shrink-0"
                 aria-label="Toggle Mobile Menu"
               >
-                {isMobileMenuOpen ? <X className="w-5 h-5 text-[#843bf1]" /> : <Menu className="w-5 h-5 text-slate-700 dark:text-slate-200" />}
+                {isMobileMenuOpen ? <X className="w-4 h-4 sm:w-5 sm:h-5 text-[#843bf1]" /> : <Menu className="w-4 h-4 sm:w-5 sm:h-5 text-slate-700 dark:text-slate-200" />}
               </button>
             )}
 
@@ -113,7 +111,7 @@ export const Navbar = () => {
               <div className="shrink-0" />
             ) : (
               <div className="flex items-center shrink-0 md:hidden">
-                <Logo size="lg" />
+                <Logo size="xl" />
               </div>
             )}
           </div>
@@ -146,19 +144,19 @@ export const Navbar = () => {
             <nav className="hidden lg:flex items-center gap-1 bg-white/90 dark:bg-[#151130]/90 p-1 rounded-full border border-[#C8BEFA]/30 backdrop-blur-md shadow-sm">
               <a
                 href="#architecture-section"
-                className="px-3.5 py-1.5 rounded-full text-xs font-bold text-slate-700 dark:text-[#C8BEFA]/90 hover:text-[#151130] dark:hover:text-white hover:bg-[#C8BEFA]/20 transition-all"
+                className="px-3.5 py-1.5 rounded-full text-xs font-bold text-slate-700 dark:text-[#C8BEFA]/90 hover:text-[#151130] dark:hover:white hover:bg-[#C8BEFA]/20 transition-all"
               >
                 ML Architecture
               </a>
               <a
                 href="#workflow-section"
-                className="px-3.5 py-1.5 rounded-full text-xs font-bold text-slate-700 dark:text-[#C8BEFA]/90 hover:text-[#151130] dark:hover:text-white hover:bg-[#C8BEFA]/20 transition-all"
+                className="px-3.5 py-1.5 rounded-full text-xs font-bold text-slate-700 dark:text-[#C8BEFA]/90 hover:text-[#151130] dark:hover:white hover:bg-[#C8BEFA]/20 transition-all"
               >
                 User Journey
               </a>
               <a
                 href="#viva-defense-section"
-                className="px-3.5 py-1.5 rounded-full text-xs font-bold text-slate-700 dark:text-[#C8BEFA]/90 hover:text-[#151130] dark:hover:text-white hover:bg-[#C8BEFA]/20 transition-all"
+                className="px-3.5 py-1.5 rounded-full text-xs font-bold text-slate-700 dark:text-[#C8BEFA]/90 hover:text-[#151130] dark:hover:white hover:bg-[#C8BEFA]/20 transition-all"
               >
                 Viva Defense
               </a>
@@ -172,19 +170,19 @@ export const Navbar = () => {
           ) : null}
 
           {/* Right Corner: Theme Toggle & Executive Initials Profile / Action */}
-          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+          <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
 
             {/* Theme Toggle Button */}
             <button
               onClick={toggleTheme}
-              className="p-2 sm:p-2.5 rounded-full border border-slate-200/80 dark:border-[#C8BEFA]/40 bg-white/90 dark:bg-[#151130]/90 text-slate-700 dark:text-[#C8BEFA] hover:border-[#C8BEFA] hover:scale-105 transition-all shadow-md backdrop-blur-md cursor-pointer shrink-0"
+              className="p-1.5 sm:p-2.5 rounded-full border border-slate-200/80 dark:border-[#C8BEFA]/40 bg-white/90 dark:bg-[#151130]/90 text-slate-700 dark:text-[#C8BEFA] hover:border-[#C8BEFA] hover:scale-105 transition-all shadow-md backdrop-blur-md cursor-pointer shrink-0"
               title={isDark ? 'Switch to Light Theme' : 'Switch to Dark Theme'}
               aria-label="Toggle Theme"
             >
               {isDark ? (
-                <Sun className="w-4 h-4 text-[#C8BEFA] fill-[#C8BEFA]" />
+                <Sun className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#C8BEFA] fill-[#C8BEFA]" />
               ) : (
-                <Moon className="w-4 h-4 text-[#151130] fill-[#151130]" />
+                <Moon className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#151130] fill-[#151130]" />
               )}
             </button>
 
@@ -192,7 +190,7 @@ export const Navbar = () => {
               <div className="flex items-center gap-1.5 sm:gap-2">
                 <Link
                   to="/login"
-                  className="text-xs font-bold text-slate-700 dark:text-[#C8BEFA] hover:text-[#151130] dark:hover:text-white px-2.5 sm:px-3 py-2 transition-colors whitespace-nowrap"
+                  className="text-xs font-bold text-slate-700 dark:text-[#C8BEFA] hover:text-[#151130] dark:hover:white px-2.5 sm:px-3 py-2 transition-colors whitespace-nowrap"
                 >
                   Sign In
                 </Link>
@@ -227,7 +225,7 @@ export const Navbar = () => {
                 {/* Executive Profile Trigger Chip (With First Letter Logo) */}
                 <button
                   onClick={() => setIsProfileOpen(!isProfileOpen)}
-                  className={`flex items-center gap-2 p-1 pl-1.5 pr-2.5 sm:pr-3.5 rounded-full border transition-all shadow-md backdrop-blur-md cursor-pointer ${isProfileOpen
+                  className={`flex items-center gap-1.5 sm:gap-2 p-1 pl-1 sm:pl-1.5 pr-1.5 sm:pr-3.5 rounded-full border transition-all shadow-md backdrop-blur-md cursor-pointer ${isProfileOpen
                     ? 'bg-purple-50/80 dark:bg-purple-950/40 border-[#843bf1] ring-2 ring-[#843bf1]/30'
                     : 'bg-white/90 dark:bg-slate-900/90 border-slate-200/80 dark:border-slate-800 hover:border-[#843bf1]'
                     }`}
@@ -236,10 +234,10 @@ export const Navbar = () => {
                 >
                   {/* Initials Avatar Badge */}
                   <div className="relative">
-                    <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-[#843bf1] flex items-center justify-center text-white font-black text-xs sm:text-sm shadow-md shadow-[#843bf1]/40">
+                    <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-[#843bf1] flex items-center justify-center text-white font-black text-[11px] sm:text-sm shadow-md shadow-[#843bf1]/40">
                       {firstLetter}
                     </div>
-                    <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-emerald-500 ring-2 ring-white dark:ring-slate-900"></span>
+                    <span className="absolute -bottom-0.5 -right-0.5 w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-emerald-500 ring-2 ring-white dark:ring-slate-900"></span>
                   </div>
 
                   {/* Clean Profile Name */}
@@ -249,7 +247,7 @@ export const Navbar = () => {
                     </p>
                   </div>
 
-                  <ChevronDown className={`w-3.5 h-3.5 text-[#843bf1] transition-transform duration-200 ${isProfileOpen ? 'rotate-180' : ''}`} />
+                  <ChevronDown className={`w-3 h-3 sm:w-3.5 sm:h-3.5 text-[#843bf1] transition-transform duration-200 ${isProfileOpen ? 'rotate-180' : ''}`} />
                 </button>
 
                 {/* Executive Dropdown Menu */}
@@ -345,7 +343,7 @@ export const Navbar = () => {
             
             {/* Drawer Header */}
             <div className="h-16 px-4 flex items-center justify-between border-b border-[#843bf1]/20 dark:border-[#843bf1]/30 shrink-0">
-              <Logo size="lg" />
+              <Logo size="xl" />
               <button
                 onClick={() => setIsMobileMenuOpen(false)}
                 className="p-2 rounded-xl bg-slate-100 dark:bg-slate-900 text-slate-700 dark:text-slate-300 hover:text-[#843bf1] transition-colors"
@@ -388,7 +386,7 @@ export const Navbar = () => {
                       `w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-bold transition-all font-heading ${
                         isActive
                           ? 'bg-gradient-to-r from-[#151130] via-[#241c52] to-[#342978] text-[#C8BEFA] font-black shadow-md shadow-[#151130]/30 dark:bg-gradient-to-r dark:from-[#C8BEFA] dark:to-[#ded6fc] dark:text-[#151130]'
-                          : 'text-slate-700 dark:text-[#C8BEFA]/80 hover:bg-[#151130]/10 hover:text-[#151130] dark:hover:text-white'
+                          : 'text-slate-700 dark:text-[#C8BEFA]/80 hover:bg-[#151130]/10 hover:text-[#151130] dark:hover:white'
                       }`
                     }
                   >
